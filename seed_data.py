@@ -1,0 +1,48 @@
+"""Utility file to seed database using SF public art data csv in seed_data/"""
+
+import csv
+import json
+
+from sqlalchemy import func
+from model import Landmark
+
+from model import connect_to_db, db
+from server import app
+
+
+
+def load_art_points_SF():
+    """Load points from SF public art csv data into database"""
+
+    print "Landmarks SF"
+
+    Landmark.query.delete()
+
+    with open ("seed_data/SF_Civic_Art_Test.csv") as csv_file:
+        for row in csv.reader(csv_file):
+
+            artist, created_at, patron, size, geometry, location, details, source, title = row[3:12]
+
+            latitude = json.loads(geometry)['coordinates'][1]
+            longitude = json.loads(geometry)['coordinates'][0]
+
+            landmark = Landmark(latitude=latitude,
+                          longitude=longitude,
+                          title=title,
+                          artist=artist,
+                          details=details)
+
+            db.session.add(landmark)
+
+    db.session.commit()    
+
+
+
+
+if __name__ == "__main__":
+    connect_to_db(app)
+
+    # In case tables haven't been created, create them
+    db.create_all()
+
+    load_art_points_SF()
