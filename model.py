@@ -30,21 +30,39 @@ class Landmark(db.Model):
                                                     self.title)
 
 
-# class User(db.Model):
-#     """User of urbex website"""
+# class Image(db.Model):
+#     """Image for landmark"""
 
-#     __tablename__ = "users"
+#     __tablename__ = "images"
 
-#     user_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-#     username = db.Column(db.String(20), nullable=False)
-#     password = db.Column(db.String(20), nullable=False)
-#     email = db.Column(db.String(64), nullable=True)
+#     image_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+#     landmark_id = db.Column(db.Integer, db.ForeignKey('landmarks.landmark_id') nullable=False)
+#     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True)
+#     image_url = db.Column(db.String(130), nullable=False)
 
 
 #     def __repr__(self):
-#         """Show information about the user"""
+#         """Show information about the image"""
 
-#         return "<User username= {}>".format(self.username)
+#         return "<Image id= {}>".format(self.image_id)
+
+
+
+class User(db.Model):
+    """User of urbex website"""
+
+    __tablename__ = "users"
+
+    user_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    username = db.Column(db.String(20), nullable=False, unique=True)
+    password = db.Column(db.String(20), nullable=False)
+
+
+
+    def __repr__(self):
+        """Show information about the user"""
+
+        return "<User username= {}>".format(self.username)
 
 
 # class Comment(db.Model):

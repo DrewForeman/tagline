@@ -9,7 +9,7 @@ from jinja2 import StrictUndefined
 from flask import Flask, render_template, redirect, request, flash, session 
 from flask_debugtoolbar import DebugToolbarExtension
 
-from model import Landmark, connect_to_db, db
+from model import Landmark, User, connect_to_db, db
 
 from route import api_key, find_landmarks, find_route_coordinates, find_bounding_box, query_landmarks
 
@@ -38,24 +38,77 @@ def show_route_landmarks():
     origin = request.form.get('origin')
     destination = request.form.get('destination')
 
-    #want this to return a list of landmark objects that will be passed to the template
     route_landmarks = find_landmarks(origin, destination)
 
-    # boogers
-
-
     return render_template("route.html", route_landmarks=route_landmarks)
+
 
 
 @app.route('/route/<int:landmark_id>')
 def landmark_details(landmark_id):
     """Show detailed information for selected landmark."""
 
-    #get the landmark object with that id to be passed into the info template
     landmark = Landmark.query.filter_by(landmark_id=landmark_id).first()
 
     return render_template("landmark_info.html", landmark=landmark)
 
+
+
+@app.route('/login')
+def login():
+    """Show login form for user. Redirect if not yet registered."""
+
+    return render_template("login.html")
+
+
+
+@app.route('/handle-login', methods=["POST"])
+def handle_login():
+    """Log user in and redirect back to homepage."""
+
+    username = request.form.get('username')
+    password = request.form.get('password')
+
+    user = User.query.filter(User.username == username).first()
+
+    if user:
+        if password == user.password:
+            session['user'] = user.user_id
+            flash(("Welcome {}").format(user.username))
+            return redirect('/')
+        else:
+            flash("Password is incorrect.")
+            return redirect('/login')
+    else:
+        flash("Unknown username. Register to get started.")
+        return redirect('/register')
+
+
+
+@app.route('/register')
+def register():
+    """Show registration form for user."""
+
+    return render_template("register.html")
+
+
+
+@app.route('/handle-registration', methods=["POST"])
+def handle_registration():
+    """Add new user to database and log user into site."""
+
+    username = request.form.get('username')
+    password = request.form.get('password')
+
+    new_user = User(username=username, password=password)
+
+    db.session.add(new_user)
+    db.session.commit()
+
+    session['user'] = new_user.user_id
+
+    flash(("Welcome {}. You have been registered and logged in.").format(new_user.username))
+    return redirect('/')
 
 
 

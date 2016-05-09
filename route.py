@@ -35,7 +35,6 @@ def find_route_coordinates(origin, destination):
             'mode':'walking'
             }
 
-
     r = requests.get(
         "https://maps.googleapis.com/maps/api/directions/json",
         params=payload)
@@ -79,10 +78,6 @@ def query_landmarks(bbox):
     for landmark in all_landmarks:
         if bbox.contains_point((float(landmark.latitude), float(landmark.longitude))):
             landmarks.append(landmark)
-
-    # query_point = (Landmark.latitude, Landmark.longitude)
-
-    # landmarks = Landmark.query.filter(bbox.contains_point(query_point)).all()
 
     return landmarks
 
