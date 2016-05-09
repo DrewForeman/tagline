@@ -72,9 +72,17 @@ def find_bounding_box(route_coordinates):
 def query_landmarks(bbox):
     """Returns list of landmark objects from database that fall within given bounding box."""
 
-    query_point = (Landmark.latitude, Landmark.longitude)
+    all_landmarks = Landmark.query.all()
 
-    landmarks = Landmark.query.filter(bbox.contains_point(query_point)).all()
+    landmarks = []
+
+    for landmark in all_landmarks:
+        if bbox.contains_point((float(landmark.latitude), float(landmark.longitude))):
+            landmarks.append(landmark)
+
+    # query_point = (Landmark.latitude, Landmark.longitude)
+
+    # landmarks = Landmark.query.filter(bbox.contains_point(query_point)).all()
 
     return landmarks
 

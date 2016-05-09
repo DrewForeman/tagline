@@ -11,7 +11,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 
 from model import Landmark, connect_to_db, db
 
-from route import find_landmarks, api_key
+from route import api_key, find_landmarks, find_route_coordinates, find_bounding_box, query_landmarks
 
 
 app = Flask(__name__)
@@ -41,12 +41,14 @@ def show_route_landmarks():
     #want this to return a list of landmark objects that will be passed to the template
     route_landmarks = find_landmarks(origin, destination)
 
+    # boogers
+
 
     return render_template("route.html", route_landmarks=route_landmarks)
 
 
 @app.route('/route/<int:landmark_id>')
-def landmark_details():
+def landmark_details(landmark_id):
     """Show detailed information for selected landmark."""
 
     #get the landmark object with that id to be passed into the info template
