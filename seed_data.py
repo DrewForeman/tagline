@@ -72,5 +72,5 @@ if __name__ == "__main__":
     # In case tables haven't been created, create them
     db.create_all()
 
-    # load_art_points_SF()
+    load_art_points_SF()
     load_art_points_Oakland()

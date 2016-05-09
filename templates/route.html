@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h2>Landmarks along this route</h2>
+
+<ul>
+    {% for landmark in route_landmarks %}
+
+        <li> 
+            <a href="/route/{{ landmark.landmark_id }}">
+            Title: {{ landmark.title }}</a>
+            Information: {{ landmark.artist }} | {{ landmark.details}}
+        </li>
+
+    {% endfor %}
+</ul>
+
+{% endblock %}

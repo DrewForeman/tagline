@@ -3,11 +3,11 @@
 
 Where are you going?
 
-<form action="/route">
-    <label for="starting-point">Starting point:</label>
-    <input type="text", name="start", id="starting-point"/>
+<form action="/route" method="POST">
+    <label for="starting-point">Origin:</label>
+    <input type="text", name="origin", id="starting-point"/>
     <label for="end-point">Destination:</label>
-    <input type="password", name="finish", id="end-point"/>
+    <input type="password", name="destination", id="end-point"/>
     <input type="submit" value="Go"/>
 
     </form>

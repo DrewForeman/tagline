@@ -14,12 +14,12 @@ class Landmark(db.Model):
     __tablename__ = "landmarks"
 
     landmark_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    latitude = db.Column(db.Float, nullable=False)
-    longitude = db.Column(db.Float, nullable=False)
+    latitude = db.Column(db.Numeric(17,14), nullable=False)
+    longitude = db.Column(db.Numeric(17,14), nullable=False)
     title = db.Column(db.String(100), nullable=False)
     artist = db.Column(db.String(70), nullable=True)
     details = db.Column(db.String(300), nullable=True)
-    # image_url = db.Column(db.String(200), nullable=True)
+
 
 
     def __repr__(self):
