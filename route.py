@@ -4,7 +4,9 @@ import json
 
 from planar import BoundingBox
 
-from pprint import pprint
+from model import Landmark
+
+# from pprint import pprint
 
 
 api_key = os.environ['GOOGLE_DIRECTIONS_API_KEY']
@@ -15,14 +17,14 @@ api_key = os.environ['GOOGLE_DIRECTIONS_API_KEY']
 def find_landmarks(origin, destination):
     """Returns list of landmarks along user's input route."""
 
-    find_route_coordinates(origin, destination)
+    route_coordinates = find_route_coordinates(origin, destination)
 
-    route_coordinates = route_segment_coords
-    find_bounding_box(route_coordinates)
+    bbox = find_bounding_box(route_coordinates)
 
-    ##query function goes here
+    return query_landmarks(bbox)
 
 
+###### HELPER FUNCTIONS ##########################################
 
 def find_route_coordinates(origin, destination):
     """Returns list of coordinates for segments of route path from Google Maps"""
@@ -40,7 +42,6 @@ def find_route_coordinates(origin, destination):
 
     directions = r.json()
 
-
     #unravel json to identify the route segments for route
     route_segments = directions['routes'][0]['legs'][0]['steps']
 
@@ -53,11 +54,12 @@ def find_route_coordinates(origin, destination):
     return route_segment_coords
 
 
+
 def find_bounding_box(route_coordinates):
     """Returns rough bounding box for given route coordinates to help query landmarks along route.  
     
 
-    Currently draws a rectangle around entire set of points. 
+    Currently draws a rectangle around entire set of long/lat points. 
     Plan to upgrade to more sophisticated bounding box later on.
     """
 
@@ -66,5 +68,24 @@ def find_bounding_box(route_coordinates):
     return bbox
 
 
+
 def query_landmarks(bbox):
+    """Returns list of landmark objects from database that fall within given bounding box."""
+
+    query_point = (Landmark.latitude, Landmark.longitude)
+
+    landmarks = Landmark.query.filter(bbox.contains_point(query_point)).all()
+
+    return landmarks
+
+
+
+
+
+
+
+
+
+
+
 
