@@ -1,4 +1,4 @@
-"""Utility file to seed database using SF public art data csv in seed_data/"""
+"""Utility file to seed database using SF/Oakland public art data csv in seed_data/"""
 
 import csv
 import json
@@ -18,7 +18,7 @@ def load_art_points_SF():
 
     Landmark.query.delete()
 
-    with open ("seed_data/SF_Civic_Art_Test.csv") as csv_file:
+    with open ("seed_data/SF_Civic_Art.csv") as csv_file:
         for row in csv.reader(csv_file):
 
             artist, created_at, patron, size, geometry, location, details, source, title = row[3:12]
@@ -38,6 +38,33 @@ def load_art_points_SF():
 
 
 
+def load_art_points_Oakland():
+    """Load points from Oakland public art csv data into database"""
+
+    print "Landmarks Oakland"
+
+    with open ("seed_data/Oakland_Civic_Art.csv") as csv_file:
+        for row in csv.reader(csv_file):
+
+            title, artist, artist_origin, year, temp_or_perm, in_or_out, media, media_detail, location, address = row
+
+            #parse location information into latitude and longitude
+            lat_long = location.split('\n')[-1][1:-1].split(", ")
+
+            latitude = float(lat_long[0])
+            longitude = float(lat_long[1])
+
+            landmark = Landmark(latitude=latitude,
+                          longitude=longitude,
+                          title=title,
+                          artist=artist,
+                          details=media_detail)
+
+            db.session.add(landmark)
+
+    db.session.commit()  
+
+
 
 if __name__ == "__main__":
     connect_to_db(app)
@@ -45,4 +72,5 @@ if __name__ == "__main__":
     # In case tables haven't been created, create them
     db.create_all()
 
-    load_art_points_SF()
+    # load_art_points_SF()
+    load_art_points_Oakland()

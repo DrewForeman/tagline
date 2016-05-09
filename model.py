@@ -14,8 +14,8 @@ class Landmark(db.Model):
     __tablename__ = "landmarks"
 
     landmark_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    latitude = db.Column(db.Decimal, nullable=False)
-    longitude = db.Column(db.Decimal, nullable=False)
+    latitude = db.Column(db.Float, nullable=False)
+    longitude = db.Column(db.Float, nullable=False)
     title = db.Column(db.String(100), nullable=False)
     artist = db.Column(db.String(70), nullable=True)
     details = db.Column(db.String(300), nullable=True)
@@ -36,8 +36,8 @@ class Landmark(db.Model):
 #     __tablename__ = "users"
 
 #     user_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-#     username = db.Column(db.Decimal, nullable=False)
-#     password = db.Column(db.Decimal, nullable=False)
+#     username = db.Column(db.String(20), nullable=False)
+#     password = db.Column(db.String(20), nullable=False)
 #     email = db.Column(db.String(64), nullable=True)
 
 
@@ -71,4 +71,19 @@ class Landmark(db.Model):
 #         return "<Comment comment_id= {}>".format(self.comment_id)
 
 
+
+
+def connect_to_db(app):
+    """Connect the database to Flask app."""
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///landmarks'
+    db.app = app
+    db.init_app(app)
+
+
+if __name__ == "__main__":
+
+    from server import app
+    connect_to_db(app)
+    print "Connected to DB."
 

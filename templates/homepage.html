@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+
+Where are you going?
+
+<form action="/route">
+    <label for="starting-point">Starting point:</label>
+    <input type="text", name="start", id="starting-point"/>
+    <label for="end-point">Destination:</label>
+    <input type="password", name="finish", id="end-point"/>
+    <input type="submit" value="Go"/>
+
+    </form>
+
+{% endblock %}
