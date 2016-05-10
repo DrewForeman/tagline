@@ -6,7 +6,10 @@
 Artist: {{ landmark.artist }} <br>
 Details: {{ landmark.details }}<br>
 Comments: placeholder <br>
-Image: placeholder <br>
+
+{% if landmark.image_url %}
+Image: <img src="{{ landmark.image_url }}"> <br>
+{% endif %}
 
 
 <!-- <form action="/route" method="POST">

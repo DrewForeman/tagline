@@ -65,6 +65,30 @@ def load_art_points_Oakland():
     db.session.commit()  
 
 
+
+def load_waymarks():
+    """Load points from Waymark scraped txt file into database"""
+
+    print "Waymark Murals SF"
+
+    for row in open("templates/waymarks.txt"):
+        row = row.rstrip()
+
+        latitude, longitude, title, artist, details, image_url = row.split('|')
+
+        landmark = Landmark(latitude=latitude,
+                      longitude=longitude,
+                      title=title,
+                      artist=artist,
+                      details=details,
+                      image_url=image_url)
+
+        db.session.add(landmark)
+
+    db.session.commit()  
+
+
+
 if __name__ == "__main__":
     connect_to_db(app)
 
@@ -73,3 +97,5 @@ if __name__ == "__main__":
 
     load_art_points_SF()
     load_art_points_Oakland()
+    load_waymarks()
+

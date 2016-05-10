@@ -8,7 +8,9 @@
 
         <li> 
             Title: <a href="/route/{{ landmark.landmark_id }}"> {{ landmark.title }}</a>
-            Information: {{ landmark.artist }} | {{ landmark.details}}
+            {% if landmark.image_url %}
+            Image: <img src="{{ landmark.image_url }}"> <br>
+            {% endif %}
         </li>
 
     {% endfor %}
