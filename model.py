@@ -66,28 +66,28 @@ class User(db.Model):
         return "<User username= {}>".format(self.username)
 
 
-# class Comment(db.Model):
-#     """Comment from user on specific landmark"""
+class Comment(db.Model):
+    """Comment from user on specific landmark"""
 
-#     __tablename__ = "comment"
+    __tablename__ = "comments"
 
-#     comment_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-#     landmark_id = db.Column(db.Integer, db.ForeignKey('landmarks.landmark_id'), nullable=False)
-#     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-#     comment = db.Column(db.String(600), nullable=False)
-#     logged_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    comment_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    landmark_id = db.Column(db.Integer, db.ForeignKey('landmarks.landmark_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    comment = db.Column(db.String(600), nullable=False)
+    logged_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
-#     user = db.relationship("User",
-#                             backref=db.backref("comments", order_by=logged_at))
+    user = db.relationship("User",
+                            backref=db.backref("comments", order_by=logged_at))
 
-#     landmark = db.relationship("Landmark",
-#                             backref=db.backref("comments", order_by=landmark_id))
+    landmark = db.relationship("Landmark",
+                            backref=db.backref("comments", order_by=landmark_id))
 
 
-#     def __repr__(self):
-#         """Show information about the comment"""
+    def __repr__(self):
+        """Show information about the comment"""
 
-#         return "<Comment comment_id= {}>".format(self.comment_id)
+        return "<Comment comment_id= {}>".format(self.comment_id)
 
 
 

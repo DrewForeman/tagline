@@ -7,7 +7,7 @@
     {% for landmark in route_landmarks %}
 
         <li> 
-            Title: <a href="/route/{{ landmark.landmark_id }}"> {{ landmark.title }}</a>
+            <a href="/route/{{ landmark.landmark_id }}"> {{ landmark.title }}</a>
             {% if landmark.image_url %}
             Image: <img src="{{ landmark.image_url }}"> <br>
             {% endif %}
