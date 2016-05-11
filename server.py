@@ -9,7 +9,7 @@ from jinja2 import StrictUndefined
 from flask import Flask, render_template, redirect, request, flash, session 
 from flask_debugtoolbar import DebugToolbarExtension
 
-from model import Landmark, User, connect_to_db, db
+from model import Landmark, User, Comment, connect_to_db, db
 
 from route import api_key, find_landmarks, find_route_coordinates, find_bounding_box, query_landmarks
 
@@ -111,6 +111,28 @@ def handle_registration():
     return redirect('/')
 
 
+
+@app.route('/handle-comment', methods=["POST"])
+def handle_comment():
+    """Add user's comment to db and update current page if user is logged in.
+    If not logged in, flash notification to log in."""
+
+    content = request.form.get('comment')
+    landmark_id = request.form.get('landmark_id')
+
+    user_id = session.get('user')
+
+    if user_id:
+        comment = Comment(landmark_id=landmark_id,
+                          user_id=user_id,
+                          content=content)
+        db.session.add(comment)
+        db.session.commit()
+        return redirect('/route/' + landmark_id)
+    else:
+        flash("Must be logged in to leave a comment.")
+        return redirect('/route/' + landmark_id)
+    
 
 
 if __name__ == "__main__":
