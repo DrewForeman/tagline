@@ -71,7 +71,7 @@ def load_waymarks():
 
     print "Waymark Murals SF"
 
-    for row in open("templates/waymarks.txt"):
+    for row in open("seed_data/waymarks.txt"):
         row = row.rstrip()
 
         latitude, longitude, title, artist, details, image_url = row.split('|')

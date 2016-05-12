@@ -9,7 +9,7 @@ db = SQLAlchemy()
 
 
 class Landmark(db.Model):
-    """Point of interest on urbex website"""
+    """Point of interest on website"""
 
     __tablename__ = "landmarks"
 

@@ -1,10 +1,131 @@
-{% extends 'base.html' %}
-{% block content %}
+{% extends 'base.html' %} 
 
-<br>
-Where are you going?<br><br>
+{% block head %}
 
-<form action="/route" method="POST">
+          <style>
+      #map {
+        width: 500px;
+        height: 400px;
+        background-color: #CCC;
+      }
+
+      #sidebar {
+        background: white;
+        padding: 10px;
+      }
+      </style>
+
+{% endblock %}
+
+
+{% block body %}
+
+    <div class="address-form">
+        Origin: <input id="origin" type="text" />
+        Destination: <input id="destination" type="text" />
+        <input id="submit" type="submit" value="Go"/>
+    </div>
+    <br>
+    <div id="map"></div>
+    <div id="sidebar">Tag content goes here</div>
+
+<script>
+
+  function initMap() {
+
+    var directionsService = new google.maps.DirectionsService;
+    var directionsDisplay = new google.maps.DirectionsRenderer({
+        suppressMarkers: true,
+        polylineOptions:{strokeColor:'#FF0099', strokeOpacity: 1.0}
+    });
+
+    var mapDiv = document.getElementById('map');
+    var map = new google.maps.Map(mapDiv, {
+        center: {lat: 37.7749, lng: -122.4194},
+        zoom: 13,
+        scrollwheel: true,
+        zoomControl: true,
+        panControl: false,
+        mapTypeControl: false,
+        streetViewControl: false,
+        // styles: MAPSTYLES,
+        mapTypeId: google.maps.MapTypeId.ROADS
+    });
+
+    directionsDisplay.setMap(map);
+
+
+    var marker = new google.maps.Marker({
+        position: {lat: 37.788780, lng: -122.411885},
+        map: map,
+        icon: '/static/point.png'
+    });
+
+    var sideBar = document.getElementById('sidebar');
+    var tags = ['tag1','tag2','tag3'];
+    for (i=0; i < tags.length; i++){
+        var div = document.createElement('div');
+        div.innerHTML = tags[i];
+        sideBar.appendChild(div);
+    }
+
+    $('#submit').click(function() {
+        calcAndDisplayRoute(directionsService, directionsDisplay);
+
+    // #####NEWSTUFF##PROBLEMSTUFF#########
+    $.post('/tags.json', {origin: document.getElementById('origin').value,
+        destination: document.getElementById('destination').value}, function(tags) {
+        var tag, marker;
+        for (var key in tags) {
+            tag = tags[key];
+
+            marker = new google.maps.Marker({
+                position: new google.maps.LatLng(tag.latitude, tag.longitude),
+                map: map,
+                title: tag.title
+            });
+        }
+    })
+    // ###############################
+    });
+
+    map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(sideBar);
+
+
+  }
+
+
+
+function calcAndDisplayRoute(directionsService, directionsDisplay) {
+    directionsService.route({
+        origin: document.getElementById('origin').value,
+        destination: document.getElementById('destination').value,
+        travelMode: google.maps.TravelMode.WALKING
+    }, function(response, status){
+        if (status === google.maps.DirectionsStatus.OK) {
+            directionsDisplay.setDirections(response);
+        } else{ 
+            window.alert('Directions request failed');
+        }
+    });
+}
+
+
+
+</script>
+
+    <script src="https://code.jquery.com/jquery.js"></script>
+
+<script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
+    async defer></script>
+
+
+
+
+<!-- ##########OLD STUFF############ -->
+
+
+<!-- <form action="/tags" method="POST" id="directions-search">
     <label for="starting-point">Origin:</label>
     <input type="text", name="origin", id="starting-point"/>
     <label for="end-point">Destination:</label>
@@ -14,9 +135,19 @@ Where are you going?<br><br>
 </form>
 
 
-<br><br>
+<br> -->
+<!-- if user in session, show add tag option
 <a href="/add-tag">Add new tag</a>
+
+<br><br>
+<!-- if user not in session, show login. if in session, show log out -->
+
+<!-- <div id="tag-map"></div> -->
+
 <br><br>
 <a href="/login"> Log in </a>
 
+
+
 {% endblock %}
+

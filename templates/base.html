@@ -1,13 +1,10 @@
 <!doctype html>
 <html>
 <head>
-
-  <script src='https://api.mapbox.com/mapbox-gl-js/v0.18.0/mapbox-gl.js'></script>
-  <link href='https://api.mapbox.com/mapbox-gl-js/v0.18.0/mapbox-gl.css' rel='stylesheet' />
           
         
 
-  <title>Yay!</title>
+  <title>Tagline</title>
   {% with messages = get_flashed_messages() %}
     {% if messages %}
         <ul class=flashes>
@@ -18,25 +15,17 @@
     {% endif %}
   {% endwith %}
   
+  {% block head %}
+      <!-- put extra CSS/JS here -->
+  {% endblock %}
+
 </head>
 
 <body>
   Here is my logo and nav bar. And probably the login and profile icons later on.
   <hr>
         
-<!--   <div id='map' style='width: 400px; height: 300px;'></div>
-
-<script>
-mapboxgl.accessToken = 'pk.eyJ1IjoiZGZvcmVtYW4yNyIsImEiOiJjaW8wcThqNTAxYTRxdWlramR3N3UyeWE1In0.TJN7PNgY9g652JFUVIAN4g';
-  var map = new mapboxgl.Map({
-      container: 'map',
-      center: [-122.329099, 37.796206],
-      zoom: 10,
-      style: 'mapbox://styles/mapbox/light-v9'
-  });
-</script>
-         -->
-  {% block content %} put your content here {% endblock %}
+  {% block body %} put content here {% endblock %}
 
 </body>
 </html>
