@@ -5,13 +5,22 @@
           <style>
       #map {
         width: 500px;
-        height: 400px;
+        height: 600px;
         background-color: #CCC;
+        float: left;
       }
 
-      #sidebar {
+/*      #sidebar {
         background: white;
         padding: 10px;
+      }*/
+
+      #tag-info-box {
+        width: 300px;
+        height: 600px;
+        margin-left: 10px;
+        background-color: #CCC;
+        float: left;
       }
       </style>
 
@@ -20,6 +29,9 @@
 
 {% block body %}
 
+
+<!-- ################# HTML FOR HOMEPAGE BELOW #################### -->
+
     <div class="address-form">
         Origin: <input id="origin" type="text" />
         Destination: <input id="destination" type="text" />
@@ -27,7 +39,16 @@
     </div>
     <br>
     <div id="map"></div>
-    <div id="sidebar">Tag content goes here</div>
+    <div id="tag-info-box">
+        <div id="tag-info">placeholder tag text</div>
+    </div>
+    <!-- <div id="sidebar">Tag content goes here</div> -->
+
+
+<!-- ################# HTML FOR HOMEPAGE ABOVE #################### -->
+
+    
+<!-- ################# JAVASCRIPT FOR MAP SEARCH #################### -->
 
 <script>
 
@@ -54,42 +75,55 @@
 
     directionsDisplay.setMap(map);
 
-
+    // eventually, attach this marker to the user's current location
     var marker = new google.maps.Marker({
         position: {lat: 37.788780, lng: -122.411885},
         map: map,
         icon: '/static/point.png'
     });
 
-    var sideBar = document.getElementById('sidebar');
-    var tags = ['tag1','tag2','tag3'];
-    for (i=0; i < tags.length; i++){
-        var div = document.createElement('div');
-        div.innerHTML = tags[i];
-        sideBar.appendChild(div);
-    }
+    // var sideBar = document.getElementById('sidebar');
+    // var tags = ['tag1','tag2','tag3'];
+    // for (i=0; i < tags.length; i++){
+    //     var div = document.createElement('div');
+    //     div.innerHTML = tags[i];
+    //     sideBar.appendChild(div);
+    // }
 
     $('#submit').click(function() {
+        // on directions search submission, find and display the path
         calcAndDisplayRoute(directionsService, directionsDisplay);
 
-    // #####NEWSTUFF##PROBLEMSTUFF#########
-    $.post('/tags.json', {origin: document.getElementById('origin').value,
-        destination: document.getElementById('destination').value}, function(tags) {
-        var tag, marker;
-        for (var key in tags) {
-            tag = tags[key];
+        // also request and add markers for tags along path (bbox function and query happening in Flask route)
+        $.post('/tags.json', {origin: document.getElementById('origin').value,
+            destination: document.getElementById('destination').value}, function(tags) {
+            var tag, marker;
+            for (var key in tags) {
+                tag = tags[key];
 
-            marker = new google.maps.Marker({
-                position: new google.maps.LatLng(tag.latitude, tag.longitude),
-                map: map,
-                title: tag.title
-            });
-        }
-    })
-    // ###############################
+                marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(tag.latitude, tag.longitude),
+                    map: map,
+                    title: tag.title
+                });
+
+                html = ('<p><b>Title: </b>' + tag.title + '</p>');
+
+                // this will bind the marker to the html containing info about the tag (which will appear in the sidebar on click)
+                bindInfo(marker, html)
+            }
+        })
+
     });
 
-    map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(sideBar);
+    function bindInfo(marker, html){
+        google.maps.event.addListener(marker, 'click', function() {
+            $('#tag-info').html(html);
+        });
+
+    }
+
+    // map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(sideBar);
 
 
   }
@@ -119,23 +153,15 @@ function calcAndDisplayRoute(directionsService, directionsDisplay) {
 <script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
     async defer></script>
 
+<!-- ######################################################## -->
 
 
 
-<!-- ##########OLD STUFF############ -->
 
 
-<!-- <form action="/tags" method="POST" id="directions-search">
-    <label for="starting-point">Origin:</label>
-    <input type="text", name="origin", id="starting-point"/>
-    <label for="end-point">Destination:</label>
-    <input type="text", name="destination", id="end-point"/>
-    <input type="submit" value="Go"/>
-
-</form>
+<!-- ##########OLD STUFF FOR LOGIN############ -->
 
 
-<br> -->
 <!-- if user in session, show add tag option
 <a href="/add-tag">Add new tag</a>
 
@@ -144,8 +170,7 @@ function calcAndDisplayRoute(directionsService, directionsDisplay) {
 
 <!-- <div id="tag-map"></div> -->
 
-<br><br>
-<a href="/login"> Log in </a>
+
 
 
 
