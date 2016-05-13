@@ -62,9 +62,6 @@ def add_comment():
     content = request.form.get('comment')
     landmark_id = request.form.get('landmarkId')
 
-    print content, "****************"
-
-
     user_id = session.get('user')
 
     comment = Comment(landmark_id=landmark_id,
@@ -78,6 +75,8 @@ def add_comment():
         "content": comment.content,
         "loggedAt": comment.logged_at
     }
+
+    # print newComment['loggedAt']  #-->using this to help figure out how to manipulate datetime
 
     return jsonify(newComment)
     # if user_id:
@@ -93,6 +92,38 @@ def add_comment():
 
 
 
+
+@app.route('/new-tag.json', methods=["POST"])
+def handle_add_tag():
+    """Add user's new tag to db."""
+
+    latitude=request.form.get('latitude'),
+    longitude=request.form.get('longitude'),
+    title=request.form.get('title'),
+    artist=request.form.get('artist'),
+    details=request.form.get('details'),
+    image_url=request.form.get('image_url')
+
+    tag = Landmark(latitude=latitude,
+                    longitude=longitude,
+                    title=title,
+                    artist=artist,
+                    details=details,
+                    image_url=image_url
+                        )
+
+    db.session.add(tag)
+    db.session.commit()
+    # also update new db table for user created places w user_id, landmark_id, logged_at
+
+    newTag = {
+            "title": tag.title,
+            "artist": tag.artist,
+            "details": tag.details,
+            "imageURL": tag.image_url
+    }
+    
+    return jsonify(newTag)
 
 
 # @app.route('/tags', methods=["POST"])

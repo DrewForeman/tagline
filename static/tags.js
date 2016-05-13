@@ -29,6 +29,47 @@
     // });
 
 
+// v|v|v|v|v|v|v|v| CODE BELOW ALLOWS USER TO ADD NEW TAG ON MAP CLICK v|v|v|v|v|v|v|v|v|v|v|v|
+    google.maps.event.addListener(map, 'click', function(event) {
+      var clickLat = event.latLng.lat();
+      var clickLng = event.latLng.lng();
+
+      var newMarker = new google.maps.Marker({
+          position: new google.maps.LatLng(clickLat,clickLng), 
+          map: map
+      });
+      // map.setZoom(16);
+      // map.setCenter(newMarker.getPosition());
+
+      newTagHTML = (  
+        '<b>Add a new tag</b><br>' +  
+        'Title: <input type="text", name="title", id="add-title"/><br>' +
+        'Artist:<input type="text", name="artist", id="add-artist"/><br>' +
+        'Details:<textarea name="details", cols="35", rows="5", id="add-details"/><br>' +
+        'Image Url:<input type="text", name="image_url", id="add-image-url"/><br>' +
+        '<input type="submit" value="Tag it" id="submit-tag"/>'
+        );
+
+      $('#tag-info').html(newTagHTML);
+      console.log(clickLat + "," + clickLng)
+
+      // on submit, update db w new info, should also eventually switch sidebar to show info about new landmark
+      $('#submit-tag').click(function(){
+        console.log('clicked submit button')
+
+        $.post('/new-tag.json',{
+                              'latitude': clickLat,
+                              'longitude': clickLng,
+                              'title': $('#add-title').val(),
+                              'artist': $('#add-artist').val(),
+                              'details': $('#add-details').val(),
+                              'image_url': $('#add-image-url').val()
+                              },function(){ console.log('new tag added to db')})
+      });
+    });
+// ^|^|^|^|^|^|^| CODE ABOVE ALLOWS USER TO ADD NEW TAG ON MAP CLICK ^|^|^|^|^|^|^|^|
+
+
     $('#submit').click(function() {
         // on directions search submission, find and display the path
         calcAndDisplayRoute(directionsService, directionsDisplay);
@@ -39,7 +80,7 @@
             'destination': document.getElementById('destination').value
           }, 
           function(tags) {
-            var tag, marker, html;
+            var tag, marker, htmlInfo;
             for (var key in tags) {
                 tag = tags[key];
 
@@ -51,48 +92,39 @@
                     opacity: 0.6
                 });
 
-                html = (
+                htmlInfo = (
                     // '<img src=tag.imageUrl alt="tag" style="width:150px;" class="thumbnail">' + 
-                    '<p><b>Title: </b>' + tag.title +'</p>' +
-                    '<div id="tagId" style="visibility: hidden">' + tag.landmarkId + '</div>' +
+                    '<p><b>Title: </b>' + tag.title +'</p>' + 
+                    '<div id="tagId" style="display:none">' + tag.landmarkId + '</div>' +
+                    '<div id="allComments" style="display:none">' + tag.comments + '</div>' +
                     '<p><b>Details: </b>' + tag.details + '</p>' +
-                    '<p><b>Comments: </b>' + 
                     '<br>Enter a comment: <input type="text" id="user-comment">' +
                     '<input type="submit" value="Post" id="submit-comment">' +
-                    // '<input type="hidden" value="tag.landmarkId" id="tagId">' +
                     '<div id="user-comment-update"></div>' +
-                    tag.comments + 'placeholder comments</p>');
+                    '<div id="commentsField"></div>' + 'placeholder comments</p>'
+                    );
 
                 // this will bind the marker to the html containing info about the tag (which will appear in the sidebar on click)
-                bindInfo(marker, html);
+                bindInfo(marker, htmlInfo);
             }
         })
 
-
-// PROBLEM SPOT ########################
-      // $('#submit-comment').click(function(){
-      //   console.log('this worked');
-      // // post comment info to json route, update db, send relevant jsonified stuff back to be rendered in the html
-      //   $.post('/add-comment.json', {
-      //     'comment': document.getElementById('user-comment'), 
-      //     'landmarkId': tag.tagId // tag is not defined. how do I pass the tag id into the flask route?
-      //   },
-      //     function(newComment){
-
-      //       var htmlComment = ('<p>' + newComment.content + newComment.username + newComment.loggedAt + '</p>');
-      //       // update comments w user comment
-      //       $('#user-comment-update').html(htmlComment);
-      //     });
-      // });
-// #######################################
     });
 
 
 
 // add if clause in function to handle no image? (would need to divide up divs)
-    function bindInfo(marker, html){
+    function bindInfo(marker, htmlInfo){
         google.maps.event.addListener(marker, 'click', function() {
-            $('#tag-info').html(html);
+            $('#tag-info').html(htmlInfo);
+
+            var commentsField = $('#commentsField');
+            var allComments = $('#allComments').html().split(',');
+
+            for (var i = 0; i < allComments.length; i++) {
+              commentsField.append('<div class="comment">' + allComments[i] + '</div>');
+            }
+
 
             $('#submit-comment').click(function(){
               console.log('this worked');
