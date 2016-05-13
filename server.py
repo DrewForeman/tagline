@@ -34,28 +34,64 @@ def index():
 @app.route('/tags.json', methods=["GET", "POST"])
 def tags():
     """JSON information about the tags for given query."""
-    
-    # HOW DO I GET THE INFO FROM THE HTML?
+ 
     origin = request.form.get('origin')
     destination = request.form.get('destination')
 
-    print "made it to json route"
-
-
     tags = {
         tag.landmark_id: {
-        "tagId": tag.landmark_id,
+        "landmarkId": tag.landmark_id,
         "latitude": tag.latitude,
         "longitude": tag.longitude,
         "title": tag.title,
         "artist": tag.artist,
         "details": tag.details,
-        "imageUrl": tag.image_url
+        "imageUrl": tag.image_url,
+        "comments": [comment.content for comment in tag.comments]
         }
         for tag in find_landmarks(origin, destination)
     }
 
     return jsonify(tags)
+
+
+@app.route('/add-comment.json', methods=["GET","POST"])
+def add_comment():
+    """Add user's comment to db and update current page."""
+
+    content = request.form.get('comment')
+    landmark_id = request.form.get('landmarkId')
+
+    print content, "****************"
+
+
+    user_id = session.get('user')
+
+    comment = Comment(landmark_id=landmark_id,
+                      user_id=user_id,
+                      content=content)
+    db.session.add(comment)
+    db.session.commit()
+
+    newComment = {
+        "username": comment.user.username,
+        "content": comment.content,
+        "loggedAt": comment.logged_at
+    }
+
+    return jsonify(newComment)
+    # if user_id:
+    #     comment = Comment(landmark_id=landmark_id,
+    #                       user_id=user_id,
+    #                       content=content)
+    #     db.session.add(comment)
+    #     db.session.commit()
+    #     return redirect('/route/' + landmark_id)
+    # else:
+    #     flash("Must be logged in to leave a comment.")
+    #     return redirect('/route/' + landmark_id)
+
+
 
 
 
@@ -140,26 +176,7 @@ def tags():
 
 
 
-# @app.route('/handle-comment', methods=["POST"])
-# def handle_comment():
-#     """Add user's comment to db and update current page if user is logged in.
-#     If not logged in, flash notification to log in."""
 
-#     content = request.form.get('comment')
-#     landmark_id = request.form.get('landmark_id')
-
-#     user_id = session.get('user')
-
-#     if user_id:
-#         comment = Comment(landmark_id=landmark_id,
-#                           user_id=user_id,
-#                           content=content)
-#         db.session.add(comment)
-#         db.session.commit()
-#         return redirect('/route/' + landmark_id)
-#     else:
-#         flash("Must be logged in to leave a comment.")
-#         return redirect('/route/' + landmark_id)
 
 
 # FIX THIS ROUTE TO HANDLE NEW TAG

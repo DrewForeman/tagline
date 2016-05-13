@@ -50,7 +50,7 @@ class Landmark(db.Model):
 
 
 class User(db.Model):
-    """User of urbex website"""
+    """User of website"""
 
     __tablename__ = "users"
 
