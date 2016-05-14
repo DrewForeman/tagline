@@ -117,6 +117,7 @@ def handle_add_tag():
     # also update new db table for user created places w user_id, landmark_id, logged_at
 
     newTag = {
+            "landmarkId": tag.landmark_id,
             "title": tag.title,
             "artist": tag.artist,
             "details": tag.details,

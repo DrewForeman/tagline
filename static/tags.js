@@ -1,3 +1,6 @@
+var markersArray = [];
+
+
   function initMap() {
 
     var directionsService = new google.maps.DirectionsService;
@@ -19,6 +22,8 @@
         mapTypeId: google.maps.MapTypeId.ROADS
     });
 
+    // var markersArray = [];
+
     directionsDisplay.setMap(map);
 
     // eventually, attach this marker to the user's current location
@@ -31,6 +36,9 @@
 
 // v|v|v|v|v|v|v|v| CODE BELOW ALLOWS USER TO ADD NEW TAG ON MAP CLICK v|v|v|v|v|v|v|v|v|v|v|v|
     google.maps.event.addListener(map, 'click', function(event) {
+
+      clearOverlays()
+
       var clickLat = event.latLng.lat();
       var clickLng = event.latLng.lng();
 
@@ -38,6 +46,9 @@
           position: new google.maps.LatLng(clickLat,clickLng), 
           map: map
       });
+
+      markersArray.push(newMarker);
+
       // map.setZoom(16);
       // map.setCenter(newMarker.getPosition());
 
@@ -51,11 +62,13 @@
         );
 
       $('#tag-info').html(newTagHTML);
+
       console.log(clickLat + "," + clickLng)
 
       // on submit, update db w new info, should also eventually switch sidebar to show info about new landmark
       $('#submit-tag').click(function(){
-        console.log('clicked submit button')
+        console.log('clicked submit button');
+        markersArray[0].setIcon('/static/point3.png');
 
         $.post('/new-tag.json',{
                               'latitude': clickLat,
@@ -64,13 +77,37 @@
                               'artist': $('#add-artist').val(),
                               'details': $('#add-details').val(),
                               'image_url': $('#add-image-url').val()
-                              },function(){ console.log('new tag added to db')})
+                              },function(newTag){ 
+                                newTagInfoHTML = (                 
+                                                  // '<img src=tag.imageUrl alt="tag" style="width:150px;" class="thumbnail">' + 
+                                                '<p><b>Title: </b>' + newTag.title +'</p>' + 
+                                                '<div id="tagId" style="display:none">' + newTag.landmarkId + '</div>' +
+                                                '<div id="allComments" style="display:none">' + newTag.comments + '</div>' +
+                                                '<p><b>Details: </b>' + newTag.details + '</p>' +
+                                                '<br>Enter a comment: <input type="text" id="user-comment">' +
+                                                '<input type="submit" value="Post" id="submit-comment">' +
+                                                '<div id="user-comment-update"></div>' +
+                                                '<div id="commentsField"></div>' + 'placeholder comments</p>'
+                                                )
+
+                                $('#tag-info').html(newTagInfoHTML);
+                                console.log('new tag added to db')
+
+
+                                $('#submit-comment').click(function(){ 
+                                  submitComment();
+                                });
+
+                              })
       });
     });
 // ^|^|^|^|^|^|^| CODE ABOVE ALLOWS USER TO ADD NEW TAG ON MAP CLICK ^|^|^|^|^|^|^|^|
 
 
+// v|v|v|v|v|v|v|v| CODE BELOW GIVES ROUTE AND TAGS ON PATH v|v|v|v|v|v|v|v|v|v|v|v|
     $('#submit').click(function() {
+
+        clearOverlays()
         // on directions search submission, find and display the path
         calcAndDisplayRoute(directionsService, directionsDisplay);
 
@@ -112,7 +149,6 @@
     });
 
 
-
 // add if clause in function to handle no image? (would need to divide up divs)
     function bindInfo(marker, htmlInfo){
         google.maps.event.addListener(marker, 'click', function() {
@@ -125,28 +161,39 @@
               commentsField.append('<div class="comment">' + allComments[i] + '</div>');
             }
 
-
-            $('#submit-comment').click(function(){
-              console.log('this worked');
-            // post comment info to json route, update db, send relevant jsonified stuff back to be rendered in the html
-              $.post('/add-comment.json', {
-                'comment': document.getElementById('user-comment').value, 
-                'landmarkId': document.getElementById('tagId').innerHTML
-              },
-                function(newComment){
-
-                  var htmlComment = ('<p>' + newComment.content + newComment.username + newComment.loggedAt + '</p>');
-                  // update comments w user comment
-                  $('#user-comment-update').html(htmlComment);
-                });
-            });
+            $('#submit-comment').click(function(){ submitComment();});
 
         });
     }
-
-
+// ^|^|^|^|^|^|^|^|^|^| CODE ABOVE GIVES ROUTE AND TAGS ON PATH ^|^|^|^|^|^|^|^|^|^|^|^|^|^|^|^|^|^
   }
 
+
+// v|v|v|v|v|v|v|v|v|v|v|v|v| HELPER FUNCTIONS v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|
+
+
+function clearOverlays() {
+  for (var i = 0; i < markersArray.length; i++ ) {
+    markersArray[i].setMap(null);
+  }
+  markersArray.length = 0;
+}
+
+
+function submitComment () {
+  console.log('this worked');
+// post comment info to json route, update db, send relevant jsonified stuff back to be rendered in the html
+  $.post('/add-comment.json', {
+    'comment': document.getElementById('user-comment').value, 
+    'landmarkId': document.getElementById('tagId').innerHTML
+  },
+    function(newComment){
+
+      var htmlComment = ('<p>' + newComment.content + newComment.username + newComment.loggedAt + '</p>');
+      // update comments w user comment
+      $('#user-comment-update').html(htmlComment);
+    });
+}
 
 
 function calcAndDisplayRoute(directionsService, directionsDisplay) {
