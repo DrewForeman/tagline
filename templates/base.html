@@ -1,16 +1,21 @@
 <!doctype html>
 <html>
 <head>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
  <script src="https://code.jquery.com/jquery.js"></script>
 
-<script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
-    async defer></script> 
+<script src="https://maps.googleapis.com/maps/api/js"></script>
 
   <script src="/static/mapstyle.js"></script>
 
-  <script src="/static/tags.js"></script>
+  <script src="/static/map.js"></script>
+  <script src="/static/page.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
   <link href="/static/maps.css" rel="stylesheet">
+
+
 
         
 
@@ -32,9 +37,114 @@
 </head>
 
 <body>
-  Here is my logo and nav bar. And probably the login and profile icons later on.
-<a href="/login"> Log in </a>
-  <hr>
+
+<nav class="navbar navbar-default navbar-inverse" role="navigation">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">Tagline</a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+<!--       <ul class="nav navbar-nav">
+        <li class="active"><a href="#">Link</a></li>
+        <li><a href="#">Link</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="#">Action</a></li>
+            <li><a href="#">Another action</a></li>
+            <li><a href="#">Something else here</a></li>
+            <li class="divider"></li>
+            <li><a href="#">Separated link</a></li>
+            <li class="divider"></li>
+            <li><a href="#">One more separated link</a></li>
+          </ul>
+        </li>
+      </ul> -->
+      <!-- ################### ROUTE SEARCH IN NAVBAR ########################### -->
+      <form class="navbar-form navbar-left" role="search" id="route-form">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Origin" id="origin">
+          <input type="text" class="form-control" placeholder="Destination" id="destination">
+        </div>
+        <button type="button" class="btn btn-default" id="get-route">Go</button>
+      </form>
+      <!-- ###################################################################### -->
+
+      <ul class="nav navbar-nav navbar-right" id="login-tog">
+<!--         <li><p class="navbar-text">Already have an account?</p></li> -->
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Login</b> <span class="caret"></span></a>
+      <ul id="login-dp" class="dropdown-menu">
+        <li>
+           <div class="row">
+              <div class="col-md-12">
+                <!-- Login via
+                <div class="social-buttons">
+                  <a href="#" class="btn btn-fb"><i class="fa fa-facebook"></i> Facebook</a>
+                  <a href="#" class="btn btn-tw"><i class="fa fa-twitter"></i> Twitter</a>
+                </div> -->
+                                <!-- or -->
+                 <form class="form" role="form" method="post" action="login" accept-charset="UTF-8" id="login-nav">
+                    <div class="form-group">
+                       <label class="sr-only" for="inputUsername">Username</label>
+                       <input type="text" class="form-control" id="inputUsername" placeholder="Username" required>
+                    </div>
+                    <div class="form-group">
+                       <label class="sr-only" for="inputPassword">Password</label>
+                       <input type="password" class="form-control" id="inputPassword" placeholder="Password" required>
+                                             <!-- <div class="help-block text-right"><a href="">Forget the password ?</a></div> -->
+                    </div>
+                    <div class="form-group">
+                       <button type="button" class="btn btn-warning btn-block" id="login-button">Sign in</button>
+                    </div>
+                    <!-- <div class="checkbox">
+                       <label>
+                       <input type="checkbox"> keep me logged-in
+                       </label>
+                    </div> -->
+                 </form>
+              </div>
+              <div class="bottom text-center">
+                <div id="login-alts"></div>
+                New here? <a href="#"><b>Register</b></a>
+              </div>
+           </div>
+        </li>
+      </ul>
+        </li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<!-- EVENTUALLY MOVE THIS SCRIPT TO ITS OWN FILE??? -->
+<script>
+$('#login-button').click(function(){
+    console.log('clicked button');
+    $.post('/login.json',{
+      'username': $('#inputUsername').val(),
+      'password': $('#inputPassword').val()
+    }, function(currentUser){
+      if (currentUser.username === "not recognized") {
+           $('#login-alts').html('<p>Username or password <br> not recognized.</p>'); 
+    } else {
+      $('#login-tog').html('<li><p class="navbar-text">Welcome, ' + currentUser.username + '</p></li>');
+    }
+    console.log(currentUser)}
+  )})
+</script>
+
+
+</body>
         
   {% block body %} put content here {% endblock %}
 

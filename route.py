@@ -15,8 +15,8 @@ logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 api_key = os.environ['GOOGLE_DIRECTIONS_API_KEY']
 
-origin = '1523 8th St, Oakland, CA 94607'
-destination = '1555 40th St, Emeryville, CA 94608'
+# origin = '1523 8th St, Oakland, CA 94607'
+# destination = '1555 40th St, Emeryville, CA 94608'
 
 def find_landmarks(origin, destination):
     """Returns list of landmarks along user's input route."""
@@ -84,16 +84,14 @@ def query_landmarks(bbox):
     #         landmarks.append(landmark)
 
     min_lat = bbox.min_point[0]
-    min_lon = bbox.min_point[1]
+    min_lng = bbox.min_point[1]
     max_lat = bbox.max_point[0]
-    max_lon = bbox.max_point[1]
+    max_lng = bbox.max_point[1]
 
     landmarks = Landmark.query.filter(Landmark.latitude >= min_lat, 
                                     Landmark.latitude <= max_lat,
-                                    Landmark.longitude >= min_lon,
-                                    Landmark.longitude <= max_lon).all()
-
-    print len(landmarks)
+                                    Landmark.longitude >= min_lng,
+                                    Landmark.longitude <= max_lng).all()
 
     return landmarks
 

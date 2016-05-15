@@ -31,6 +31,40 @@ def index():
     return render_template("homepage.html")
 
 
+@app.route('/tags-geolocation.json', methods=["GET", "POST"])
+def nearby_tags():
+    """JSON information about the tags for given query."""
+ 
+    min_lat = request.form.get('minLat');
+    min_lng = request.form.get('minLng');
+    max_lat = request.form.get('maxLat');
+    max_lng = request.form.get('maxLng');
+
+    found_tags = Landmark.query.filter(Landmark.latitude >= min_lat, 
+                                Landmark.latitude <= max_lat,
+                                Landmark.longitude >= min_lng,
+                                Landmark.longitude <= max_lng).all()
+
+    print min_lat, min_lng, max_lat, max_lng
+    print found_tags
+
+    nearby_tags = {
+        tag.landmark_id: {
+        "landmarkId": tag.landmark_id,
+        "latitude": tag.latitude,
+        "longitude": tag.longitude,
+        "title": tag.title,
+        "artist": tag.artist,
+        "details": tag.details,
+        "imageUrl": tag.image_url,
+        "comments": [comment.content for comment in tag.comments]
+        }
+        for tag in found_tags
+    }
+
+    return jsonify(nearby_tags)
+
+
 @app.route('/tags.json', methods=["GET", "POST"])
 def tags():
     """JSON information about the tags for given query."""
@@ -127,57 +161,27 @@ def handle_add_tag():
     return jsonify(newTag)
 
 
-# @app.route('/tags', methods=["POST"])
-# def show_route_landmarks():
-#     """Shows points of interest along user's searched route."""
 
-#     origin = request.form.get('origin')
-#     destination = request.form.get('destination')
+@app.route('/login.json', methods=["POST"])
+def handle_login():
+    """Log user in if registered and input password is correct."""
 
-#     route_landmarks = find_landmarks(origin, destination)
+    username = request.form.get('username')
+    password = request.form.get('password')
 
-#     return render_template("route.html", route_landmarks=route_landmarks)
+    user = User.query.filter(User.username == username).first()
 
-
-
-# @app.route('/route/<int:landmark_id>')
-# def landmark_details(landmark_id):
-#     """Show detailed information for selected landmark."""
-
-#     landmark = Landmark.query.filter_by(landmark_id=landmark_id).first()
-
-#     return render_template("landmark_info.html", landmark=landmark)
-
-
-
-# @app.route('/login')
-# def login():
-#     """Show login form for user. Redirect if not yet registered."""
-
-#     return render_template("login.html")
-
-
-
-# @app.route('/handle-login', methods=["POST"])
-# def handle_login():
-#     """Log user in and redirect back to homepage."""
-
-#     username = request.form.get('username')
-#     password = request.form.get('password')
-
-#     user = User.query.filter(User.username == username).first()
-
-#     if user:
-#         if password == user.password:
-#             session['user'] = user.user_id
-#             flash(("Welcome {}").format(user.username))
-#             return redirect('/')
-#         else:
-#             flash("Password is incorrect.")
-#             return redirect('/login')
-#     else:
-#         flash("Unknown username. Register to get started.")
-#         return redirect('/register')
+    if user:
+        if password == user.password:
+            session['user'] = user.user_id
+            currentUser = {"username": user.username}
+            return jsonify(currentUser)
+        else:
+            currentUser = {"username": "not recognized"}
+            return jsonify(currentUser)
+    else:
+        currentUser = {"username": "not recognized"}
+        return jsonify(currentUser)
 
 
 
@@ -208,39 +212,6 @@ def handle_add_tag():
 
 
 
-
-
-
-# FIX THIS ROUTE TO HANDLE NEW TAG
-
-# @app.route('/handle-add-tag', methods=["POST"])
-# def handle_add_tag():
-#     """Add user's new tag to db and route to new tag page."""
-
-
-#     # figure out how to get lat/lon from map on form page
-#     latitude = 
-#     longitude = 
-
-#     title = request.form.get('title')
-#     aritst = request.form.get('artist')
-#     details = request.form.get('details')
-#     image_url = request.form.get('image_url')
-
-#     landmark = Landmark(latitude=latitude,
-#                         longitude=longitude,
-#                         title=title,
-#                         artist=artist,
-#                         details=details,
-#                         image_url=image_url
-#                         )
-
-#     db.session.add(landmark)
-
-#     # also update new db table for user created places w user_id, landmark_id, logged_at
-
-#     db.session.commit()
-#     return redirect('/route/' + landmark.landmark_id)
 
 
 

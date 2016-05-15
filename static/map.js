@@ -1,4 +1,7 @@
+var map;
+
 var markersArray = [];
+
 
 
   function initMap() {
@@ -6,11 +9,11 @@ var markersArray = [];
     var directionsService = new google.maps.DirectionsService;
     var directionsDisplay = new google.maps.DirectionsRenderer({
         suppressMarkers: true,
-        polylineOptions:{strokeColor:'#ffff33', strokeOpacity: 1.0}
+        polylineOptions:{strokeColor:'#FFFFFF', strokeOpacity: 1.0, strokeWeight: 5}
     });
 
     var mapDiv = document.getElementById('map');
-    var map = new google.maps.Map(mapDiv, {
+    map = new google.maps.Map(mapDiv, {
         // center: {lat: 37.7749, lng: -122.4194},
         zoom: 16,
         scrollwheel: true,
@@ -40,10 +43,9 @@ var markersArray = [];
 
             google.maps.event.addListener(geolocationMarker, 'click', function(event){
               clearClickMarker();
-              markersArray.push(geolocationMarker);
               geolocationMarker.setIcon('/static/add-icon.png');
               $('#tag-info').html(newTagHTML);
-              addTagOnSubmit(position.coords.latitude, position.coords.longitude);
+              addTagOnSubmit(position.coords.latitude, position.coords.latitude);
             })
 
             google.maps.event.addListener(map, 'click', function(event){
@@ -53,6 +55,59 @@ var markersArray = [];
         }, function () {
             handleNoGeolocation(true);
         });
+
+         
+
+        // ##########  GET NEARBY POINTS UPON LOAD - figure out how to encapsulate success function #####################
+        google.maps.event.addListenerOnce(map, 'idle', function(){
+          // delay this function so the map has time to load before getting bounds
+          setTimeout(function(){
+              minLat = map.getBounds().H['H'];
+              minLng = map.getBounds().j['j'];
+              maxLat = map.getBounds().H['j'];
+              maxLng = map.getBounds().j['H'];
+              
+              $.post('/tags-geolocation.json', {
+                  'minLat': minLat,
+                  'minLng': minLng,
+                  'maxLat': maxLat,
+                  'maxLng': maxLng,
+                }, 
+
+                function(nearby_tags) {
+                  var tag, marker, htmlInfo;
+                  for (var key in nearby_tags) {
+                      tag = nearby_tags[key];
+
+                      marker = new google.maps.Marker({
+                          position: new google.maps.LatLng(tag.latitude, tag.longitude),
+                          map: map,
+                          title: tag.title,
+                          icon: '/static/circle.png',
+                          opacity: 0.6
+                      });
+
+                      htmlInfo = (
+                          // '<img src=tag.imageUrl alt="tag" style="width:150px;" class="thumbnail">' + 
+                          '<p><b>Title: </b>' + tag.title +'</p>' + 
+                          '<div id="tagId" style="display:none">' + tag.landmarkId + '</div>' +
+                          '<div id="allComments" style="display:none">' + tag.comments + '</div>' +
+                          '<p><b>Details: </b>' + tag.details + '</p>' +
+                          '<br>Enter a comment: <input type="text" id="user-comment">' +
+                          '<input type="submit" value="Post" id="submit-comment">' +
+                          '<div id="user-comment-update"></div>' +
+                          '<div id="commentsField"></div>' + 'placeholder comments</p>'
+                          );
+
+                      // this will bind the marker to the html containing info about the tag (which will appear in the sidebar on click)
+                      bindInfo(marker, htmlInfo);
+                  }
+              }
+              );
+          },3000);
+        });
+
+        // ##############################################################
 
     } else {
         // Browser doesn't support Geolocation
@@ -65,7 +120,7 @@ var markersArray = [];
 // v|v|v|v|v|v|v|v| CODE BELOW ALLOWS USER TO ADD NEW TAG ON MAP CLICK v|v|v|v|v|v|v|v|v|v|v|v|
     google.maps.event.addListener(map, 'click', function(event) {
 
-      clearClickMarker()
+      clearClickMarker();
 
       var clickLat = event.latLng.lat();
       var clickLng = event.latLng.lng();
@@ -80,9 +135,15 @@ var markersArray = [];
 
       $('#tag-info').html(newTagHTML);
 
-      console.log(clickLat + "," + clickLng)
+      // console.log(clickLat + "," + clickLng)
 
       addTagOnSubmit(clickLat, clickLng);
+
+      // clear add marker if clicked again (basically click on-click off)
+      google.maps.event.addListener(newMarker, 'click', function(event){
+      clearClickMarker();
+      $('#tag-info').html("");
+    })
 
     });
 // ^|^|^|^|^|^|^| CODE ABOVE ALLOWS USER TO ADD NEW TAG ON MAP CLICK ^|^|^|^|^|^|^|^|
@@ -96,12 +157,12 @@ var markersArray = [];
         calcAndDisplayRoute(directionsService, directionsDisplay);
 
         // also request and add markers for tags along path (bbox function and query happening in Flask route)
+        // - figure out how to encapsulate success function
         $.post('/tags.json', {
             'origin': document.getElementById('origin').value,
             'destination': document.getElementById('destination').value
           }, 
 
-          // createTagMarkers(tags)
           function(tags) {
             var tag, marker, htmlInfo;
             for (var key in tags) {
@@ -156,6 +217,11 @@ var markersArray = [];
         });
     }
 // ^|^|^|^|^|^|^|^|^|^| CODE ABOVE GIVES ROUTE AND TAGS ON PATH ^|^|^|^|^|^|^|^|^|^|^|^|^|^|^|^|^|^
+ 
+
+google.maps.event.addDomListener(window, 'load', function() {
+  console.log(map.getBounds());
+});
   }
 
 
@@ -267,5 +333,9 @@ function addTagOnSubmit(lat, lng){
 }
 
 
+
+google.maps.event.addDomListener(window, 'load', function(){
+  initMap();
+});
 
 
