@@ -45,9 +45,6 @@ def nearby_tags():
                                 Landmark.longitude >= min_lng,
                                 Landmark.longitude <= max_lng).all()
 
-    print min_lat, min_lng, max_lat, max_lng
-    print found_tags
-
     nearby_tags = {
         tag.landmark_id: {
         "landmarkId": tag.landmark_id,
@@ -57,7 +54,13 @@ def nearby_tags():
         "artist": tag.artist,
         "details": tag.details,
         "imageUrl": tag.image_url,
-        "comments": [comment.content for comment in tag.comments]
+        "comments": [comment.content for comment in tag.comments],
+        "usernames": [comment.user.username for comment in tag.comments],
+        "times": [comment.logged_at.strftime("%b %d %Y") for comment in tag.comments]
+        # [{comment.comment_id : {"username":comment.user.username, 
+        #                                    "time":comment.logged_at, 
+        #                                    "content":comment.content}} for comment in tag.comments]
+                                           
         }
         for tag in found_tags
     }
@@ -81,7 +84,13 @@ def tags():
         "artist": tag.artist,
         "details": tag.details,
         "imageUrl": tag.image_url,
-        "comments": [comment.content for comment in tag.comments]
+        "comments": [comment.content for comment in tag.comments],
+        "usernames": [comment.user.username for comment in tag.comments],
+        "times": [comment.logged_at.strftime("%b %d %Y") for comment in tag.comments]
+        # [{comment.comment_id : {"username":comment.user.username, 
+        #                                    "time":comment.logged_at, 
+        #                                    "content":comment.content}} for comment in tag.comments]
+        
         }
         for tag in find_landmarks(origin, destination)
     }
@@ -107,10 +116,10 @@ def add_comment():
     newComment = {
         "username": comment.user.username,
         "content": comment.content,
-        "loggedAt": comment.logged_at
+        "loggedAt": comment.logged_at.strftime("%b %d %Y")
     }
 
-    # print newComment['loggedAt']  #-->using this to help figure out how to manipulate datetime
+    print newComment['loggedAt']  #-->using this to help figure out how to manipulate datetime
 
     return jsonify(newComment)
     # if user_id:

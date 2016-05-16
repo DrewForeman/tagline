@@ -87,16 +87,20 @@ var markersArray = [];
                           opacity: 0.6
                       });
 
+                      // commentInf = zip(tag.comments, tag.usernames, tag.times)
+
                       htmlInfo = (
                           // '<img src=tag.imageUrl alt="tag" style="width:150px;" class="thumbnail">' + 
                           '<p><b>Title: </b>' + tag.title +'</p>' + 
                           '<div id="tagId" style="display:none">' + tag.landmarkId + '</div>' +
                           '<div id="allComments" style="display:none">' + tag.comments + '</div>' +
+                          '<div id="commentUsernames" style="display:none">' + tag.usernames + '</div>' +
+                          '<div id="commentTimes" style="display:none">' + tag.times + '</div>' +
                           '<p><b>Details: </b>' + tag.details + '</p>' +
                           '<br>Enter a comment: <input type="text" id="user-comment">' +
                           '<input type="submit" value="Post" id="submit-comment">' +
                           '<div id="user-comment-update"></div>' +
-                          '<div id="commentsField"></div>' + 'placeholder comments</p>'
+                          '<div id="commentsField"></div>' + '</p>'
                           );
 
                       // this will bind the marker to the html containing info about the tag (which will appear in the sidebar on click)
@@ -173,20 +177,34 @@ var markersArray = [];
                     map: map,
                     title: tag.title,
                     icon: '/static/circle.png',
-                    opacity: 0.6
+                    opacity: 0.6,
+                    // animation: google.maps.Animation.DROP
                 });
+
+
+// ##NEXT SECTION DOES NOT WORK
+                // var allComments = tag.comments;
+
+                // var commentsDiv = "";
+
+                // for (var i = 0; i < tag.comments.length; i++) {
+                //   commentsDiv.concat('<div>' + tag.comments[i]['content'] + '</div>');
+                // }
 
                 htmlInfo = (
                     // '<img src=tag.imageUrl alt="tag" style="width:150px;" class="thumbnail">' + 
                     '<p><b>Title: </b>' + tag.title +'</p>' + 
                     '<div id="tagId" style="display:none">' + tag.landmarkId + '</div>' +
                     '<div id="allComments" style="display:none">' + tag.comments + '</div>' +
+                    '<div id="commentUsernames" style="display:none">' + tag.usernames + '</div>' +
+                    '<div id="commentTimes" style="display:none">' + tag.times + '</div>' +
                     '<p><b>Details: </b>' + tag.details + '</p>' +
                     '<br>Enter a comment: <input type="text" id="user-comment">' +
                     '<input type="submit" value="Post" id="submit-comment">' +
                     '<div id="user-comment-update"></div>' +
-                    '<div id="commentsField"></div>' + 'placeholder comments</p>'
+                    '<div id="commentsField"></div></p>'
                     );
+
 
                 // this will bind the marker to the html containing info about the tag (which will appear in the sidebar on click)
                 bindInfo(marker, htmlInfo);
@@ -207,9 +225,13 @@ var markersArray = [];
 
             var commentsField = $('#commentsField');
             var allComments = $('#allComments').html().split(',');
+            var commentUsernames = $('#commentUsernames').html().split(',');
+            var commentTimes = $('#commentTimes').html().split(',');
+
 
             for (var i = 0; i < allComments.length; i++) {
-              commentsField.append('<div class="comment">' + allComments[i] + '</div>');
+              commentsField.append('<div class="comment"><b>' + commentUsernames[i] + '</b> ' + commentTimes[i] + 
+                                   '</div><div class="comment-content">' + allComments[i] + '</div></div>');
             }
 
             $('#submit-comment').click(function(){ submitComment();});
@@ -245,7 +267,8 @@ function submitComment () {
   },
     function(newComment){
 
-      var htmlComment = ('<p>' + newComment.content + newComment.username + newComment.loggedAt + '</p>');
+      var htmlComment = ('<p><div class="comment-poster"><b>' + newComment.username + '</b> ' + newComment.loggedAt + 
+                         '</div><div class="comment-content">' + newComment.content + '</div>');
       $('#user-comment-update').html(htmlComment);
     });
 }
@@ -287,10 +310,10 @@ function handleNoGeolocation(errorFlag) {
 
 newTagHTML = (  
         '<b>Add a new tag</b><br>' +  
-        'Title: <input type="text", name="title", id="add-title"/><br>' +
-        'Artist:<input type="text", name="artist", id="add-artist"/><br>' +
-        'Details:<textarea name="details", cols="35", rows="5", id="add-details"/><br>' +
-        'Image Url:<input type="text", name="image_url", id="add-image-url"/><br>' +
+        '<input type="text", name="title", placeholder="Title" id="add-title"/><br>' +
+        '<input type="text", name="artist", placeholder="Artist" id="add-artist"/><br>' +
+        '<textarea name="details", cols="35", rows="5", placeholder="Details" id="add-details"/><br>' +
+        '<input type="text", name="image_url", placeholder="Image" id="add-image-url"/><br>' +
         '<input type="submit" value="Tag it" id="submit-tag"/>'
         );
 
@@ -317,7 +340,7 @@ function addTagOnSubmit(lat, lng){
                                                   '<br>Enter a comment: <input type="text" id="user-comment">' +
                                                   '<input type="submit" value="Post" id="submit-comment">' +
                                                   '<div id="user-comment-update"></div>' +
-                                                  '<div id="commentsField"></div>' + 'placeholder comments</p>'
+                                                  '<div id="commentsField"></div>' + '</p>'
                                                   )
 
                                   $('#tag-info').html(newTagInfoHTML);
@@ -332,6 +355,12 @@ function addTagOnSubmit(lat, lng){
         });
 }
 
+// ###### REEXAMINE THIS FUNCTION
+function zip(arrays) {
+    return arrays[0].map(function(_,i){
+        return arrays.map(function(array){return array[i]})
+    });
+}
 
 
 google.maps.event.addDomListener(window, 'load', function(){
