@@ -107,31 +107,25 @@ def add_comment():
 
     user_id = session.get('user')
 
-    comment = Comment(landmark_id=landmark_id,
-                      user_id=user_id,
-                      content=content)
-    db.session.add(comment)
-    db.session.commit()
+    user_id = session.get("user_id")
 
-    newComment = {
-        "username": comment.user.username,
-        "content": comment.content,
-        "loggedAt": comment.logged_at.strftime("%b %d %Y")
-    }
+    if user_id:
+        comment = Comment(landmark_id=landmark_id,
+                          user_id=user_id,
+                          content=content)
+        db.session.add(comment)
+        db.session.commit()
 
-    print newComment['loggedAt']  #-->using this to help figure out how to manipulate datetime
+        newComment = {
+            "username": comment.user.username,
+            "content": comment.content,
+            "loggedAt": comment.logged_at.strftime("%b %d %Y")
+        }
 
-    return jsonify(newComment)
-    # if user_id:
-    #     comment = Comment(landmark_id=landmark_id,
-    #                       user_id=user_id,
-    #                       content=content)
-    #     db.session.add(comment)
-    #     db.session.commit()
-    #     return redirect('/route/' + landmark_id)
-    # else:
-    #     flash("Must be logged in to leave a comment.")
-    #     return redirect('/route/' + landmark_id)
+        return jsonify(newComment)
+    else:
+        newComment = {"comment": "Not logged in."}
+        return jsonify(newComment)
 
 
 

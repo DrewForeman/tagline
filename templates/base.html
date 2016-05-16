@@ -88,7 +88,7 @@
                  </form>
               </div>
               <div class="bottom text-center">
-                <div id="login-alts"></div>
+                <div id="not-registered"></div>
                 New here? <a href="#"><b>Register</b></a>
               </div>
            </div>
@@ -109,7 +109,7 @@ $('#login-button').click(function(){
       'password': $('#inputPassword').val()
     }, function(currentUser){
       if (currentUser.username === "not recognized") {
-           $('#login-alts').html('<p>Username or password <br> not recognized.</p>'); 
+           $('#not-registered').html('<p>Username or password <br> not recognized.</p>'); 
     } else {
       $('#login-tog').html('<li><p class="navbar-text">Welcome, ' + currentUser.username + '</p></li>');
     }

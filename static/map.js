@@ -136,6 +136,8 @@ google.maps.event.addDomListener(window, 'load', function() {
 
 
 
+
+
 // v|v|v|v|v|v|v|v|v|v|v|v|v| HELPER FUNCTIONS v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|
 // v|v|v|v|v|v|v|v|v|v|v|v|v| HELPER FUNCTIONS v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|
 // v|v|v|v|v|v|v|v|v|v|v|v|v| HELPER FUNCTIONS v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|
@@ -196,7 +198,7 @@ function assignMarkers(tags){
                           '<div id="commentUsernames" style="display:none">' + tag.usernames + '</div>' +
                           '<div id="commentTimes" style="display:none">' + tag.times + '</div>' +
                           '<p><b>Details: </b>' + tag.details + '</p>' +
-                          '<br>Enter a comment: <input type="text" id="user-comment">' +
+                          '<textarea cols="35", rows="2", placeholder="Enter a comment:" id="user-comment"/><br>' +
                           '<input type="submit" value="Post" id="submit-comment">' +
                           '<div id="user-comment-update"></div>' +
                           '<div id="commentsField"></div>' + '</p>'
@@ -244,9 +246,15 @@ function submitComment () {
   },
     function(newComment){
 
-      var htmlComment = ('<p><div class="comment-poster"><b>' + newComment.username + '</b> ' + newComment.loggedAt + 
-                         '</div><div class="comment-content">' + newComment.content + '</div>');
-      $('#user-comment-update').html(htmlComment);
+      if (newComment.comment === "Not logged in.") {
+        $('#user-comment-update').html('Log in to leave a comment.')
+        console.log('not logged in')
+      } else {
+        var htmlComment = ('<p><div class="comment-poster"><b>' + newComment.username + '</b> ' + newComment.loggedAt + 
+                           '</div><div class="comment-content">' + newComment.content + '</div>');
+        $('#user-comment-update').html(htmlComment);
+      }
+    
     });
 }
 
@@ -287,7 +295,8 @@ function addTagOnSubmit(lat, lng){
                                                   '<div id="tagId" style="display:none">' + newTag.landmarkId + '</div>' +
                                                   // '<div id="allComments" style="display:none">' + newTag.comments + '</div>' +
                                                   '<p><b>Details: </b>' + newTag.details + '</p>' +
-                                                  '<br>Enter a comment: <input type="text" id="user-comment">' +
+                                                  '<textarea cols="35", rows="2", placeholder="Enter a comment:" id="user-comment"/><br>' +
+                                                  // '<br>Enter a comment: <input type="text" id="user-comment">' +
                                                   '<input type="submit" value="Post" id="submit-comment">' +
                                                   '<div id="user-comment-update"></div>' +
                                                   '<div id="commentsField"></div>' + '</p>'
