@@ -57,8 +57,7 @@ var markersArray = [];
         });
 
          
-
-        // ##########  GET NEARBY POINTS UPON LOAD - figure out how to encapsulate success function #####################
+// v|v|v|v|v|v|v|v| SHOW NEARBY POINTS UPON LOAD v|v|v|v|v|v|v|v|v|v|v|v|
         google.maps.event.addListenerOnce(map, 'idle', function(){
           // delay this function so the map has time to load before getting bounds
           setTimeout(function(){
@@ -72,12 +71,112 @@ var markersArray = [];
                   'minLng': minLng,
                   'maxLat': maxLat,
                   'maxLng': maxLng,
-                }, 
+                }, function(nearby_tags) {assignMarkers(nearby_tags);
+              });
+          },3000);
+        });
+    } else {
+        // Browser doesn't support Geolocation
+        handleNoGeolocation(false);
+    }
 
-                function(nearby_tags) {
+
+// v|v|v|v|v|v|v|v| ALLOW ADD NEW TAG FUNCTIONALITY ON MAP CLICK v|v|v|v|v|v|v|v|v|v|v|v|
+    google.maps.event.addListener(map, 'click', function(event) {
+
+      clearClickMarker();
+
+      var clickLat = event.latLng.lat();
+      var clickLng = event.latLng.lng();
+
+      var newMarker = new google.maps.Marker({
+          position: new google.maps.LatLng(clickLat,clickLng), 
+          map: map,
+          icon: '/static/add-icon.png'
+      });
+
+      markersArray.push(newMarker);
+
+      $('#tag-info').html(newTagHTML);
+
+      addTagOnSubmit(clickLat, clickLng);
+
+      // clear add marker if clicked again (basically click on-click off)
+      google.maps.event.addListener(newMarker, 'click', function(event){
+      clearClickMarker();
+      $('#tag-info').html("");
+    })
+
+    });
+
+
+// v|v|v|v|v|v|v|v| CALCULATE ROUTE AND DISPLAY TAGS ON PATH v|v|v|v|v|v|v|v|v|v|v|v|
+    $('#get-route').click(function() {
+
+        clearClickMarker()
+        // on directions search submission, find and display the path
+        calcAndDisplayRoute(directionsService, directionsDisplay);
+
+        $.post('/tags.json', {
+            'origin': document.getElementById('origin').value,
+            'destination': document.getElementById('destination').value
+          }, 
+          function(tags) {assignMarkers(tags);
+        });
+
+    });
+
+
+// v|v|v|v|v|v|v|v| CREATE THE MAP WHEN THE PAGE LOADS v|v|v|v|v|v|v|v|v|v|v|v|
+
+google.maps.event.addDomListener(window, 'load', function() {
+  console.log(map.getBounds());
+});
+  }
+
+
+
+// v|v|v|v|v|v|v|v|v|v|v|v|v| HELPER FUNCTIONS v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|
+// v|v|v|v|v|v|v|v|v|v|v|v|v| HELPER FUNCTIONS v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|
+// v|v|v|v|v|v|v|v|v|v|v|v|v| HELPER FUNCTIONS v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|
+
+
+/** If no geolocation, sets default map center and raises error flag. */
+function handleNoGeolocation(errorFlag) {
+    var content;
+
+    if (errorFlag) {
+        content = "Error: The Geolocation service failed.";
+    } else {
+        content = "Error: Your browser doesn't support geolocation.";
+    }
+
+    var options = {
+        map: map,
+        position: new google.maps.LatLng(37.7749, -122.4194),
+        content: content
+    };
+
+    var infowindow = new google.maps.InfoWindow(options);
+    map.setCenter(options.position);
+}
+
+
+/** Provides toggle on-off capability for new tag markers. */
+function clearClickMarker() {
+  for (var i = 0; i < markersArray.length; i++ ) {
+    markersArray[i].setMap(null);
+  }
+  markersArray.length = 0;
+}
+
+
+/** Creates tag markers and attaches db queried info. */
+function assignMarkers(tags){
+
                   var tag, marker, htmlInfo;
-                  for (var key in nearby_tags) {
-                      tag = nearby_tags[key];
+                  for (var key in tags) {
+                      tag = tags[key];
 
                       marker = new google.maps.Marker({
                           position: new google.maps.LatLng(tag.latitude, tag.longitude),
@@ -107,116 +206,10 @@ var markersArray = [];
                       bindInfo(marker, htmlInfo);
                   }
               }
-              );
-          },3000);
-        });
-
-        // ##############################################################
-
-    } else {
-        // Browser doesn't support Geolocation
-        handleNoGeolocation(false);
-    }
 
 
-
-
-// v|v|v|v|v|v|v|v| CODE BELOW ALLOWS USER TO ADD NEW TAG ON MAP CLICK v|v|v|v|v|v|v|v|v|v|v|v|
-    google.maps.event.addListener(map, 'click', function(event) {
-
-      clearClickMarker();
-
-      var clickLat = event.latLng.lat();
-      var clickLng = event.latLng.lng();
-
-      var newMarker = new google.maps.Marker({
-          position: new google.maps.LatLng(clickLat,clickLng), 
-          map: map,
-          icon: '/static/add-icon.png'
-      });
-
-      markersArray.push(newMarker);
-
-      $('#tag-info').html(newTagHTML);
-
-      // console.log(clickLat + "," + clickLng)
-
-      addTagOnSubmit(clickLat, clickLng);
-
-      // clear add marker if clicked again (basically click on-click off)
-      google.maps.event.addListener(newMarker, 'click', function(event){
-      clearClickMarker();
-      $('#tag-info').html("");
-    })
-
-    });
-// ^|^|^|^|^|^|^| CODE ABOVE ALLOWS USER TO ADD NEW TAG ON MAP CLICK ^|^|^|^|^|^|^|^|
-
-
-// v|v|v|v|v|v|v|v| CODE BELOW GIVES ROUTE AND TAGS ON PATH v|v|v|v|v|v|v|v|v|v|v|v|
-    $('#get-route').click(function() {
-
-        clearClickMarker()
-        // on directions search submission, find and display the path
-        calcAndDisplayRoute(directionsService, directionsDisplay);
-
-        // also request and add markers for tags along path (bbox function and query happening in Flask route)
-        // - figure out how to encapsulate success function
-        $.post('/tags.json', {
-            'origin': document.getElementById('origin').value,
-            'destination': document.getElementById('destination').value
-          }, 
-
-          function(tags) {
-            var tag, marker, htmlInfo;
-            for (var key in tags) {
-                tag = tags[key];
-
-                marker = new google.maps.Marker({
-                    position: new google.maps.LatLng(tag.latitude, tag.longitude),
-                    map: map,
-                    title: tag.title,
-                    icon: '/static/circle.png',
-                    opacity: 0.6,
-                    // animation: google.maps.Animation.DROP
-                });
-
-
-// ##NEXT SECTION DOES NOT WORK
-                // var allComments = tag.comments;
-
-                // var commentsDiv = "";
-
-                // for (var i = 0; i < tag.comments.length; i++) {
-                //   commentsDiv.concat('<div>' + tag.comments[i]['content'] + '</div>');
-                // }
-
-                htmlInfo = (
-                    // '<img src=tag.imageUrl alt="tag" style="width:150px;" class="thumbnail">' + 
-                    '<p><b>Title: </b>' + tag.title +'</p>' + 
-                    '<div id="tagId" style="display:none">' + tag.landmarkId + '</div>' +
-                    '<div id="allComments" style="display:none">' + tag.comments + '</div>' +
-                    '<div id="commentUsernames" style="display:none">' + tag.usernames + '</div>' +
-                    '<div id="commentTimes" style="display:none">' + tag.times + '</div>' +
-                    '<p><b>Details: </b>' + tag.details + '</p>' +
-                    '<br>Enter a comment: <input type="text" id="user-comment">' +
-                    '<input type="submit" value="Post" id="submit-comment">' +
-                    '<div id="user-comment-update"></div>' +
-                    '<div id="commentsField"></div></p>'
-                    );
-
-
-                // this will bind the marker to the html containing info about the tag (which will appear in the sidebar on click)
-                bindInfo(marker, htmlInfo);
-            }
-        }
-        );
-
-    });
-
-
-// add if clause in function to handle no image? (would need to divide up divs)
-    function bindInfo(marker, htmlInfo){
+/** Defines marker click event listener and lists comments. */
+function bindInfo(marker, htmlInfo){
         google.maps.event.addListener(marker, 'click', function() {
 
             clearClickMarker()
@@ -229,7 +222,7 @@ var markersArray = [];
             var commentTimes = $('#commentTimes').html().split(',');
 
 
-            for (var i = 0; i < allComments.length; i++) {
+            for (var i = (allComments.length - 1); i >= 0; i--) {
               commentsField.append('<div class="comment"><b>' + commentUsernames[i] + '</b> ' + commentTimes[i] + 
                                    '</div><div class="comment-content">' + allComments[i] + '</div></div>');
             }
@@ -238,26 +231,10 @@ var markersArray = [];
 
         });
     }
-// ^|^|^|^|^|^|^|^|^|^| CODE ABOVE GIVES ROUTE AND TAGS ON PATH ^|^|^|^|^|^|^|^|^|^|^|^|^|^|^|^|^|^
- 
-
-google.maps.event.addDomListener(window, 'load', function() {
-  console.log(map.getBounds());
-});
-  }
 
 
-// v|v|v|v|v|v|v|v|v|v|v|v|v| HELPER FUNCTIONS v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|
-
-
-function clearClickMarker() {
-  for (var i = 0; i < markersArray.length; i++ ) {
-    markersArray[i].setMap(null);
-  }
-  markersArray.length = 0;
-}
-
-
+/** Adds new user comment to db and updates comment list on page
+New comment disappears if unclicked, unless new search is made. Need to fix this. */
 function submitComment () {
   console.log('comment added to db');
 
@@ -274,6 +251,7 @@ function submitComment () {
 }
 
 
+/** Uses Google's directions service to display user input route. */
 function calcAndDisplayRoute(directionsService, directionsDisplay) {
     directionsService.route({
         origin: document.getElementById('origin').value,
@@ -289,35 +267,7 @@ function calcAndDisplayRoute(directionsService, directionsDisplay) {
 }
 
 
-function handleNoGeolocation(errorFlag) {
-    var content;
-
-    if (errorFlag) {
-        content = "Error: The Geolocation service failed.";
-    } else {
-        content = "Error: Your browser doesn't support geolocation.";
-    }
-
-    var options = {
-        map: map,
-        position: new google.maps.LatLng(37.7749, -122.4194),
-        content: content
-    };
-
-    var infowindow = new google.maps.InfoWindow(options);
-    map.setCenter(options.position);
-}
-
-newTagHTML = (  
-        '<b>Add a new tag</b><br>' +  
-        '<input type="text", name="title", placeholder="Title" id="add-title"/><br>' +
-        '<input type="text", name="artist", placeholder="Artist" id="add-artist"/><br>' +
-        '<textarea name="details", cols="35", rows="5", placeholder="Details" id="add-details"/><br>' +
-        '<input type="text", name="image_url", placeholder="Image" id="add-image-url"/><br>' +
-        '<input type="submit" value="Tag it" id="submit-tag"/>'
-        );
-
-
+/** Adds new tag to db on submission and displays on page. */
 function addTagOnSubmit(lat, lng){
   $('#submit-tag').click(function(){
           console.log('clicked submit button');
@@ -335,7 +285,7 @@ function addTagOnSubmit(lat, lng){
                                                     // '<img src=tag.imageUrl alt="tag" style="width:150px;" class="thumbnail">' + 
                                                   '<p><b>Title: </b>' + newTag.title +'</p>' + 
                                                   '<div id="tagId" style="display:none">' + newTag.landmarkId + '</div>' +
-                                                  '<div id="allComments" style="display:none">' + newTag.comments + '</div>' +
+                                                  // '<div id="allComments" style="display:none">' + newTag.comments + '</div>' +
                                                   '<p><b>Details: </b>' + newTag.details + '</p>' +
                                                   '<br>Enter a comment: <input type="text" id="user-comment">' +
                                                   '<input type="submit" value="Post" id="submit-comment">' +
@@ -346,7 +296,6 @@ function addTagOnSubmit(lat, lng){
                                   $('#tag-info').html(newTagInfoHTML);
                                   console.log('new tag added to db')
 
-
                                   $('#submit-comment').click(function(){ 
                                     submitComment();
                                   });
@@ -355,12 +304,24 @@ function addTagOnSubmit(lat, lng){
         });
 }
 
-// ###### REEXAMINE THIS FUNCTION
-function zip(arrays) {
-    return arrays[0].map(function(_,i){
-        return arrays.map(function(array){return array[i]})
-    });
-}
+
+newTagHTML = (  
+        '<b>Add a new tag</b><br>' +  
+        '<input type="text", name="title", placeholder="Title" id="add-title"/><br>' +
+        '<input type="text", name="artist", placeholder="Artist" id="add-artist"/><br>' +
+        '<textarea name="details", cols="35", rows="5", placeholder="Details" id="add-details"/><br>' +
+        '<input type="text", name="image_url", placeholder="Image" id="add-image-url"/><br>' +
+        '<input type="submit" value="Tag it" id="submit-tag"/>'
+        );
+
+// ###### REEXAMINE POTENTIAL USE FOR THIS FUNCTION
+// function zip(arrays) {
+//     return arrays[0].map(function(_,i){
+//         return arrays.map(function(array){return array[i]})
+//     });
+// }
+
+
 
 
 google.maps.event.addDomListener(window, 'load', function(){
