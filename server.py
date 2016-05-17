@@ -10,7 +10,7 @@ from jinja2 import StrictUndefined
 from flask import Flask, render_template, redirect, request, flash, session, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 
-from model import Tag, User, Comment, Media, TagGenre, UserGenre, connect_to_db, db
+from model import Tag, User, Comment, Media, Genre, TagGenre, UserGenre, connect_to_db, db
 
 from route import api_key, find_landmarks, find_route_coordinates, find_bounding_box, query_landmarks
 
@@ -28,7 +28,12 @@ app.jinja_env.undefined = StrictUndefined
 def index():
     """Homepage. Allows user to search for desired route."""
 
-    return render_template("homepage.html")
+    # add ability to create genres list in html inside JS file from dynamic query
+
+    genres = Genre.query.all()
+    # genre_list = [genre.genre for genre in genres]
+
+    return render_template("homepage.html", genres=genres)
 
 
 @app.route('/tags-geolocation.json', methods=["GET", "POST"])
@@ -45,6 +50,8 @@ def nearby_tags():
                                 Tag.longitude >= min_lng,
                                 Tag.longitude <= max_lng).all()
 
+    print found_tags
+
     nearby_tags = {
         tag.tag_id: {
         "tagId": tag.tag_id,
@@ -54,9 +61,6 @@ def nearby_tags():
         "artist": tag.artist,
         "details": tag.details,
         "mediaUrl": [media.media_url for media in tag.medias],
-        # "comments": [comment.content for comment in tag.comments],
-        # "usernames": [comment.user.username for comment in tag.comments],
-        # "times": [comment.logged_at.strftime("%b %d %Y") for comment in tag.comments]
         "comments": [{comment.comment_id : {"username":comment.user.username, 
                                            "time":comment.logged_at.strftime("%b %d %Y"), 
                                            "content":comment.content}} for comment in tag.comments]
@@ -64,6 +68,7 @@ def nearby_tags():
         }
         for tag in found_tags
     }
+    print nearby_tags.keys()
 
     return jsonify(nearby_tags)
 
@@ -84,9 +89,6 @@ def tags():
         "artist": tag.artist,
         "details": tag.details,
         "mediaUrl": [media.media_url for media in tag.medias],
-        # "comments": [comment.content for comment in tag.comments],
-        # "usernames": [comment.user.username for comment in tag.comments],
-        # "times": [comment.logged_at.strftime("%b %d %Y") for comment in tag.comments]
         "comments": [{comment.comment_id : {"username":comment.user.username, 
                                            "time":comment.logged_at.strftime("%b %d %Y"), 
                                            "content":comment.content}} for comment in tag.comments]
@@ -138,6 +140,8 @@ def handle_add_tag():
     artist=request.form.get('artist'),
     details=request.form.get('details'),
     media_url=request.form.get('media_url')
+
+    # genres=request.form.get('genres')
 
     tag = Tag(latitude=latitude,
                     longitude=longitude,
@@ -196,7 +200,10 @@ def handle_login():
 def register():
     """Show registration form for user."""
 
-    return render_template("register.html")
+    # get list of all genre objects
+    genres = Genre.query.all()
+
+    return render_template("register.html", genres=genres)
 
 
 

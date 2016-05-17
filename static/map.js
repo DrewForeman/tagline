@@ -174,6 +174,7 @@ function clearClickMarker() {
 function assignMarkers(tags){
 
                   var tag, marker, htmlInfo;
+                  console.log(tags)
                   for (var key in tags) {
                       tag = tags[key];
 
@@ -185,7 +186,7 @@ function assignMarkers(tags){
                           opacity: 0.6
                       });
 
-                      commentsHTML = createCommentsList((tag.comments[0]))
+                      commentsHTML = createCommentsList(tag.comments[0])
 
                       htmlInfo = (
                           // '<img src=tag.mediaUrl alt="tag" style="width:150px;" class="thumbnail">' + 
@@ -199,6 +200,7 @@ function assignMarkers(tags){
                           );
 
                       bindInfo(marker, htmlInfo);
+                      console.log('created a marker')
                   }
               }
 
@@ -206,10 +208,11 @@ function assignMarkers(tags){
 function createCommentsList(jsonComments) {
 
   if (jsonComments){
-    for (var i = (Object.keys(jsonComments).length); i >= 0; i--); {
-      var username = jsonComments['1']['username']
-      var date = jsonComments['1']['time']
-      var comment = jsonComments['1']['content']
+    var keys = Object.keys(jsonComments)
+    for (var i = (keys.length - 1); i >= 0; i--) {
+      var username = jsonComments[keys[i]]['username']
+      var date = jsonComments[keys[i]]['time']
+      var comment = jsonComments[keys[i]]['content']
       var commentsHTML = ('<li class="list-group-item"><b>' + username + '</b> ' + date + 
                                      '</div><div class="comment-content">' + comment + '</div></li>');
     } return commentsHTML
@@ -227,17 +230,6 @@ function bindInfo(marker, htmlInfo){
             clearClickMarker()
 
             $('#tag-info').html(htmlInfo);
-
-            // var commentsField = $('#commentsField');
-            // var allComments = $('#allComments').html().split(',');
-            // var commentUsernames = $('#commentUsernames').html().split(',');
-            // var commentTimes = $('#commentTimes').html().split(',');
-
-
-            // for (var i = (allComments.length - 1); i >= 0; i--) {
-            //   commentsField.append('<li class="list-group-item"><b>' + commentUsernames[i] + '</b> ' + commentTimes[i] + 
-            //                        '</div><div class="comment-content">' + allComments[i] + '</div></li>');
-            // }
 
             $('#submit-comment').click(function(){ submitComment();});
 
@@ -291,6 +283,9 @@ function addTagOnSubmit(lat, lng){
           console.log('clicked submit button');
           markersArray[0].setIcon('/static/circle.png');
 
+          // genreVals = getGenreVals()
+          // console.log(genreVals);
+
           $.post('/new-tag.json',{
                                 'latitude': lat,
                                 'longitude': lng,
@@ -322,15 +317,51 @@ function addTagOnSubmit(lat, lng){
         });
 }
 
-
+// figure out how to make this not be hardcoded
 newTagHTML = (  
         '<b>Add a new tag</b><br>' +  
-        '<input type="text", name="title", placeholder="Title" id="add-title"/><br>' +
-        '<input type="text", name="artist", placeholder="Artist" id="add-artist"/><br>' +
-        '<textarea name="details", cols="35", rows="5", placeholder="Details" id="add-details"/><br>' +
-        '<input type="text", name="media_url", placeholder="Media" id="add-media-url"/><br>' +
-        '<input type="submit" value="Tag it" id="submit-tag"/>'
+        '<input type="text" class="form-control" name="title" placeholder="Title" id="add-title"/><br>' +
+        '<input type="text" class="form-control" name="artist" placeholder="Artist" id="add-artist"/><br>' +
+        '<textarea name="details" class="form-control" cols="35" rows="5" placeholder="Details" id="add-details"/><br>' +
+        '<input type="text" class="form-control" name="media_url" placeholder="Media" id="add-media-url"/><br>' +
+        '<div class="btn-group" data-toggle="buttons">' +
+        '<label class="btn btn-default"><input type="checkbox" name="genres" id="architecture" value="architecture">architecture</label>' +
+        '<label class="btn btn-default"><input type="checkbox" name="genres" id="art" value="art">art</label>' +
+        '<label class="btn btn-default"><input type="checkbox" name="genres" id="audio" value="audio">audio</label>' +
+        '<label class="btn btn-default"><input type="checkbox" name="genres" id="curiosities" value="curiosities">curiosities</label><br>' +
+        '<label class="btn btn-default"><input type="checkbox" name="genres" id="food" value="food">food</label>' +
+        '<label class="btn btn-default"><input type="checkbox" name="genres" id="history" value="history">history</label>' +
+        '<label class="btn btn-default"><input type="checkbox" name="genres" id="politics" value="politics">politics</label>' +
+        '<label class="btn btn-default"><input type="checkbox" name="genres" id="sports" value="sports">sports</label><br>' +
+        '<label class="btn btn-default"><input type="checkbox" name="genres" id="stories" value="stories">stories</label>' +
+        '</div><br><br>'+
+        '<input type="submit" class="btn btn-primary" value="Tag it" id="submit-tag"/>'
         );
+
+
+
+// use this to get the list of genres added to TagGenre and UserGenre db and 
+// $("#submit-tag").on('click', function () {
+//     var checkbox_value = "";
+//     $(":checkbox").each(function () {
+//         var ischecked = $(this).is(":checked");
+//         if (ischecked) {
+//             checkbox_value += $(this).val() + "|";
+//         }
+//     });
+//     alert(checkbox_value);
+// });
+
+// function getGenreVals() {
+//   var checkbox_value = "";
+//     $(":checkbox").each(function () {
+//         var ischecked = $(this).is(":checked");
+//         if (ischecked) {
+//             checkbox_value += $(this).val() + "|";
+//         }
+//     });
+//     return checkbox_value
+//   }
 
 // ###### REEXAMINE POTENTIAL USE FOR THIS FUNCTION
 // function zip(arrays) {

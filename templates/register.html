@@ -11,21 +11,15 @@
     <!-- make for loop for genres here -->
     Interests:<br>
     <div class="btn-group" data-toggle="buttons"> 
+
+        {% for genre in genres %}
+
         <label class="btn btn-default">
-            <input type="checkbox" name="genres" id="architecture" value="architecture">architecture
+            <input type="checkbox" name="genres" id="{{genre.genre}}" value="{{genre.genre}}">{{genre.genre}}
         </label>
-        <label class="btn btn-default">
-            <input type="checkbox" name="genres" id="art" value="art">art
-        </label>
-        <label class="btn btn-default">
-            <input type="checkbox" name="genres" id="curiosities" value="curiosities">curiosities
-        </label>
-        <label class="btn btn-default">
-            <input type="checkbox" name="genres" id="history" value="history">history
-        </label>
-        <label class="btn btn-default">
-            <input type="checkbox" name="genres" id="stories" value="stories">stories
-        </label>
+
+        {%endfor%}
+        
     </div>
     <br><br>
 
