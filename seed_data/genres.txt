@@ -1,0 +1,9 @@
+architecture
+art
+audio
+curiosities
+food
+history
+politics
+sports
+stories

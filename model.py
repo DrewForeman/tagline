@@ -1,4 +1,4 @@
-"""Models and database functions for flaneur project."""
+"""Models and database functions for project."""
 
 
 from flask_sqlalchemy import SQLAlchemy
@@ -8,44 +8,63 @@ from datetime import datetime
 db = SQLAlchemy()
 
 
-class Landmark(db.Model):
+class Tag(db.Model):
     """Point of interest on website"""
 
-    __tablename__ = "landmarks"
+    __tablename__ = "tags"
 
-    landmark_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    tag_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     latitude = db.Column(db.Numeric(17,14), nullable=False)
     longitude = db.Column(db.Numeric(17,14), nullable=False)
     title = db.Column(db.String(100), nullable=False)
-    artist = db.Column(db.String(200), nullable=True)
+    artist = db.Column(db.String(100), nullable=True)
     details = db.Column(db.String(300), nullable=True)
-    image_url = db.Column(db.String(200), nullable=True)
 
+    def __repr__(self):
+        """Show information about the tag"""
+
+        return "<Tag id= {} title= {}>".format(self.tag_id,
+                                               self.title)
+
+
+class Media(db.Model):
+    """Media for tag"""
+
+    __tablename__ = "medias"
+
+    media_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.tag_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True)
+    media_url = db.Column(db.String(200), nullable=False)
+
+    tag = db.relationship("Tag",
+                          backref=db.backref("medias", order_by=media_id))
 
 
     def __repr__(self):
-        """Show information about the landmark"""
+        """Show information about the media"""
 
-        return "<Landmark id= {} title= {}>".format(
-                                                    self.landmark_id,
-                                                    self.title)
+        return "<Media id= {}>".format(self.media_id)
 
 
-# class Image(db.Model):
-#     """Image for landmark"""
 
-#     __tablename__ = "images"
+class Genre(db.Model):
+    """Category of tag"""
 
-#     image_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-#     landmark_id = db.Column(db.Integer, db.ForeignKey('landmarks.landmark_id') nullable=False)
-#     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True)
-#     image_url = db.Column(db.String(130), nullable=False)
+    __tablename__ = "genres"
+
+    genre = db.Column(db.String(30), primary_key=True)
 
 
-#     def __repr__(self):
-#         """Show information about the image"""
 
-#         return "<Image id= {}>".format(self.image_id)
+class TagGenre(db.Model):
+    """Association for tag and genre"""    
+
+    __tablename__ = "tags_genres"
+
+    assc_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.tag_id'), nullable=False)
+    genre = db.Column(db.String(30), db.ForeignKey('genres.genre'), nullable=False)
 
 
 
@@ -55,10 +74,9 @@ class User(db.Model):
     __tablename__ = "users"
 
     user_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    name = db.Column(db.String(40), nullable=False)
     username = db.Column(db.String(20), nullable=False, unique=True)
     password = db.Column(db.String(20), nullable=False)
-
-
 
     def __repr__(self):
         """Show information about the user"""
@@ -66,13 +84,25 @@ class User(db.Model):
         return "<User username= {}>".format(self.username)
 
 
+
+class UserGenre(db.Model):
+    """Association for user and genre"""    
+
+    __tablename__ = "users_genres"
+
+    assc_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    genre = db.Column(db.String(30), db.ForeignKey('genres.genre'), nullable=False)
+
+
+
 class Comment(db.Model):
-    """Comment from user on specific landmark"""
+    """Comment from user on specific tag"""
 
     __tablename__ = "comments"
 
     comment_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    landmark_id = db.Column(db.Integer, db.ForeignKey('landmarks.landmark_id'), nullable=False)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.tag_id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     content = db.Column(db.String(600), nullable=False)
     logged_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
@@ -80,8 +110,8 @@ class Comment(db.Model):
     user = db.relationship("User",
                             backref=db.backref("comments", order_by=logged_at))
 
-    landmark = db.relationship("Landmark",
-                            backref=db.backref("comments", order_by=landmark_id))
+    tag = db.relationship("Tag",
+                            backref=db.backref("comments", order_by=tag_id))
 
 
     def __repr__(self):
@@ -95,7 +125,7 @@ class Comment(db.Model):
 def connect_to_db(app):
     """Connect the database to Flask app."""
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///landmarks'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///tags'
     db.app = app
     db.init_app(app)
 

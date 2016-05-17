@@ -4,136 +4,133 @@ var markersArray = [];
 
 
 
-  function initMap() {
+function initMap() {
 
-    var directionsService = new google.maps.DirectionsService;
-    var directionsDisplay = new google.maps.DirectionsRenderer({
-        suppressMarkers: true,
-        polylineOptions:{strokeColor:'#FFFFFF', strokeOpacity: 1.0, strokeWeight: 5}
-    });
+  var directionsService = new google.maps.DirectionsService;
+  var directionsDisplay = new google.maps.DirectionsRenderer({
+      suppressMarkers: true,
+      polylineOptions:{strokeColor:'#FFFFFF', strokeOpacity: 1.0, strokeWeight: 5}
+  });
 
-    var mapDiv = document.getElementById('map');
-    map = new google.maps.Map(mapDiv, {
-        // center: {lat: 37.7749, lng: -122.4194},
-        zoom: 16,
-        scrollwheel: true,
-        zoomControl: true,
-        panControl: false,
-        mapTypeControl: false,
-        streetViewControl: false,
-        styles: MAPSTYLES,
-        mapTypeId: google.maps.MapTypeId.ROADS
-    });
+  var mapDiv = document.getElementById('map');
+  map = new google.maps.Map(mapDiv, {
+      // center: {lat: 37.7749, lng: -122.4194},
+      zoom: 16,
+      scrollwheel: true,
+      zoomControl: true,
+      panControl: false,
+      mapTypeControl: false,
+      streetViewControl: false,
+      styles: MAPSTYLES,
+      mapTypeId: google.maps.MapTypeId.ROADS
+  });
 
-    directionsDisplay.setMap(map);
+  directionsDisplay.setMap(map);
 
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function (position) {
-            var pos = new google.maps.LatLng(
-                    position.coords.latitude,
-                    position.coords.longitude);
+  if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function (position) {
+          var pos = new google.maps.LatLng(
+                  position.coords.latitude,
+                  position.coords.longitude);
 
-            var geolocationMarker = new google.maps.Marker({
-              map: map,
-              position: pos,
-              icon: '/static/point3.png'
-            });
+          var geolocationMarker = new google.maps.Marker({
+            map: map,
+            position: pos,
+            icon: '/static/point3.png'
+          });
 
-            map.setCenter(pos);
+          map.setCenter(pos);
 
-            google.maps.event.addListener(geolocationMarker, 'click', function(event){
-              clearClickMarker();
-              geolocationMarker.setIcon('/static/add-icon.png');
-              $('#tag-info').html(newTagHTML);
-              addTagOnSubmit(position.coords.latitude, position.coords.latitude);
-            })
+          google.maps.event.addListener(geolocationMarker, 'click', function(event){
+            clearClickMarker();
+            geolocationMarker.setIcon('/static/add-icon.png');
+            $('#tag-info').html(newTagHTML);
+            addTagOnSubmit(position.coords.latitude, position.coords.latitude);
+          })
 
-            google.maps.event.addListener(map, 'click', function(event){
-              geolocationMarker.setIcon('/static/point3.png');
-            })
+          google.maps.event.addListener(map, 'click', function(event){
+            geolocationMarker.setIcon('/static/point3.png');
+          })
 
-        }, function () {
-            handleNoGeolocation(true);
-        });
-
-         
-// v|v|v|v|v|v|v|v| SHOW NEARBY POINTS UPON LOAD v|v|v|v|v|v|v|v|v|v|v|v|
-        google.maps.event.addListenerOnce(map, 'idle', function(){
-          // delay this function so the map has time to load before getting bounds
-          setTimeout(function(){
-              minLat = map.getBounds().H['H'];
-              minLng = map.getBounds().j['j'];
-              maxLat = map.getBounds().H['j'];
-              maxLng = map.getBounds().j['H'];
-              
-              $.post('/tags-geolocation.json', {
-                  'minLat': minLat,
-                  'minLng': minLng,
-                  'maxLat': maxLat,
-                  'maxLng': maxLng,
-                }, function(nearby_tags) {assignMarkers(nearby_tags);
-              });
-          },3000);
-        });
-    } else {
-        // Browser doesn't support Geolocation
-        handleNoGeolocation(false);
-    }
-
-
-// v|v|v|v|v|v|v|v| ALLOW ADD NEW TAG FUNCTIONALITY ON MAP CLICK v|v|v|v|v|v|v|v|v|v|v|v|
-    google.maps.event.addListener(map, 'click', function(event) {
-
-      clearClickMarker();
-
-      var clickLat = event.latLng.lat();
-      var clickLng = event.latLng.lng();
-
-      var newMarker = new google.maps.Marker({
-          position: new google.maps.LatLng(clickLat,clickLng), 
-          map: map,
-          icon: '/static/add-icon.png'
+      }, function () {
+          handleNoGeolocation(true);
       });
 
-      markersArray.push(newMarker);
+       
+      // v|v|v|v|v|v|v|v| SHOW NEARBY POINTS UPON LOAD v|v|v|v|v|v|v|v|v|v|v|v|
+      google.maps.event.addListenerOnce(map, 'idle', function(){
+        // delay this function so the map has time to load before getting bounds
+        setTimeout(function(){
+            minLat = map.getBounds().H['H'];
+            minLng = map.getBounds().j['j'];
+            maxLat = map.getBounds().H['j'];
+            maxLng = map.getBounds().j['H'];
+            
+            $.post('/tags-geolocation.json', {
+                'minLat': minLat,
+                'minLng': minLng,
+                'maxLat': maxLat,
+                'maxLng': maxLng,
+              }, function(nearby_tags) {assignMarkers(nearby_tags);
+            });
+        },3000);
+      });
+  } else {
+      // Browser doesn't support Geolocation
+      handleNoGeolocation(false);
+  }
 
-      $('#tag-info').html(newTagHTML);
 
-      addTagOnSubmit(clickLat, clickLng);
+  // v|v|v|v|v|v|v|v| ALLOW ADD NEW TAG FUNCTIONALITY ON MAP CLICK v|v|v|v|v|v|v|v|v|v|v|v|
+  google.maps.event.addListener(map, 'click', function(event) {
 
-      // clear add marker if clicked again (basically click on-click off)
-      google.maps.event.addListener(newMarker, 'click', function(event){
+    clearClickMarker();
+
+    var clickLat = event.latLng.lat();
+    var clickLng = event.latLng.lng();
+
+    var newMarker = new google.maps.Marker({
+        position: new google.maps.LatLng(clickLat,clickLng), 
+        map: map,
+        icon: '/static/add-icon.png'
+    });
+
+    markersArray.push(newMarker);
+
+    $('#tag-info').html(newTagHTML);
+
+    addTagOnSubmit(clickLat, clickLng);
+
+    // clear add marker if clicked again (basically click on-click off)
+    google.maps.event.addListener(newMarker, 'click', function(event){
       clearClickMarker();
       $('#tag-info').html("");
     })
-
-    });
+  });
 
 
 // v|v|v|v|v|v|v|v| CALCULATE ROUTE AND DISPLAY TAGS ON PATH v|v|v|v|v|v|v|v|v|v|v|v|
-    $('#get-route').click(function() {
+  $('#get-route').click(function() {
 
-        clearClickMarker()
-        // on directions search submission, find and display the path
-        calcAndDisplayRoute(directionsService, directionsDisplay);
+      clearClickMarker()
+      // on directions search submission, find and display the path
+      calcAndDisplayRoute(directionsService, directionsDisplay);
 
-        $.post('/tags.json', {
-            'origin': document.getElementById('origin').value,
-            'destination': document.getElementById('destination').value
-          }, 
-          function(tags) {assignMarkers(tags);
-        });
+      $.post('/tags.json', {
+          'origin': document.getElementById('origin').value,
+          'destination': document.getElementById('destination').value
+        }, 
+        function(tags) {assignMarkers(tags);
+      });
+  });
 
-    });
-
+}
 
 // v|v|v|v|v|v|v|v| CREATE THE MAP WHEN THE PAGE LOADS v|v|v|v|v|v|v|v|v|v|v|v|
 
-google.maps.event.addDomListener(window, 'load', function() {
-  console.log(map.getBounds());
+google.maps.event.addDomListener(window, 'load', function(){
+  initMap();
 });
-  }
-
 
 
 
@@ -188,26 +185,39 @@ function assignMarkers(tags){
                           opacity: 0.6
                       });
 
-                      // commentInf = zip(tag.comments, tag.usernames, tag.times)
+                      commentsHTML = createCommentsList((tag.comments[0]))
 
                       htmlInfo = (
-                          // '<img src=tag.imageUrl alt="tag" style="width:150px;" class="thumbnail">' + 
-                          '<p><b>Title: </b>' + tag.title +'</p>' + 
-                          '<div id="tagId" style="display:none">' + tag.landmarkId + '</div>' +
-                          '<div id="allComments" style="display:none">' + tag.comments + '</div>' +
-                          '<div id="commentUsernames" style="display:none">' + tag.usernames + '</div>' +
-                          '<div id="commentTimes" style="display:none">' + tag.times + '</div>' +
-                          '<p><b>Details: </b>' + tag.details + '</p>' +
-                          '<textarea cols="35", rows="2", placeholder="Enter a comment:" id="user-comment"/><br>' +
+                          // '<img src=tag.mediaUrl alt="tag" style="width:150px;" class="thumbnail">' + 
+                          '<p><b>' + tag.title +'</b></p>' + 
+                          '<div id="tagId" style="display:none">' + tag.tagId + '</div>' +
+                          '<p>' + tag.artist +'<br>'+ tag.details + '</p>' +
+                          '<textarea class="form-control" cols="35", rows="2", placeholder="Enter a comment:" id="user-comment"/><br>' +
                           '<input type="submit" value="Post" id="submit-comment">' +
                           '<div id="user-comment-update"></div>' +
-                          '<div id="commentsField"></div>' + '</p>'
+                          '<ul class="list-group" id="commentsField">' + commentsHTML + '</ul></p>'
                           );
 
-                      // this will bind the marker to the html containing info about the tag (which will appear in the sidebar on click)
                       bindInfo(marker, htmlInfo);
                   }
               }
+
+
+function createCommentsList(jsonComments) {
+
+  if (jsonComments){
+    for (var i = (Object.keys(jsonComments).length); i >= 0; i--); {
+      var username = jsonComments['1']['username']
+      var date = jsonComments['1']['time']
+      var comment = jsonComments['1']['content']
+      var commentsHTML = ('<li class="list-group-item"><b>' + username + '</b> ' + date + 
+                                     '</div><div class="comment-content">' + comment + '</div></li>');
+    } return commentsHTML
+  } else {
+      return "Comments:"
+    }
+}
+
 
 
 /** Defines marker click event listener and lists comments. */
@@ -218,16 +228,16 @@ function bindInfo(marker, htmlInfo){
 
             $('#tag-info').html(htmlInfo);
 
-            var commentsField = $('#commentsField');
-            var allComments = $('#allComments').html().split(',');
-            var commentUsernames = $('#commentUsernames').html().split(',');
-            var commentTimes = $('#commentTimes').html().split(',');
+            // var commentsField = $('#commentsField');
+            // var allComments = $('#allComments').html().split(',');
+            // var commentUsernames = $('#commentUsernames').html().split(',');
+            // var commentTimes = $('#commentTimes').html().split(',');
 
 
-            for (var i = (allComments.length - 1); i >= 0; i--) {
-              commentsField.append('<div class="comment"><b>' + commentUsernames[i] + '</b> ' + commentTimes[i] + 
-                                   '</div><div class="comment-content">' + allComments[i] + '</div></div>');
-            }
+            // for (var i = (allComments.length - 1); i >= 0; i--) {
+            //   commentsField.append('<li class="list-group-item"><b>' + commentUsernames[i] + '</b> ' + commentTimes[i] + 
+            //                        '</div><div class="comment-content">' + allComments[i] + '</div></li>');
+            // }
 
             $('#submit-comment').click(function(){ submitComment();});
 
@@ -242,7 +252,7 @@ function submitComment () {
 
   $.post('/add-comment.json', {
     'comment': document.getElementById('user-comment').value, 
-    'landmarkId': document.getElementById('tagId').innerHTML
+    'tagId': document.getElementById('tagId').innerHTML
   },
     function(newComment){
 
@@ -287,19 +297,18 @@ function addTagOnSubmit(lat, lng){
                                 'title': $('#add-title').val(),
                                 'artist': $('#add-artist').val(),
                                 'details': $('#add-details').val(),
-                                'image_url': $('#add-image-url').val()
+                                'media_url': $('#add-media-url').val()
                                 },function(newTag){ 
                                   newTagInfoHTML = (                 
-                                                    // '<img src=tag.imageUrl alt="tag" style="width:150px;" class="thumbnail">' + 
-                                                  '<p><b>Title: </b>' + newTag.title +'</p>' + 
-                                                  '<div id="tagId" style="display:none">' + newTag.landmarkId + '</div>' +
-                                                  // '<div id="allComments" style="display:none">' + newTag.comments + '</div>' +
-                                                  '<p><b>Details: </b>' + newTag.details + '</p>' +
-                                                  '<textarea cols="35", rows="2", placeholder="Enter a comment:" id="user-comment"/><br>' +
+                                                  // '<img src=tag.mediaUrl alt="tag" style="width:150px;" class="thumbnail">' + 
+                                                  '<p><b>' + newTag.title +'</b></p>' + 
+                                                  '<div id="tagId" style="display:none">' + newTag.tagId + '</div>' +
+                                                  '<p>' + newTag.details + '</p>' +
+                                                  '<textarea class="form-control" cols="35", rows="2", placeholder="Enter a comment:" id="user-comment"/><br>' +
                                                   // '<br>Enter a comment: <input type="text" id="user-comment">' +
                                                   '<input type="submit" value="Post" id="submit-comment">' +
                                                   '<div id="user-comment-update"></div>' +
-                                                  '<div id="commentsField"></div>' + '</p>'
+                                                  '<div id="commentsField"></div></p>'
                                                   )
 
                                   $('#tag-info').html(newTagInfoHTML);
@@ -319,7 +328,7 @@ newTagHTML = (
         '<input type="text", name="title", placeholder="Title" id="add-title"/><br>' +
         '<input type="text", name="artist", placeholder="Artist" id="add-artist"/><br>' +
         '<textarea name="details", cols="35", rows="5", placeholder="Details" id="add-details"/><br>' +
-        '<input type="text", name="image_url", placeholder="Image" id="add-image-url"/><br>' +
+        '<input type="text", name="media_url", placeholder="Media" id="add-media-url"/><br>' +
         '<input type="submit" value="Tag it" id="submit-tag"/>'
         );
 
@@ -333,8 +342,6 @@ newTagHTML = (
 
 
 
-google.maps.event.addDomListener(window, 'load', function(){
-  initMap();
-});
+
 
 

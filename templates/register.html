@@ -4,11 +4,37 @@
 <h2>Register</h2>
 
 <form action="/handle-registration" method="POST">
-    <label for="username-input">Username:</label>
-    <input type="text", name="username", id="username-input"/>
-    <label for="password-input">Password:</label>
-    <input type="password", name="password", id="password-input"/>
-    <input type="submit" value="Register"/>
+    <input type="text" class="form-control" name="name" placeholder="Name" id="name-input"/><br>
+    <input type="text" class="form-control" name="username" placeholder="Username" id="username-input"/><br>
+    <input type="password" class="form-control" name="password" placeholder="Password" id="password-input"/><br>
+
+    <!-- make for loop for genres here -->
+    Interests:<br>
+    <div class="btn-group" data-toggle="buttons"> 
+        <label class="btn btn-default">
+            <input type="checkbox" name="genres" id="architecture" value="architecture">architecture
+        </label>
+        <label class="btn btn-default">
+            <input type="checkbox" name="genres" id="art" value="art">art
+        </label>
+        <label class="btn btn-default">
+            <input type="checkbox" name="genres" id="curiosities" value="curiosities">curiosities
+        </label>
+        <label class="btn btn-default">
+            <input type="checkbox" name="genres" id="history" value="history">history
+        </label>
+        <label class="btn btn-default">
+            <input type="checkbox" name="genres" id="stories" value="stories">stories
+        </label>
+    </div>
+    <br><br>
+
+    <input type="submit" class="btn btn-primary" value="Register"/>
 </form>
+<br>
+
+<div class="form-group">
+
+</div>
 
 {% endblock %}

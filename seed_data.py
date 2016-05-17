@@ -4,19 +4,34 @@ import csv
 import json
 
 from sqlalchemy import func
-from model import Landmark
+from model import Tag, Media, Genre, TagGenre, User, UserGenre, Comment
 
 from model import connect_to_db, db
 from server import app
 
 
+def load_genres():
+    """Load list of starting genres from file"""
+
+    print "Genres"
+
+    Genre.query.delete()
+
+    for row in open("seed_data/genres.txt"):
+        row = row.rstrip()
+
+        genre = Genre(genre=str(row))
+
+        db.session.add(genre)
+    db.session.commit()
+
 
 def load_art_points_SF():
     """Load points from SF public art csv data into database"""
 
-    print "Landmarks SF"
+    print "Tags SF"
 
-    Landmark.query.delete()
+    Tag.query.delete()
 
     with open ("seed_data/SF_Civic_Art.csv") as csv_file:
         for row in csv.reader(csv_file):
@@ -26,13 +41,19 @@ def load_art_points_SF():
             latitude = json.loads(geometry)['coordinates'][1]
             longitude = json.loads(geometry)['coordinates'][0]
 
-            landmark = Landmark(latitude=latitude,
+            tag = Tag(latitude=latitude,
                           longitude=longitude,
                           title=title,
                           artist=artist,
                           details=details)
 
-            db.session.add(landmark)
+            db.session.add(tag)
+            db.session.commit()
+
+            tag_genre = TagGenre(tag_id=tag.tag_id,
+                                 genre="art")
+
+            db.session.add(tag_genre)
 
     db.session.commit()    
 
@@ -41,7 +62,7 @@ def load_art_points_SF():
 def load_art_points_Oakland():
     """Load points from Oakland public art csv data into database"""
 
-    print "Landmarks Oakland"
+    print "Tags Oakland"
 
     with open ("seed_data/Oakland_Civic_Art.csv") as csv_file:
         for row in csv.reader(csv_file):
@@ -54,13 +75,19 @@ def load_art_points_Oakland():
             latitude = float(lat_long[0])
             longitude = float(lat_long[1])
 
-            landmark = Landmark(latitude=latitude,
+            tag = Tag(latitude=latitude,
                           longitude=longitude,
                           title=title,
                           artist=artist,
                           details=media_detail)
 
-            db.session.add(landmark)
+            db.session.add(tag)
+            db.session.commit()
+
+            tag_genre = TagGenre(tag_id=tag.tag_id,
+                                 genre="art")
+
+            db.session.add(tag_genre)
 
     db.session.commit()  
 
@@ -74,16 +101,26 @@ def load_waymarks():
     for row in open("seed_data/waymarks.txt"):
         row = row.rstrip()
 
-        latitude, longitude, title, artist, details, image_url = row.split('|')
+        latitude, longitude, title, artist, details, media_url = row.split('|')
 
-        landmark = Landmark(latitude=latitude,
+        tag = Tag(latitude=latitude,
                       longitude=longitude,
                       title=title,
                       artist=artist,
-                      details=details,
-                      image_url=image_url)
+                      details=details)
 
-        db.session.add(landmark)
+        db.session.add(tag)
+        db.session.commit()
+
+        tag_genre = TagGenre(tag_id=tag.tag_id,
+                                 genre="art")
+
+        db.session.add(tag_genre)
+
+        media = Media(tag_id = tag.tag_id,
+                      media_url = media_url)
+
+        db.session.add(media)
 
     db.session.commit()  
 
@@ -95,7 +132,9 @@ if __name__ == "__main__":
     # In case tables haven't been created, create them
     db.create_all()
 
-    # load_art_points_SF()
-    # load_art_points_Oakland()
-    # load_waymarks()
+    load_genres()
+    load_art_points_SF()
+    load_art_points_Oakland()
+    load_waymarks()
+    
 

@@ -10,7 +10,7 @@ from jinja2 import StrictUndefined
 from flask import Flask, render_template, redirect, request, flash, session, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 
-from model import Landmark, User, Comment, connect_to_db, db
+from model import Tag, User, Comment, Media, TagGenre, UserGenre, connect_to_db, db
 
 from route import api_key, find_landmarks, find_route_coordinates, find_bounding_box, query_landmarks
 
@@ -40,26 +40,26 @@ def nearby_tags():
     max_lat = request.form.get('maxLat');
     max_lng = request.form.get('maxLng');
 
-    found_tags = Landmark.query.filter(Landmark.latitude >= min_lat, 
-                                Landmark.latitude <= max_lat,
-                                Landmark.longitude >= min_lng,
-                                Landmark.longitude <= max_lng).all()
+    found_tags = Tag.query.filter(Tag.latitude >= min_lat, 
+                                Tag.latitude <= max_lat,
+                                Tag.longitude >= min_lng,
+                                Tag.longitude <= max_lng).all()
 
     nearby_tags = {
-        tag.landmark_id: {
-        "landmarkId": tag.landmark_id,
+        tag.tag_id: {
+        "tagId": tag.tag_id,
         "latitude": tag.latitude,
         "longitude": tag.longitude,
         "title": tag.title,
         "artist": tag.artist,
         "details": tag.details,
-        "imageUrl": tag.image_url,
-        "comments": [comment.content for comment in tag.comments],
-        "usernames": [comment.user.username for comment in tag.comments],
-        "times": [comment.logged_at.strftime("%b %d %Y") for comment in tag.comments]
-        # [{comment.comment_id : {"username":comment.user.username, 
-        #                                    "time":comment.logged_at, 
-        #                                    "content":comment.content}} for comment in tag.comments]
+        "mediaUrl": [media.media_url for media in tag.medias],
+        # "comments": [comment.content for comment in tag.comments],
+        # "usernames": [comment.user.username for comment in tag.comments],
+        # "times": [comment.logged_at.strftime("%b %d %Y") for comment in tag.comments]
+        "comments": [{comment.comment_id : {"username":comment.user.username, 
+                                           "time":comment.logged_at.strftime("%b %d %Y"), 
+                                           "content":comment.content}} for comment in tag.comments]
                                            
         }
         for tag in found_tags
@@ -76,20 +76,20 @@ def tags():
     destination = request.form.get('destination')
 
     tags = {
-        tag.landmark_id: {
-        "landmarkId": tag.landmark_id,
+        tag.tag_id: {
+        "tagId": tag.tag_id,
         "latitude": tag.latitude,
         "longitude": tag.longitude,
         "title": tag.title,
         "artist": tag.artist,
         "details": tag.details,
-        "imageUrl": tag.image_url,
-        "comments": [comment.content for comment in tag.comments],
-        "usernames": [comment.user.username for comment in tag.comments],
-        "times": [comment.logged_at.strftime("%b %d %Y") for comment in tag.comments]
-        # [{comment.comment_id : {"username":comment.user.username, 
-        #                                    "time":comment.logged_at, 
-        #                                    "content":comment.content}} for comment in tag.comments]
+        "mediaUrl": [media.media_url for media in tag.medias],
+        # "comments": [comment.content for comment in tag.comments],
+        # "usernames": [comment.user.username for comment in tag.comments],
+        # "times": [comment.logged_at.strftime("%b %d %Y") for comment in tag.comments]
+        "comments": [{comment.comment_id : {"username":comment.user.username, 
+                                           "time":comment.logged_at.strftime("%b %d %Y"), 
+                                           "content":comment.content}} for comment in tag.comments]
         
         }
         for tag in find_landmarks(origin, destination)
@@ -103,14 +103,12 @@ def add_comment():
     """Add user's comment to db and update current page."""
 
     content = request.form.get('comment')
-    landmark_id = request.form.get('landmarkId')
+    tag_id = request.form.get('tagId')
 
-    user_id = session.get('user')
-
-    user_id = session.get("user_id")
+    user_id = session.get("user")
 
     if user_id:
-        comment = Comment(landmark_id=landmark_id,
+        comment = Comment(tag_id=tag_id,
                           user_id=user_id,
                           content=content)
         db.session.add(comment)
@@ -139,26 +137,32 @@ def handle_add_tag():
     title=request.form.get('title'),
     artist=request.form.get('artist'),
     details=request.form.get('details'),
-    image_url=request.form.get('image_url')
+    media_url=request.form.get('media_url')
 
-    tag = Landmark(latitude=latitude,
+    tag = Tag(latitude=latitude,
                     longitude=longitude,
                     title=title,
                     artist=artist,
                     details=details,
-                    image_url=image_url
+                    # media_url=media_url
                         )
 
     db.session.add(tag)
     db.session.commit()
-    # also update new db table for user created places w user_id, landmark_id, logged_at
+
+    media = Media(tag_id=tag.tag_id,
+                  media_url=media_url)
+
+    db.session.add(media)
+    db.session.commit()
+    # also update new db table for user created places w user_id, tag_id, logged_at
 
     newTag = {
-            "landmarkId": tag.landmark_id,
+            "tagId": tag.tag_id,
             "title": tag.title,
             "artist": tag.artist,
             "details": tag.details,
-            "imageURL": tag.image_url
+            "mediaURL": media.media_url
     }
     
     return jsonify(newTag)
@@ -188,30 +192,31 @@ def handle_login():
 
 
 
-# @app.route('/register')
-# def register():
-#     """Show registration form for user."""
+@app.route('/register')
+def register():
+    """Show registration form for user."""
 
-#     return render_template("register.html")
+    return render_template("register.html")
 
 
 
-# @app.route('/handle-registration', methods=["POST"])
-# def handle_registration():
-#     """Add new user to database and log user into site."""
+@app.route('/handle-registration', methods=["POST"])
+def handle_registration():
+    """Add new user to database and log user into site."""
 
-#     username = request.form.get('username')
-#     password = request.form.get('password')
+    name = request.form.get('name')
+    username = request.form.get('username')
+    password = request.form.get('password')
 
-#     new_user = User(username=username, password=password)
+    new_user = User(name=name, username=username, password=password)
 
-#     db.session.add(new_user)
-#     db.session.commit()
+    db.session.add(new_user)
+    db.session.commit()
 
-#     session['user'] = new_user.user_id
+    session['user'] = new_user.user_id
 
-#     flash(("Welcome {}. You have been registered and logged in.").format(new_user.username))
-#     return redirect('/')
+    flash(("Welcome {}. You have been registered and logged in.").format(new_user.username))
+    return redirect('/')
 
 
 

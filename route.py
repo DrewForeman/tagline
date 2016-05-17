@@ -4,7 +4,7 @@ import json
 
 from planar import BoundingBox
 
-from model import Landmark, connect_to_db
+from model import Tag, connect_to_db
 
 # from pprint import pprint
 
@@ -35,7 +35,7 @@ def find_route_coordinates(origin, destination):
 
     payload = {'origin': origin,
             'destination': destination,
-            'key': api_key,
+            # 'key': api_key,
             'mode':'walking'
             }
 
@@ -88,12 +88,12 @@ def query_landmarks(bbox):
     max_lat = bbox.max_point[0]
     max_lng = bbox.max_point[1]
 
-    landmarks = Landmark.query.filter(Landmark.latitude >= min_lat, 
-                                    Landmark.latitude <= max_lat,
-                                    Landmark.longitude >= min_lng,
-                                    Landmark.longitude <= max_lng).all()
+    tags = Tag.query.filter(Tag.latitude >= min_lat, 
+                                    Tag.latitude <= max_lat,
+                                    Tag.longitude >= min_lng,
+                                    Tag.longitude <= max_lng).all()
 
-    return landmarks
+    return tags
 
 
 
