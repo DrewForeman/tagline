@@ -1,7 +1,8 @@
 var map;
 
-var markersArray = [];
+var newMarkersArray = [];
 
+var allMarkersArray = [];
 
 
 function initMap() {
@@ -101,7 +102,7 @@ function initMap() {
         icon: '/static/add-icon.png'
     });
 
-    markersArray.push(newMarker);
+    newMarkersArray.push(newMarker);
 
     $('#tag-info').html(newTagHTML);
 
@@ -117,8 +118,8 @@ function initMap() {
 
 // v|v|v|v|v|v|v|v| CALCULATE ROUTE AND DISPLAY TAGS ON PATH v|v|v|v|v|v|v|v|v|v|v|v|
   $('#get-route').click(function() {
-
-      clearClickMarker()
+      clearClickMarker();
+      clearMarkers();
       // on directions search submission, find and display the path
       calcAndDisplayRoute(directionsService, directionsDisplay);
 
@@ -128,6 +129,8 @@ function initMap() {
         }, 
         function(tags) { 
           assignMarkers(tags);
+          var tagList = updateTagInfoList(tags);
+          $('#tag-info').html('<ul class="list-group">'+ tagList + '</ul>');
       });
   });
 
@@ -174,11 +177,18 @@ function handleNoGeolocation(errorFlag) {
 
 
 /** Provides toggle on-off capability for new tag markers. */
-function clearClickMarker() {
-  for (var i = 0; i < markersArray.length; i++ ) {
-    markersArray[i].setMap(null);
+function clearMarkers() {
+  for (var i = 0; i < allMarkersArray.length; i++ ) {
+    allMarkersArray[i].setMap(null);
   }
-  markersArray.length = 0;
+  allMarkersArray.length = 0;
+}
+
+function clearClickMarker() {
+  for (var i = 0; i < newMarkersArray.length; i++ ) {
+    newMarkersArray[newMarkersArray.length - 1].setMap(null);
+  }
+  newMarkersArray.length = 0;
 }
 
 
@@ -196,6 +206,8 @@ function assignMarkers(tags){
                           icon: '/static/circle.png',
                           opacity: 0.6
                       });
+
+                      allMarkersArray.push(marker)
 
                       commentsHTML = createCommentsList(tag.comments)
 
@@ -307,7 +319,7 @@ function calcAndDisplayRoute(directionsService, directionsDisplay) {
 function addTagOnSubmit(lat, lng){
   $('#submit-tag').click(function(){
           console.log('clicked submit button');
-          markersArray[0].setIcon('/static/circle.png');
+          newMarkersArray[0].setIcon('/static/circle.png');
 
           // genreVals = getGenreVals().split(',')
           // console.log(genreVals)
