@@ -72,7 +72,12 @@ function initMap() {
                 'minLng': minLng,
                 'maxLat': maxLat,
                 'maxLng': maxLng,
-              }, function(nearby_tags) {assignMarkers(nearby_tags);
+              }, function(nearby_tags) {
+                assignMarkers(nearby_tags);
+                var tagList = updateTagInfoList(nearby_tags);
+
+                // var tagListHTML = '<ul class="list-group">'+ tagList + '</ul>'
+                $('#tag-info').html('<ul class="list-group">'+ tagList + '</ul>');
             });
         },3000);
       });
@@ -192,7 +197,7 @@ function assignMarkers(tags){
                           opacity: 0.6
                       });
 
-                      commentsHTML = createCommentsList(tag.comments[0])
+                      commentsHTML = createCommentsList(tag.comments)
 
                       htmlInfo = (
                           // '<img src=tag.mediaUrl alt="tag" style="width:150px;" class="thumbnail">' + 
@@ -213,17 +218,33 @@ function assignMarkers(tags){
 function createCommentsList(jsonComments) {
 
   if (jsonComments){
-    var keys = Object.keys(jsonComments)
-    for (var i = (keys.length - 1); i >= 0; i--) {
-      var username = jsonComments[keys[i]]['username']
-      var date = jsonComments[keys[i]]['time']
-      var comment = jsonComments[keys[i]]['content']
-      var commentsHTML = ('<li class="list-group-item"><b>' + username + '</b> ' + date + 
-                                     '</div><div class="comment-content">' + comment + '</div></li>');
+    var commentsHTML = ''
+    var commentObject;
+    for (var i = (jsonComments.length - 1); i >=0; i--){
+        commentObject = jsonComments[i]
+        var username = commentObject[(Object.keys(commentObject))[0]]['username']
+        var date = commentObject[(Object.keys(commentObject))[0]]['time']
+        var comment = commentObject[(Object.keys(commentObject))[0]]['content']
+        commentsHTML += '<li class="list-group-item"><b>' + username + '</b> ' + date + 
+                                     '</div><div class="comment-content">' + comment + '</div></li>'
+
     } return commentsHTML
   } else {
       return "Comments:"
     }
+}
+
+function updateTagInfoList(jsonTags) {
+  var tagHTML = ''
+  var keys = Object.keys(jsonTags)
+  // console.log(keys)
+  for (var i = 0; i <= (keys.length - 1); i++) {
+      var title = jsonTags[keys[i]]['title']
+      var details = jsonTags[keys[i]]['details']
+
+      console.log(title)
+      tagHTML += '<li class="list-group-item"><b>' + title + '</b><br>'+details+'</li>'
+    } return tagHTML
 }
 
 
