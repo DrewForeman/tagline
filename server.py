@@ -30,10 +30,11 @@ def index():
 
     # add ability to create genres list in html inside JS file from dynamic query
 
-    genres = Genre.query.all()
+    # genres = Genre.query.all()
     # genre_list = [genre.genre for genre in genres]
+    # return render_template("homepage.html", genres=genres)
 
-    return render_template("homepage.html", genres=genres)
+    return render_template("homepage.html")
 
 
 @app.route('/tags-geolocation.json', methods=["GET", "POST"])
@@ -50,8 +51,6 @@ def nearby_tags():
                                 Tag.longitude >= min_lng,
                                 Tag.longitude <= max_lng).all()
 
-    print found_tags
-
     nearby_tags = {
         tag.tag_id: {
         "tagId": tag.tag_id,
@@ -65,11 +64,8 @@ def nearby_tags():
                                            "time":comment.logged_at.strftime("%b %d %Y"), 
                                            "content":comment.content}} for comment in tag.comments]
                                            
-        }
-        for tag in found_tags
+        } for tag in found_tags
     }
-    print nearby_tags.keys()
-
     return jsonify(nearby_tags)
 
 
@@ -93,10 +89,8 @@ def tags():
                                            "time":comment.logged_at.strftime("%b %d %Y"), 
                                            "content":comment.content}} for comment in tag.comments]
         
-        }
-        for tag in find_landmarks(origin, destination)
+        } for tag in find_landmarks(origin, destination)
     }
-
     return jsonify(tags)
 
 
@@ -121,7 +115,6 @@ def add_comment():
             "content": comment.content,
             "loggedAt": comment.logged_at.strftime("%b %d %Y")
         }
-
         return jsonify(newComment)
     else:
         newComment = {"comment": "Not logged in."}
@@ -140,16 +133,16 @@ def handle_add_tag():
     artist=request.form.get('artist'),
     details=request.form.get('details'),
     media_url=request.form.get('media_url')
+    genres=request.form.get('genres')
 
-    # genres=request.form.get('genres')
+    genres = genres.split(',')
 
     tag = Tag(latitude=latitude,
                     longitude=longitude,
                     title=title,
                     artist=artist,
                     details=details,
-                    # media_url=media_url
-                        )
+                )
 
     db.session.add(tag)
     db.session.commit()
@@ -159,7 +152,11 @@ def handle_add_tag():
 
     db.session.add(media)
     db.session.commit()
-    # also update new db table for user created places w user_id, tag_id, logged_at
+
+    for genre in genres[:-1]:
+        tag_genre = TagGenre(tag_id=tag.tag_id, genre=genre)
+        db.session.add(tag_genre)
+    db.session.commit()
 
     newTag = {
             "tagId": tag.tag_id,
@@ -214,6 +211,8 @@ def handle_registration():
     name = request.form.get('name')
     username = request.form.get('username')
     password = request.form.get('password')
+    genres = request.form.getlist('genres')
+    print genres
 
     new_user = User(name=name, username=username, password=password)
 
@@ -222,7 +221,11 @@ def handle_registration():
 
     session['user'] = new_user.user_id
 
-    flash(("Welcome {}. You have been registered and logged in.").format(new_user.username))
+    for genre in genres:
+        user_genre = UserGenre(user_id=new_user.user_id, genre=genre)
+        db.session.add(user_genre)
+    db.session.commit()
+
     return redirect('/')
 
 

@@ -120,7 +120,8 @@ function initMap() {
           'origin': document.getElementById('origin').value,
           'destination': document.getElementById('destination').value
         }, 
-        function(tags) {assignMarkers(tags);
+        function(tags) { 
+          assignMarkers(tags);
       });
   });
 
@@ -131,6 +132,11 @@ function initMap() {
 google.maps.event.addDomListener(window, 'load', function(){
   initMap();
 });
+
+
+
+
+
 
 
 
@@ -174,7 +180,6 @@ function clearClickMarker() {
 function assignMarkers(tags){
 
                   var tag, marker, htmlInfo;
-                  console.log(tags)
                   for (var key in tags) {
                       tag = tags[key];
 
@@ -200,7 +205,6 @@ function assignMarkers(tags){
                           );
 
                       bindInfo(marker, htmlInfo);
-                      console.log('created a marker')
                   }
               }
 
@@ -283,8 +287,11 @@ function addTagOnSubmit(lat, lng){
           console.log('clicked submit button');
           markersArray[0].setIcon('/static/circle.png');
 
-          // genreVals = getGenreVals()
-          // console.log(genreVals);
+          // genreVals = getGenreVals().split(',')
+          // console.log(genreVals)
+
+          genreVals = getGenreVals().toString()
+          console.log(genreVals)
 
           $.post('/new-tag.json',{
                                 'latitude': lat,
@@ -292,7 +299,8 @@ function addTagOnSubmit(lat, lng){
                                 'title': $('#add-title').val(),
                                 'artist': $('#add-artist').val(),
                                 'details': $('#add-details').val(),
-                                'media_url': $('#add-media-url').val()
+                                'media_url': $('#add-media-url').val(),
+                                'genres': genreVals
                                 },function(newTag){ 
                                   newTagInfoHTML = (                 
                                                   // '<img src=tag.mediaUrl alt="tag" style="width:150px;" class="thumbnail">' + 
@@ -341,27 +349,17 @@ newTagHTML = (
 
 
 // use this to get the list of genres added to TagGenre and UserGenre db and 
-// $("#submit-tag").on('click', function () {
-//     var checkbox_value = "";
-//     $(":checkbox").each(function () {
-//         var ischecked = $(this).is(":checked");
-//         if (ischecked) {
-//             checkbox_value += $(this).val() + "|";
-//         }
-//     });
-//     alert(checkbox_value);
-// });
 
-// function getGenreVals() {
-//   var checkbox_value = "";
-//     $(":checkbox").each(function () {
-//         var ischecked = $(this).is(":checked");
-//         if (ischecked) {
-//             checkbox_value += $(this).val() + "|";
-//         }
-//     });
-//     return checkbox_value
-//   }
+function getGenreVals() {
+  var checkbox_value = "";
+    $(":checkbox").each(function () {
+        var ischecked = $(this).is(":checked");
+        if (ischecked) {
+            checkbox_value += $(this).val() + ",";
+        }
+    });
+    return checkbox_value
+  }
 
 // ###### REEXAMINE POTENTIAL USE FOR THIS FUNCTION
 // function zip(arrays) {
