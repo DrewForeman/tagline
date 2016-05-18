@@ -66,6 +66,9 @@ class TagGenre(db.Model):
     tag_id = db.Column(db.Integer, db.ForeignKey('tags.tag_id'), nullable=False)
     genre = db.Column(db.String(30), db.ForeignKey('genres.genre'), nullable=False)
 
+    tag = db.relationship("Tag",
+                            backref=db.backref("genres", order_by=genre))
+
 
 
 class User(db.Model):
@@ -93,6 +96,9 @@ class UserGenre(db.Model):
     assc_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     genre = db.Column(db.String(30), db.ForeignKey('genres.genre'), nullable=False)
+
+    user = db.relationship("User",
+                            backref=db.backref("genres", order_by=genre))
 
 
 

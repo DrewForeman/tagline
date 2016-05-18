@@ -60,6 +60,7 @@ function initMap() {
       // v|v|v|v|v|v|v|v| SHOW NEARBY POINTS UPON LOAD v|v|v|v|v|v|v|v|v|v|v|v|
       google.maps.event.addListenerOnce(map, 'idle', function(){
         // delay this function so the map has time to load before getting bounds
+        // shorten timeout but run again if still null after timeout. maybe want to change this into a named function. also define var for getbounds
         setTimeout(function(){
             minLat = map.getBounds().H['H'];
             minLng = map.getBounds().j['j'];
@@ -199,7 +200,7 @@ function assignMarkers(tags){
                           '<div id="tagId" style="display:none">' + tag.tagId + '</div>' +
                           '<p>' + tag.artist +'<br>'+ tag.details + '</p>' +
                           '<textarea class="form-control" cols="35", rows="2", placeholder="Enter a comment:" id="user-comment"/><br>' +
-                          '<input type="submit" value="Post" id="submit-comment">' +
+                          '<input type="submit" value="Post" id="submit-comment"><br>' +
                           '<div id="user-comment-update"></div>' +
                           '<ul class="list-group" id="commentsField">' + commentsHTML + '</ul></p>'
                           );

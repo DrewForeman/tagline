@@ -28,13 +28,16 @@ app.jinja_env.undefined = StrictUndefined
 def index():
     """Homepage. Allows user to search for desired route."""
 
-    # add ability to create genres list in html inside JS file from dynamic query
+    user_id = session.get("user") 
 
-    # genres = Genre.query.all()
-    # genre_list = [genre.genre for genre in genres]
-    # return render_template("homepage.html", genres=genres)
+    if user_id:
+        user = User.query.filter_by(user_id = user_id).first()
+        name = user.name
+    else:
+        name = False
 
-    return render_template("homepage.html")
+    return render_template("homepage.html", name=name)
+    # return render_template("homepage.html")
 
 
 @app.route('/tags-geolocation.json', methods=["GET", "POST"])
@@ -46,10 +49,26 @@ def nearby_tags():
     max_lat = request.form.get('maxLat');
     max_lng = request.form.get('maxLng');
 
-    found_tags = Tag.query.filter(Tag.latitude >= min_lat, 
-                                Tag.latitude <= max_lat,
-                                Tag.longitude >= min_lng,
-                                Tag.longitude <= max_lng).all()
+    # if logged in, show the user tags according to preference, else show them everything
+    user_id = session.get("user") 
+
+    if user_id:
+        user_genres = UserGenre.query.filter(UserGenre.user_id == user_id).all() #get objects for all user-genre pairs in db
+        genres_list = [user_genre.genre for user_genre in user_genres] #get list of genre ids
+
+        all_found_tags = Tag.query.filter(Tag.latitude >= min_lat, 
+                                    Tag.latitude <= max_lat,
+                                    Tag.longitude >= min_lng,
+                                    Tag.longitude <= max_lng).all()
+
+# this list comprehension works but does not seem as efficient as possible
+        found_tags = [tag for tag in all_found_tags if (set([genre.genre for genre in tag.genres]) & set(genres_list))]
+
+    else:
+        found_tags = Tag.query.filter(Tag.latitude >= min_lat, 
+                                    Tag.latitude <= max_lat,
+                                    Tag.longitude >= min_lng,
+                                    Tag.longitude <= max_lng).all()
 
     nearby_tags = {
         tag.tag_id: {
@@ -72,7 +91,7 @@ def nearby_tags():
 @app.route('/tags.json', methods=["GET", "POST"])
 def tags():
     """JSON information about the tags for given query."""
- 
+
     origin = request.form.get('origin')
     destination = request.form.get('destination')
 
@@ -182,13 +201,13 @@ def handle_login():
     if user:
         if password == user.password:
             session['user'] = user.user_id
-            currentUser = {"username": user.username}
+            currentUser = {"name": user.name}
             return jsonify(currentUser)
         else:
-            currentUser = {"username": "not recognized"}
+            currentUser = {"name": "not recognized"}
             return jsonify(currentUser)
     else:
-        currentUser = {"username": "not recognized"}
+        currentUser = {"name": "not recognized"}
         return jsonify(currentUser)
 
 
