@@ -37,7 +37,7 @@ function initMap() {
           var geolocationMarker = new google.maps.Marker({
             map: map,
             position: pos,
-            icon: '/static/point3.png'
+            icon: '/static/marker-pink.png'
           });
 
           map.setCenter(pos);
@@ -45,12 +45,12 @@ function initMap() {
           google.maps.event.addListener(geolocationMarker, 'click', function(event){
             clearClickMarker();
             geolocationMarker.setIcon('/static/add-icon.png');
-            $('#tag-info').html(newTagHTML);
+            $('#tag-info-box').html(newTagHTML);
             addTagOnSubmit(position.coords.latitude, position.coords.latitude);
           })
 
           google.maps.event.addListener(map, 'click', function(event){
-            geolocationMarker.setIcon('/static/point3.png');
+            geolocationMarker.setIcon('/static/marker-pink.png');
           })
 
       }, function () {
@@ -76,9 +76,9 @@ function initMap() {
               }, function(nearby_tags) {
                 assignMarkers(nearby_tags);
                 var tagList = updateTagInfoList(nearby_tags);
+                // $('#tag-info').html('<ul class="list-group">'+ tagList + '</ul>');
+                $('#tag-info-box').html('<div class="media">'+ tagList + '</div>');
 
-                // var tagListHTML = '<ul class="list-group">'+ tagList + '</ul>'
-                $('#tag-info').html('<ul class="list-group">'+ tagList + '</ul>');
             });
         },3000);
       });
@@ -104,14 +104,14 @@ function initMap() {
 
     newMarkersArray.push(newMarker);
 
-    $('#tag-info').html(newTagHTML);
+    $('#tag-info-box').html(newTagHTML);
 
     addTagOnSubmit(clickLat, clickLng);
 
     // clear add marker if clicked again (basically click on-click off)
     google.maps.event.addListener(newMarker, 'click', function(event){
       clearClickMarker();
-      $('#tag-info').html("");
+      $('#tag-info-box').html("");
     })
   });
 
@@ -130,7 +130,7 @@ function initMap() {
         function(tags) { 
           assignMarkers(tags);
           var tagList = updateTagInfoList(tags);
-          $('#tag-info').html('<ul class="list-group">'+ tagList + '</ul>');
+          $('#tag-info-box').html('<ul class="list-group">'+ tagList + '</ul>');
       });
   });
 
@@ -176,7 +176,7 @@ function handleNoGeolocation(errorFlag) {
 }
 
 
-/** Provides toggle on-off capability for new tag markers. */
+/** Clears markers from prior query. */
 function clearMarkers() {
   for (var i = 0; i < allMarkersArray.length; i++ ) {
     allMarkersArray[i].setMap(null);
@@ -184,6 +184,7 @@ function clearMarkers() {
   allMarkersArray.length = 0;
 }
 
+/** Provides toggle on-off capability for new tag markers. */
 function clearClickMarker() {
   for (var i = 0; i < newMarkersArray.length; i++ ) {
     newMarkersArray[newMarkersArray.length - 1].setMap(null);
@@ -210,14 +211,25 @@ function assignMarkers(tags){
                       allMarkersArray.push(marker)
 
                       commentsHTML = createCommentsList(tag.comments)
+                      console.log(tag.mediaURL)
+
+                      if (tag.mediaURL[0]){
+                        console.log('met if condition')
+                        var image = tag.mediaURL[0]
+                      } else {
+                        console.log('met else condition')
+                        var image = '/static/cat.png'
+                      }
+
+                      console.log(image)
 
                       htmlInfo = (
-                          // '<img src=tag.mediaUrl alt="tag" style="width:150px;" class="thumbnail">' + 
+                          '<img src="' + image + '"alt="tag" style="width:200px;" class="thumbnail">' + 
                           '<p><b>' + tag.title +'</b></p>' + 
                           '<div id="tagId" style="display:none">' + tag.tagId + '</div>' +
                           '<p>' + tag.artist +'<br>'+ tag.details + '</p>' +
                           '<textarea class="form-control" cols="35", rows="2", placeholder="Enter a comment:" id="user-comment"/><br>' +
-                          '<input type="submit" value="Post" id="submit-comment"><br>' +
+                          '<input type="button" class="btn btn-default" value="Post" id="submit-comment"><br>' +
                           '<div id="user-comment-update"></div>' +
                           '<ul class="list-group" id="commentsField">' + commentsHTML + '</ul></p>'
                           );
@@ -254,8 +266,24 @@ function updateTagInfoList(jsonTags) {
       var title = jsonTags[keys[i]]['title']
       var details = jsonTags[keys[i]]['details']
 
-      console.log(title)
-      tagHTML += '<li class="list-group-item"><b>' + title + '</b><br>'+details+'</li>'
+      mediaURL = jsonTags[keys[i]]['mediaURL'][0]
+
+      if (mediaURL){
+          console.log('met if condition')
+           var image = mediaURL
+      } else {
+        console.log('met else condition')
+        var image = '/static/cat.png'
+      }
+
+      // console.log(title)
+      // tagHTML += '<li class="list-group-item"><b><h4 class="media-heading">' + title + '</h4>' +
+      // '</b><br>'+details+'</li>'
+
+      tagHTML += '<div class="media-left"><img class="media-object" src="'+image+'" alt="cat" style="width:64px;" class="thumbnail"></div>' +
+                // '<div class="media-left"><img class="media-object" src="/static/cat.png" alt="cat"></div>' +
+                 '<div class="media-body"><h4 class="media-heading">'+title+'</h4>'+details+'</div><br>'
+
     } return tagHTML
 }
 
@@ -267,7 +295,7 @@ function bindInfo(marker, htmlInfo){
 
             clearClickMarker()
 
-            $('#tag-info').html(htmlInfo);
+            $('#tag-info-box').html(htmlInfo);
 
             $('#submit-comment').click(function(){ submitComment();});
 
@@ -342,7 +370,6 @@ function addTagOnSubmit(lat, lng){
                                                   '<div id="tagId" style="display:none">' + newTag.tagId + '</div>' +
                                                   '<p>' + newTag.details + '</p>' +
                                                   '<textarea class="form-control" cols="35", rows="2", placeholder="Enter a comment:" id="user-comment"/><br>' +
-                                                  // '<br>Enter a comment: <input type="text" id="user-comment">' +
                                                   '<input type="submit" value="Post" id="submit-comment">' +
                                                   '<div id="user-comment-update"></div>' +
                                                   '<div id="commentsField"></div></p>'
@@ -361,7 +388,7 @@ function addTagOnSubmit(lat, lng){
 
 // figure out how to make this not be hardcoded
 newTagHTML = (  
-        '<b>Add a new tag</b><br>' +  
+        '<h4>Add a new tag</h4>' +  
         '<input type="text" class="form-control" name="title" placeholder="Title" id="add-title"/><br>' +
         '<input type="text" class="form-control" name="artist" placeholder="Artist" id="add-artist"/><br>' +
         '<textarea name="details" class="form-control" cols="35" rows="5" placeholder="Details" id="add-details"/><br>' +

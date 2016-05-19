@@ -24,6 +24,14 @@ app.secret_key = "ABC"
 app.jinja_env.undefined = StrictUndefined
 
 
+@app.route('/test')
+def test():
+    """page for trying out html in browser."""
+
+    return render_template("play.html")
+
+
+
 @app.route('/')
 def index():
     """Homepage. Allows user to search for desired route."""
@@ -78,7 +86,7 @@ def nearby_tags():
         "title": tag.title,
         "artist": tag.artist,
         "details": tag.details,
-        "mediaUrl": [media.media_url for media in tag.medias],
+        "mediaURL": [media.media_url for media in tag.medias],
         "comments": [{comment.comment_id : {"username":comment.user.username, 
                                            "time":comment.logged_at.strftime("%b %d %Y"), 
                                            "content":comment.content}} for comment in tag.comments]
@@ -103,7 +111,7 @@ def tags():
         "title": tag.title,
         "artist": tag.artist,
         "details": tag.details,
-        "mediaUrl": [media.media_url for media in tag.medias],
+        "mediaURL": [media.media_url for media in tag.medias],
         "comments": [{comment.comment_id : {"username":comment.user.username, 
                                            "time":comment.logged_at.strftime("%b %d %Y"), 
                                            "content":comment.content}} for comment in tag.comments]
