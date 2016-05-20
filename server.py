@@ -71,6 +71,7 @@ def nearby_tags():
 
 # this list comprehension works but does not seem as efficient as possible
         found_tags = [tag for tag in all_found_tags if (set([genre.genre for genre in tag.genres]) & set(genres_list))]
+        # found_tags = [tag for tag in all_found_tags if (set([genre.genre for genre in tag.genres]).intersection(genres_list))]
 
     else:
         found_tags = Tag.query.filter(Tag.latitude >= min_lat, 

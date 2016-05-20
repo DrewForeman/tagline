@@ -224,6 +224,7 @@ function assignMarkers(tags){
                       console.log(image)
 
                       htmlInfo = (
+                        '<audio controls><source src="/static/Untitled.mp3" type="audio/mpeg">Your browser does not support the audio element.</audio>'+
                           '<img src="' + image + '"alt="tag" style="width:200px;" class="thumbnail">' + 
                           '<p><b>' + tag.title +'</b></p>' + 
                           '<div id="tagId" style="display:none">' + tag.tagId + '</div>' +
@@ -392,7 +393,10 @@ newTagHTML = (
         '<input type="text" class="form-control" name="title" placeholder="Title" id="add-title"/><br>' +
         '<input type="text" class="form-control" name="artist" placeholder="Artist" id="add-artist"/><br>' +
         '<textarea name="details" class="form-control" cols="35" rows="5" placeholder="Details" id="add-details"/><br>' +
-        '<input type="text" class="form-control" name="media_url" placeholder="Media" id="add-media-url"/><br>' +
+        '<input type="text" class="form-control" name="media_url" placeholder="Media URL" id="add-media-url"/><br>' +
+        '<label for="audio"><span class="btn btn-default">Add Audio</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="audio">' +
+        '<label for="image"><span class="btn btn-default">Add Image</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="image/*;capture=camcorder" id="image">' +
+        '<label for="video"><span class="btn btn-default">Add Video</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="video"><br><br>' +
         '<div class="btn-group" data-toggle="buttons">' +
         '<label class="btn btn-default"><input type="checkbox" name="genres" id="architecture" value="architecture">architecture</label>' +
         '<label class="btn btn-default"><input type="checkbox" name="genres" id="art" value="art">art</label>' +
