@@ -16,9 +16,9 @@ class Tag(db.Model):
     tag_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     latitude = db.Column(db.Numeric(17,14), nullable=False)
     longitude = db.Column(db.Numeric(17,14), nullable=False)
-    title = db.Column(db.String(100), nullable=False)
+    title = db.Column(db.String(150), nullable=False)
     artist = db.Column(db.String(100), nullable=True)
-    details = db.Column(db.String(300), nullable=True)
+    details = db.Column(db.String(1000), nullable=True)
 
     def __repr__(self):
         """Show information about the tag"""
@@ -36,6 +36,7 @@ class Media(db.Model):
     tag_id = db.Column(db.Integer, db.ForeignKey('tags.tag_id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True)
     media_url = db.Column(db.String(200), nullable=False)
+    media_type = db.Column(db.String(30), nullable=False)
 
     tag = db.relationship("Tag",
                           backref=db.backref("medias", order_by=media_id))
@@ -141,4 +142,5 @@ if __name__ == "__main__":
     from server import app
     connect_to_db(app)
     print "Connected to DB."
+
 

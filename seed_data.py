@@ -2,12 +2,16 @@
 
 import csv
 import json
+import os
+import requests
 
 from sqlalchemy import func
 from model import Tag, Media, Genre, TagGenre, User, UserGenre, Comment
 
 from model import connect_to_db, db
 from server import app
+
+api_key = os.environ['FREESOUND_CLIENT_SECRET']
 
 
 def load_genres():
@@ -118,12 +122,43 @@ def load_waymarks():
         db.session.add(tag_genre)
 
         media = Media(tag_id = tag.tag_id,
-                      media_url = media_url)
+                      media_url = media_url,
+                      media_type = "image")
 
         db.session.add(media)
 
     db.session.commit()  
 
+
+def load_freesound_audio():
+    """Load points gathered from Freesound API"""
+
+    print "Freesound SF"
+
+    for row in open("seed_data/freesounds.txt"):
+      row = row.rstrip()
+
+      latitude, longitude, title, details, audio_url = row.split('|')
+
+      tag = Tag(latitude=latitude,
+                      longitude=longitude,
+                      title=title,
+                      details=details)
+
+      db.session.add(tag)
+      db.session.commit()
+
+      tag_genre = TagGenre(tag_id=tag.tag_id,
+                           genre="audio")
+
+      db.session.add(tag_genre)
+
+      media = Media(tag_id = tag.tag_id,
+                    media_url = audio_url,
+                    media_type = "audio")
+
+      db.session.add(media)
+    db.session.commit()
 
 
 if __name__ == "__main__":
@@ -136,5 +171,6 @@ if __name__ == "__main__":
     load_art_points_SF()
     load_art_points_Oakland()
     load_waymarks()
+    load_freesound_audio()
     
 

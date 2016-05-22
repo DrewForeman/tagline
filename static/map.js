@@ -4,6 +4,8 @@ var newMarkersArray = [];
 
 var allMarkersArray = [];
 
+var tagList;
+
 
 function initMap() {
 
@@ -75,7 +77,7 @@ function initMap() {
                 'maxLng': maxLng,
               }, function(nearby_tags) {
                 assignMarkers(nearby_tags);
-                var tagList = updateTagInfoList(nearby_tags);
+                tagList = updateTagInfoList(nearby_tags);
                 // $('#tag-info').html('<ul class="list-group">'+ tagList + '</ul>');
                 $('#tag-info-box').html('<div class="media">'+ tagList + '</div>');
 
@@ -106,12 +108,17 @@ function initMap() {
 
     $('#tag-info-box').html(newTagHTML);
 
+    $('input[type="file"]').change(function(){
+          var file = this.files[0];
+          getSignedRequest(file);
+    });
+
     addTagOnSubmit(clickLat, clickLng);
 
     // clear add marker if clicked again (basically click on-click off)
     google.maps.event.addListener(newMarker, 'click', function(event){
       clearClickMarker();
-      $('#tag-info-box').html("");
+      $('#tag-info-box').html('<div class="media">'+ tagList + '</div>');
     })
   });
 
@@ -129,7 +136,7 @@ function initMap() {
         }, 
         function(tags) { 
           assignMarkers(tags);
-          var tagList = updateTagInfoList(tags);
+          tagList = updateTagInfoList(tags);
           $('#tag-info-box').html('<ul class="list-group">'+ tagList + '</ul>');
       });
   });
@@ -211,29 +218,36 @@ function assignMarkers(tags){
                       allMarkersArray.push(marker)
 
                       commentsHTML = createCommentsList(tag.comments)
-                      console.log(tag.mediaURL)
 
-                      if (tag.mediaURL[0]){
-                        console.log('met if condition')
-                        var image = tag.mediaURL[0]
-                      } else {
-                        console.log('met else condition')
-                        var image = '/static/cat.png'
-                      }
+                      htmlInfo = '<h4><b>' + tag.title +'</b></h4>'
 
-                      console.log(image)
+                      media = tag.media
 
-                      htmlInfo = (
-                        '<audio controls><source src="/static/Untitled.mp3" type="audio/mpeg">Your browser does not support the audio element.</audio>'+
-                          '<img src="' + image + '"alt="tag" style="width:200px;" class="thumbnail">' + 
-                          '<p><b>' + tag.title +'</b></p>' + 
-                          '<div id="tagId" style="display:none">' + tag.tagId + '</div>' +
+                      if (media[0]) {
+                        var mediaObject;
+                        for (var i = 0; i < media.length; i++){
+                          mediaObject = media[i]
+                          var mediaType = (mediaObject[(Object.keys(mediaObject))[0]]['media_type']);
+                          var url = (mediaObject[(Object.keys(mediaObject))[0]]['url']);
+                          if (mediaType === "image"){
+                            var image = '<img style="width:300px;" src="'+url+'" alt="tag-image">'
+                            htmlInfo += image
+                          } else if (mediaType === "audio"){
+                            var audio = '<audio controls><source src="'+url+'" >Your browser does not support the audio element.</audio>'
+                            htmlInfo += audio
+                          } else {
+                            var video = '<video width="300" controls><source src="'+url+'" ></video>'
+                            htmlInfo += video
+                          }
+                        }
+                      } 
+
+                      htmlInfo += '<div id="tagId" style="display:none">' + tag.tagId + '</div>' +
                           '<p>' + tag.artist +'<br>'+ tag.details + '</p>' +
                           '<textarea class="form-control" cols="35", rows="2", placeholder="Enter a comment:" id="user-comment"/><br>' +
                           '<input type="button" class="btn btn-default" value="Post" id="submit-comment"><br>' +
                           '<div id="user-comment-update"></div>' +
                           '<ul class="list-group" id="commentsField">' + commentsHTML + '</ul></p>'
-                          );
 
                       bindInfo(marker, htmlInfo);
                   }
@@ -262,28 +276,28 @@ function createCommentsList(jsonComments) {
 function updateTagInfoList(jsonTags) {
   var tagHTML = ''
   var keys = Object.keys(jsonTags)
-  // console.log(keys)
+
   for (var i = 0; i <= (keys.length - 1); i++) {
       var title = jsonTags[keys[i]]['title']
       var details = jsonTags[keys[i]]['details']
 
-      mediaURL = jsonTags[keys[i]]['mediaURL'][0]
+      media = jsonTags[keys[i]]['media']
 
-      if (mediaURL){
-          console.log('met if condition')
-           var image = mediaURL
+      if (media[0]) {
+        var mediaObject;
+        for (var i = 0; i < media.length; i++){
+          mediaObject = media[i]
+          var mediaType = (mediaObject[(Object.keys(mediaObject))[0]]['media_type']);
+          var url = (mediaObject[(Object.keys(mediaObject))[0]]['url']);
+          if (mediaType === "image"){
+            var image = '<div class="media-left"><img class="media-object" src="'+url+'" alt="tag-image" style="width:64px;" class="thumbnail"></div>'
+          } 
+        }
       } else {
-        console.log('met else condition')
-        var image = '/static/cat.png'
+        var image = '<div class="media-left"><img class="media-object" src="/static/blank.png" alt="tag-image" style="width:64px;" class="thumbnail"></div>'
       }
 
-      // console.log(title)
-      // tagHTML += '<li class="list-group-item"><b><h4 class="media-heading">' + title + '</h4>' +
-      // '</b><br>'+details+'</li>'
-
-      tagHTML += '<div class="media-left"><img class="media-object" src="'+image+'" alt="cat" style="width:64px;" class="thumbnail"></div>' +
-                // '<div class="media-left"><img class="media-object" src="/static/cat.png" alt="cat"></div>' +
-                 '<div class="media-body"><h4 class="media-heading">'+title+'</h4>'+details+'</div><br>'
+      tagHTML += image +'<div class="media-body"><h4 class="media-heading">'+title+'</h4>'+details+'</div><br>'
 
     } return tagHTML
 }
@@ -356,15 +370,19 @@ function addTagOnSubmit(lat, lng){
           genreVals = getGenreVals().toString()
           console.log(genreVals)
 
-          $.post('/new-tag.json',{
-                                'latitude': lat,
-                                'longitude': lng,
-                                'title': $('#add-title').val(),
-                                'artist': $('#add-artist').val(),
-                                'details': $('#add-details').val(),
-                                'media_url': $('#add-media-url').val(),
-                                'genres': genreVals
-                                },function(newTag){ 
+          data = {'latitude': lat,
+                  'longitude': lng,
+                  'title': $('#add-title').val(),
+                  'artist': $('#add-artist').val(),
+                  'details': $('#add-details').val(),
+                  'media_url': $('#add-media-url').val(),
+                  'audio_url': $('#audio_url').val(),
+                  'image_url': $('#image_url').val(),
+                  'video_url': $('#video_url').val(),
+                  'genres': genreVals
+                  }
+
+          $.post('/new-tag.json',data,function(newTag){ 
                                   newTagInfoHTML = (                 
                                                   // '<img src=tag.mediaUrl alt="tag" style="width:150px;" class="thumbnail">' + 
                                                   '<p><b>' + newTag.title +'</b></p>' + 
@@ -394,23 +412,69 @@ newTagHTML = (
         '<input type="text" class="form-control" name="artist" placeholder="Artist" id="add-artist"/><br>' +
         '<textarea name="details" class="form-control" cols="35" rows="5" placeholder="Details" id="add-details"/><br>' +
         '<input type="text" class="form-control" name="media_url" placeholder="Media URL" id="add-media-url"/><br>' +
-        '<label for="audio"><span class="btn btn-default">Add Audio</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="audio">' +
-        '<label for="image"><span class="btn btn-default">Add Image</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="image/*;capture=camcorder" id="image">' +
-        '<label for="video"><span class="btn btn-default">Add Video</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="video"><br><br>' +
+        '<span id="audioSpace"><label for="audio"><span class="btn btn-default">Add Audio</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="audio"></span>' +
+        '<span id="imageSpace"><label for="image"><span class="btn btn-default">Add Image</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="image/*;capture=camcorder" id="image"></span>' +
+        '<span id="videoSpace"><label for="video"><span class="btn btn-default">Add Video</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="video"></span><br><br>' +
         '<div class="btn-group" data-toggle="buttons">' +
-        '<label class="btn btn-default"><input type="checkbox" name="genres" id="architecture" value="architecture">architecture</label>' +
-        '<label class="btn btn-default"><input type="checkbox" name="genres" id="art" value="art">art</label>' +
-        '<label class="btn btn-default"><input type="checkbox" name="genres" id="audio" value="audio">audio</label>' +
-        '<label class="btn btn-default"><input type="checkbox" name="genres" id="curiosities" value="curiosities">curiosities</label><br>' +
-        '<label class="btn btn-default"><input type="checkbox" name="genres" id="food" value="food">food</label>' +
-        '<label class="btn btn-default"><input type="checkbox" name="genres" id="history" value="history">history</label>' +
-        '<label class="btn btn-default"><input type="checkbox" name="genres" id="politics" value="politics">politics</label>' +
-        '<label class="btn btn-default"><input type="checkbox" name="genres" id="sports" value="sports">sports</label><br>' +
-        '<label class="btn btn-default"><input type="checkbox" name="genres" id="stories" value="stories">stories</label>' +
+          '<label class="btn btn-default"><input type="checkbox" name="genres" id="architecture" value="architecture">architecture</label>' +
+          '<label class="btn btn-default"><input type="checkbox" name="genres" id="art" value="art">art</label>' +
+          '<label class="btn btn-default"><input type="checkbox" name="genres" id="audio" value="audio">audio</label>' +
+          '<label class="btn btn-default"><input type="checkbox" name="genres" id="curiosities" value="curiosities">curiosities</label><br>' +
+          '<label class="btn btn-default"><input type="checkbox" name="genres" id="food" value="food">food</label>' +
+          '<label class="btn btn-default"><input type="checkbox" name="genres" id="history" value="history">history</label>' +
+          '<label class="btn btn-default"><input type="checkbox" name="genres" id="politics" value="politics">politics</label>' +
+          '<label class="btn btn-default"><input type="checkbox" name="genres" id="sports" value="sports">sports</label><br>' +
+          '<label class="btn btn-default"><input type="checkbox" name="genres" id="stories" value="stories">stories</label>' +
         '</div><br><br>'+
-        '<input type="submit" class="btn btn-primary" value="Tag it" id="submit-tag"/>'
+        '<input type="submit" class="btn btn-primary" value="Tag it" id="submit-tag"/>' +
+        '<input type="hidden" id="image_url">' +
+        '<input type="hidden" id="audio_url">' +
+        '<input type="hidden" id="video_url">' 
         );
 
+
+function uploadFile(file, s3Data, url){
+
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", s3Data.url);
+  xhr.setRequestHeader('x-amz-acl', 'public-read');
+
+  var postData = new FormData();
+  for(key in s3Data.fields){
+    postData.append(key, s3Data.fields[key]);
+  }
+  postData.append('file', file);
+
+  xhr.onreadystatechange = function() {
+    if(xhr.readyState === 4){
+      if(xhr.status === 200 || xhr.status === 204){     
+
+        if (file.type.split('/')[0] === 'audio'){
+          document.getElementById("audio_url").value = url;
+          $('#audioSpace').html('<audio id="audio-preview" controls><source src="'+url+'" ></audio>');
+        } else if (file.type.split('/')[0] === 'image'){
+          document.getElementById("image_url").value = url;
+          $('#imageSpace').html('<img style="width:300px;" src="'+url+'" id="image-preview">');
+        } else {
+          document.getElementById("video_url").value = url;
+          $('#videoSpace').html('<video width="300" id="video-preview" controls><source src="'+url+'" ></video>');
+        }
+      }
+      else{
+        alert("Could not upload file.");
+      }
+    }
+  };
+  xhr.send(postData);
+}
+
+
+function getSignedRequest(file){
+  var fileInfo = {'file_name':file.name,'file_type':file.type}
+  $.post('/sign.json', fileInfo, function(postInfo){
+    uploadFile(file, postInfo.data, postInfo.url);
+  })
+}
 
 
 // use this to get the list of genres added to TagGenre and UserGenre db and 

@@ -15,6 +15,7 @@ logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 api_key = os.environ['GOOGLE_DIRECTIONS_API_KEY']
 
+
 # origin = '1523 8th St, Oakland, CA 94607'
 # destination = '1555 40th St, Emeryville, CA 94608'
 
@@ -74,14 +75,6 @@ def find_bounding_box(route_coordinates):
 
 def query_landmarks(bbox):
     """Returns list of landmark objects from database that fall within given bounding box."""
-
-    # all_landmarks = Landmark.query.all()
-
-    # landmarks = []
-
-    # for landmark in all_landmarks:
-    #     if bbox.contains_point((float(landmark.latitude), float(landmark.longitude))):
-    #         landmarks.append(landmark)
 
     min_lat = bbox.min_point[0]
     min_lng = bbox.min_point[1]
