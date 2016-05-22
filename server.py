@@ -44,8 +44,9 @@ def index():
     else:
         name = False
 
-    return render_template("homepage.html", name=name)
-    # return render_template("homepage.html")
+    genres = Genre.query.all()
+
+    return render_template("homepage.html", name=name, genres=genres)
 
 
 @app.route('/tags-geolocation.json', methods=["GET", "POST"])
