@@ -175,14 +175,15 @@ def handle_add_tag():
         add_media_to_db(tag.tag_id,video_url,"video")
 
     genres = genres.split(',')
-    add_genres_to_db(genres)
+    add_genres_to_db(tag.tag_id, genres)
 
     newTag = {
             "tagId": tag.tag_id,
             "title": tag.title,
             "artist": tag.artist,
             "details": tag.details,
-            "media": [media.media_url for media in tag.medias]
+            "media": [{media.media_id : {"media_type":media.media_type,
+                                     "url":media.media_url}} for media in tag.medias]
     }
     
     return jsonify(newTag)
@@ -259,7 +260,6 @@ def map_tag_details(queried_tags):
         "title": tag.title,
         "artist": tag.artist,
         "details": tag.details,
-        # "media": [media.media_url for media in tag.medias],
         "media": [{media.media_id : {"media_type":media.media_type,
                                      "url":media.media_url}} for media in tag.medias],
         "comments": [{comment.comment_id : {"username":comment.user.username, 
@@ -313,12 +313,12 @@ def add_media_to_db(tag_id,media_url,media_type):
     db.session.commit()
 
 
-def add_genres_to_db(genres):
+def add_genres_to_db(tag_id, genres):
     """Update database with genre information.
     One tag may have mulitple genres."""
 
     for genre in genres[:-1]:
-        tag_genre = TagGenre(tag_id=tag.tag_id, genre=genre)
+        tag_genre = TagGenre(tag_id=tag_id, genre=genre)
         db.session.add(tag_genre)
     db.session.commit()
 

@@ -32,25 +32,24 @@ function initMap() {
 
   if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function (position) {
-          var pos = new google.maps.LatLng(
-                  position.coords.latitude,
-                  position.coords.longitude);
+        var pos = new google.maps.LatLng(
+                position.coords.latitude,
+                position.coords.longitude);
 
-          map.setCenter(pos);
+        map.setCenter(pos);
 
-          var geolocationMarker = createMarker(pos, currentLocIcon)
+        var geolocationMarker = createMarker(pos, currentLocIcon)
 
-          google.maps.event.addListener(geolocationMarker, 'click', function(event){
-            clearClickMarker();
-            geolocationMarker.setIcon('/static/add-icon.png');
-            $('#tag-info-box').html(newTagHTML);
-            submitTag(position.coords.latitude, position.coords.latitude);
-          })
+        google.maps.event.addListener(geolocationMarker, 'click', function(event){
+          clearClickMarker();
+          geolocationMarker.setIcon(addTagIcon.filepath);
+          $('#tag-info-box').html(addNewTagDiv);
+          submitTag(position.coords.latitude, position.coords.latitude);
+        })
 
-          google.maps.event.addListener(map, 'click', function(event){
-            geolocationMarker.setIcon('/static/marker-pink.png');
-          })
-
+        google.maps.event.addListener(map, 'click', function(event){
+          geolocationMarker.setIcon(currentLocIcon.filepath);
+        })
       }, function () {
           handleNoGeolocation(true);
       });
@@ -61,19 +60,17 @@ function initMap() {
         // delay this function so the map has time to load before getting bounds
         // shorten timeout but run again if still null after timeout. maybe want to change this into a named function. also define var for getbounds
         setTimeout(function(){
-            data = {
-              'minLat' : map.getBounds().H['H'],
-              'minLng' : map.getBounds().j['j'],
-              'maxLat' : map.getBounds().H['j'],
-              'maxLng' : map.getBounds().j['H'],
-            }
-            
-            $.post('/tags-geolocation.json', data, function(nearby_tags) {
-                assignMarkers(nearby_tags);
-                tagList = updateTagInfoList(nearby_tags);
-                $('#tag-info-box').html('<div class="media">'+ tagList + '</div>');
+          data = {
+            'minLat' : map.getBounds().H['H'],
+            'minLng' : map.getBounds().j['j'],
+            'maxLat' : map.getBounds().H['j'],
+            'maxLng' : map.getBounds().j['H'],
+          }
+          
+          $.post('/tags-geolocation.json', data, function(nearby_tags) {
+            displayTags(nearby_tags);
+          });
 
-            });
         },3000);
       });
   } else {
@@ -87,25 +84,21 @@ function initMap() {
 
     clearClickMarker();
 
-    var clickLat = event.latLng.lat();
-    var clickLng = event.latLng.lng();
+    position = new google.maps.LatLng(event.latLng.lat(),event.latLng.lng())
 
-    var newMarker = new google.maps.Marker({
-        position: new google.maps.LatLng(clickLat,clickLng), 
-        map: map,
-        icon: '/static/add-icon.png'
-    });
+    var newMarker = createMarker(position, addTagIcon)
 
     newMarkersArray.push(newMarker);
 
-    $('#tag-info-box').html(newTagHTML);
+    $('#tag-info-box').html(addNewTagDiv);
 
+    // add media to Amazon S3 as it is uploaded
     $('input[type="file"]').change(function(){
           var file = this.files[0];
           getSignedRequest(file);
     });
 
-    submitTag(clickLat, clickLng);
+    submitTag(position.lat(),position.lng());
 
     // clear add marker if clicked again (basically click on-click off)
     google.maps.event.addListener(newMarker, 'click', function(event){
@@ -122,14 +115,12 @@ function initMap() {
       // on directions search submission, find and display the path
       calcAndDisplayRoute(directionsService, directionsDisplay);
 
-      $.post('/tags.json', {
-          'origin': document.getElementById('origin').value,
-          'destination': document.getElementById('destination').value
-        }, 
-        function(tags) { 
-          assignMarkers(tags);
-          tagList = updateTagInfoList(tags);
-          $('#tag-info-box').html('<ul class="list-group">'+ tagList + '</ul>');
+      data = {'origin': document.getElementById('origin').value,
+              'destination': document.getElementById('destination').value
+             }
+
+      $.post('/tags.json', data, function(tags) { 
+          displayTags(tags);
       });
   });
 
@@ -151,7 +142,7 @@ google.maps.event.addDomListener(window, 'load', function(){
 
 // v|v|v|v|v|v|v|v|v|v|v|v|v| HELPER FUNCTIONS v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|
 // v|v|v|v|v|v|v|v|v|v|v|v|v| HELPER FUNCTIONS v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|
-// v|v|v|v|v|v|v|v|v|v|v|v|v| HELPER FUNCTIONS v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|
+
 
 
 /** If no geolocation, sets default map center and raises error flag. */
@@ -191,64 +182,109 @@ function clearClickMarker() {
   newMarkersArray.length = 0;
 }
 
-// icon format = (filepath, opacity)
-var currentLocIcon = ['/static/marker-pink.png', 1]
-var standardTagIcon = ['/static/circle.png', 0.6]
-var addTagIcon = ['/static/add-icon.png', 1]
+
+// v|v|v|v|v|v|v HELPER FUNCTIONS AND VARIABLES TO GENERATE AND DISPLAY QUERIED TAGS v|v|v|v|v|v|v|v|v|
+
+
+// MARKER ICON OPTIONS
+var currentLocIcon = {'filepath':'/static/marker-pink.png', 'opacity': 1}
+var standardTagIcon = {'filepath':'/static/circle.png', 'opacity': 0.6}
+var addTagIcon = {'filepath':'/static/add-icon.png', 'opacity': 1}
+
+/** Set infoDiv as global variable to facilitate display on marker toggle off. */
+var infoDiv = '';
+
+
+/** Display all markers and information for queried tags. 
+Includes sidebar list of all tags + sidebar info for each indiv tag on marker click. */
+function displayTags(queriedTags){
+  assignMarkers(queriedTags);
+  tagList = createTagList(queriedTags)
+  $('#tag-info-box').html('<div class="media">'+ tagList + '</div>');
+}
+
+
+/** Create marker for each tag returned in query and bind related tag information. */
+function assignMarkers(tags){
+  var tag, marker;
+  for (var key in tags) {
+      tag = tags[key];
+
+      pos = new google.maps.LatLng(tag.latitude, tag.longitude)
+      marker = createMarker(pos, standardTagIcon, tag.title)
+
+      allMarkersArray.push(marker) //need to add to array so it can be emptied upon next query
+
+      buildInfoDiv(tag)
+
+      bindMarkerInfo(marker, infoDiv);
+  }
+}
 
 
 /** Create marker at given location. */
-function createMarker(pos, icon, title=null){
+function createMarker(position, icon, title=null){
   marker = new google.maps.Marker({
-                          position: pos,
+                          position: position,
                           map: map,
                           title: title,
-                          icon: icon[0],
-                          opacity: icon[1]
+                          icon: icon.filepath,
+                          opacity: icon.opacity
                       });
   return marker
 }
 
 
-var infoDiv = ''
+/** Build sidebar div containing all information for tag. */
+function buildInfoDiv(tag){
+  infoDiv = ''
 
+  addTitleToDiv(tag);
+  addMediaToDiv(tag);
+  addDetailsToDiv(tag);
+  addCommentsToDiv(tag);
+}
+
+
+/** Add tag title to sidebar div. */
 function addTitleToDiv(tag){
   infoDiv += '<h4><b>' + tag.title +'</b></h4>'
   // do some title formatting here?
 }
 
+
+/** Add tag media to sidebar div. Multiple media items are possible. */
 function addMediaToDiv(tag){
   var media = tag.media;
   if (media[0]) {
-    var mediaObject;
     for (var i = 0; i < media.length; i++){
-      mediaObject = media[i]
-      var mediaType = (mediaObject[(Object.keys(mediaObject))[0]]['media_type']);
-      var url = (mediaObject[(Object.keys(mediaObject))[0]]['url']);
-      if (mediaType === "image"){
-        var image = '<img style="width:300px;" src="'+url+'" alt="tag-image">'
-        infoDiv += image
-      } else if (mediaType === "audio"){
-        var audio = '<audio controls><source src="'+url+'" >Your browser does not support the audio element.</audio>'
-        infoDiv += audio
+      for (var key in media[i]){
+        mediaObject = media[i][key]
+      }
+      if (mediaObject.media_type === "image"){
+        infoDiv += '<img style="width:300px;" src="'+mediaObject.url+'" alt="tag-image">'
+      } else if (mediaObject.media_type === "audio"){
+        infoDiv += '<audio controls><source src="'+mediaObject.url+'" >Your browser does not support the audio element.</audio>'
       } else {
-        var video = '<video width="300" controls><source src="'+url+'" ></video>'
-        infoDiv += video
+        infoDiv += '<video width="300" controls><source src="'+mediaObject.url+'" ></video>'
       }
     }
   } 
 }
 
 
+/** Add tag details and comment box to sidebar div. */
 function addDetailsToDiv(tag) {
   infoDiv += '<div id="tagId" style="display:none">' + tag.tagId + '</div><p>'
-  if (tag.artist){ infoDiv += tag.artist}
+  if (tag.artist){ 
+    infoDiv += tag.artist}
   infoDiv += '<br>'+ tag.details + '</p><textarea class="form-control" cols="35", rows="2", placeholder="Enter a comment:" id="user-comment"/><br>' +
-      '<input type="button" class="btn btn-default" value="Post" id="submit-comment"><br><br>' +
-      '<div id="user-comment-update"></div>' 
+             '<input type="button" class="btn btn-default" value="Post" id="submit-comment"><br><br>' +
+             '<div id="user-comment-update"></div>' 
 }
 
 
+/** Add tag comments to sidebar div ordered by date. */
 function addCommentsToDiv(tag) {
   var comments = tag.comments;
 
@@ -259,87 +295,43 @@ function addCommentsToDiv(tag) {
     for (var i = (comments.length - 1); i >=0; i--){
       for (var key in comments[i]){
         comment = comments[i][key]
-        username = comment.username;
-        date = comment.time;
-        content = comment.content;
-      }
-      commentsList += '<li class="list-group-item"><b>' + username + '</b> ' + date + 
-                                     '</div><div class="comment-content">' + content + '</div></li>'
-    }
-     infoDiv += '<ul class="list-group" id="commentsField">' + commentsList + '</ul></p>'
+      } commentsList += '<li class="list-group-item"><b>' + comment.username + '</b> ' + comment.time + 
+                        '</div><div class="comment-content">' + comment.content + '</div></li>'
+    } infoDiv += '<ul class="list-group" id="commentsField">' + commentsList + '</ul></p>'
   } 
 }
 
 
-/** Defines marker click event listener and lists comments. */
-function bindInfo(marker, infoDiv){
+/** Bind marker and related info. Attach event listener to submit comments. */
+function bindMarkerInfo(marker, infoDiv){
         google.maps.event.addListener(marker, 'click', function() {
-
             clearClickMarker()
-
             $('#tag-info-box').html(infoDiv);
-
             $('#submit-comment').click(function(){ submitComment();});
-
         });
     }
 
-
-
-/** Creates tag markers and attaches db queried info. */
-function assignMarkers(tags){
-
-                  var tag, marker;
-                  for (var key in tags) {
-                      tag = tags[key];
-
-                      pos = new google.maps.LatLng(tag.latitude, tag.longitude)
-                      marker = createMarker(pos, standardTagIcon, tag.title)
-
-                      allMarkersArray.push(marker)
-
-                      infoDiv = ''
-
-                      addTitleToDiv(tag);
-                      addMediaToDiv(tag);
-                      addDetailsToDiv(tag);
-                      addCommentsToDiv(tag);
-
-                      bindInfo(marker, infoDiv);
-                  }
-              }
-
-
-
-function updateTagInfoList(jsonTags) {
+/** Create sidebar list of all queried tags. */
+function createTagList(tags){
+  var tag, media;
   var tagHTML = ''
-  var keys = Object.keys(jsonTags)
-
-  for (var i = 0; i <= (keys.length - 1); i++) {
-      var title = jsonTags[keys[i]]['title']
-      var details = jsonTags[keys[i]]['details']
-
-      media = jsonTags[keys[i]]['media']
-
-      if (media[0]) {
-        var mediaObject;
-        for (var j = 0; j < media.length; j++){
-          mediaObject = media[j]
-          var mediaType = (mediaObject[(Object.keys(mediaObject))[0]]['media_type']);
-          var url = (mediaObject[(Object.keys(mediaObject))[0]]['url']);
-          if (mediaType === "image"){
-            var image = '<div class="media-left"><img class="media-object" src="'+url+'" alt="tag-image" style="width:64px;" class="thumbnail"></div>'
-            tagHTML += image
-          } 
-        } 
-    }
-
-      tagHTML += '<div class="media-body"><h4 class="media-heading">'+title+'</h4><p>'+details+'<p></div><br>'
-
-    } return tagHTML
+  for (var key in tags) {
+    tag = tags[key];
+    media = tag.media
+    if (media[0]) {
+      for (var i = 0; i < media.length; i++){
+        for (var key in media[i]){
+          mediaObject = media[i][key]
+        } if (mediaObject.media_type === "image"){
+          tagHTML += '<div class="media-left"><img class="media-object" src="'+mediaObject.url+'" alt="tag-image" style="width:64px;" class="thumbnail"></div>'
+        }  
+      }
+    } tagHTML += '<div class="media-body"><h4 class="media-heading">'+tag.title+'</h4><p>'+tag.details+'<p></div><br>'
+  } return tagHTML
 }
 
 
+// v|v|v|v|v|v|v HELPER FUNCTIONS FOR ADDING COMMENTS v|v|v|v|v|v|v|v|v|
 
 /** Adds new user comment to db and updates comment list on page
 New comment disappears if unclicked, unless new search is made. Need to fix this. */
@@ -364,6 +356,8 @@ function submitComment () {
 }
 
 
+// v|v|v|v|v|v|v HELPER FUNCTIONS FOR DISPLAYING ROUTE v|v|v|v|v|v|v|v|v|
+
 /** Uses Google's directions service to display user input route. */
 function calcAndDisplayRoute(directionsService, directionsDisplay) {
     directionsService.route({
@@ -380,52 +374,36 @@ function calcAndDisplayRoute(directionsService, directionsDisplay) {
 }
 
 
+// v|v|v|v|v|v|v|v HELPER FUNCTIONS & VARIABLES FOR ADDING TAGS v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|
+
 /** Adds new tag to db on submission and displays on page. */
 function submitTag(lat, lng){
   $('#submit-tag').click(function(){
 
-          newMarkersArray[0].setIcon('/static/circle.png');
+      data = {'latitude': lat,
+              'longitude': lng,
+              'title': $('#add-title').val(),
+              'artist': $('#add-artist').val(),
+              'details': $('#add-details').val(),
+              'media_url': $('#add-media-url').val(),
+              'audio_url': $('#audio_url').val(),
+              'image_url': $('#image_url').val(),
+              'video_url': $('#video_url').val(),
+              'genres': getGenreVals().toString()
+              }
 
-          // genreVals = getGenreVals().split(',')
-          // console.log(genreVals)
-
-          genreVals = getGenreVals().toString()
-          console.log(genreVals)
-
-          data = {'latitude': lat,
-                  'longitude': lng,
-                  'title': $('#add-title').val(),
-                  'artist': $('#add-artist').val(),
-                  'details': $('#add-details').val(),
-                  'media_url': $('#add-media-url').val(),
-                  'audio_url': $('#audio_url').val(),
-                  'image_url': $('#image_url').val(),
-                  'video_url': $('#video_url').val(),
-                  'genres': genreVals
-                  }
-
-          $.post('/new-tag.json',data,function(newTag){ 
-                                  newTagInfoHTML = ('<p><b>' + newTag.title +'</b></p>' + 
-                                                  '<div id="tagId" style="display:none">' + newTag.tagId + '</div>' +
-                                                  '<p>' + newTag.details + '</p>' +
-                                                  '<textarea class="form-control" cols="35", rows="2", placeholder="Enter a comment:" id="user-comment"/><br>' +
-                                                  '<input type="submit" value="Post" id="submit-comment">' +
-                                                  '<div id="user-comment-update"></div>' +
-                                                  '<div id="commentsField"></div></p>'
-                                                  )
-
-                                  $('#tag-info').html(newTagInfoHTML);
-
-                                  $('#submit-comment').click(function(){ 
-                                    submitComment();
-                                  });
-
-                                })
-        });
+      $.post('/new-tag.json', data, function(newTag){ 
+        newTagMarker = createMarker(newMarkersArray[0].position, standardTagIcon, newTag.title) 
+        clearClickMarker()
+        buildInfoDiv(newTag)
+        bindMarkerInfo(newTagMarker, infoDiv)
+        $('#tag-info-box').html(infoDiv);
+      })
+  });
 }
 
 // figure out how to make this not be hardcoded
-newTagHTML = (  
+addNewTagDiv = (  
         '<h4>Add a new tag</h4>' +  
         '<input type="text" class="form-control" name="title" placeholder="Title" id="add-title"/><br>' +
         '<input type="text" class="form-control" name="artist" placeholder="Artist" id="add-artist"/><br>' +
@@ -453,6 +431,9 @@ newTagHTML = (
         '<input type="hidden" id="audio_url">' +
         '<input type="hidden" id="video_url">' 
         );
+
+
+// v|v|v|v|v|v|v|v|v|v|v|v|v| FUNCTIONS FOR ADDING MEDIA TO AMAZON S3 v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|v
 
 
 function uploadFile(file, s3Data, url){
@@ -499,7 +480,7 @@ function getSignedRequest(file){
 }
 
 
-// use this to get the list of genres added to TagGenre and UserGenre db and 
+// HELPER FUNCTION FOR COLLECTING GENRE PREFERENCES FROM MULI-CHECKBOX FORM
 
 function getGenreVals() {
   var checkbox_value = "";
@@ -511,6 +492,8 @@ function getGenreVals() {
     });
     return checkbox_value
   }
+
+
 
 
 
