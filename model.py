@@ -19,6 +19,7 @@ class Tag(db.Model):
     title = db.Column(db.String(150), nullable=False)
     artist = db.Column(db.String(100), nullable=True)
     details = db.Column(db.String(1000), nullable=True)
+    primary_image = db.Column(db.String(200),nullable=True)
 
     def __repr__(self):
         """Show information about the tag"""
@@ -81,6 +82,7 @@ class User(db.Model):
     name = db.Column(db.String(40), nullable=False)
     username = db.Column(db.String(20), nullable=False, unique=True)
     password = db.Column(db.String(20), nullable=False)
+    avatar = db.Column(db.String(300), nullable=True)
 
     def __repr__(self):
         """Show information about the user"""
@@ -111,8 +113,9 @@ class Comment(db.Model):
     comment_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     tag_id = db.Column(db.Integer, db.ForeignKey('tags.tag_id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    content = db.Column(db.String(600), nullable=False)
+    content = db.Column(db.String(600), nullable=True)
     logged_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    media = db.Column(db.String(300), nullable=True)
 
     user = db.relationship("User",
                             backref=db.backref("comments", order_by=logged_at))
@@ -132,7 +135,7 @@ class Comment(db.Model):
 def connect_to_db(app):
     """Connect the database to Flask app."""
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///tags'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///tagline'
     db.app = app
     db.init_app(app)
 

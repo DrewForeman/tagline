@@ -4,10 +4,11 @@ import os
 import requests
 import simplejson
 import boto3
+import json
 
 from jinja2 import StrictUndefined
 
-from flask import Flask, render_template, redirect, request, flash, session, jsonify
+from flask import Flask, Response, render_template, redirect, request, flash, session, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 
 from model import Tag, User, Comment, Media, Genre, TagGenre, UserGenre, connect_to_db, db
@@ -24,11 +25,11 @@ app.secret_key = "ABC"
 app.jinja_env.undefined = StrictUndefined
 
 
-# @app.route('/test')
-# def test():
-#     """page for trying out html in browser."""
+@app.route('/test')
+def test():
+    """page for trying out html in browser."""
 
-#     return render_template("play.html")
+    return render_template("test.html")
 
 
 
@@ -47,6 +48,7 @@ def index():
     genres = Genre.query.all()
 
     return render_template("homepage.html", name=name, genres=genres)
+
 
 
 @app.route('/tags-geolocation.json', methods=["GET", "POST"])
@@ -68,7 +70,7 @@ def nearby_tags():
         all_found_tags = Tag.query.filter(Tag.latitude >= min_lat, 
                                     Tag.latitude <= max_lat,
                                     Tag.longitude >= min_lng,
-                                    Tag.longitude <= max_lng).all()
+                                    Tag.longitude <= max_lng).limit(9).all()
 
         # this list comprehension works but does not seem as efficient as possible
         queried_tags = [tag for tag in all_found_tags if (set([genre.genre for genre in tag.genres]) & set(genres_list))]
@@ -77,7 +79,7 @@ def nearby_tags():
         queried_tags = Tag.query.filter(Tag.latitude >= min_lat, 
                                     Tag.latitude <= max_lat,
                                     Tag.longitude >= min_lng,
-                                    Tag.longitude <= max_lng).all()
+                                    Tag.longitude <= max_lng).limit(7).all()
 
     tag_dict = map_tag_details(queried_tags)
     
@@ -159,9 +161,9 @@ def handle_add_tag():
     title=request.form.get('title'),
     artist=request.form.get('artist'),
     details=request.form.get('details'),
-    media_url=request.form.get('media_url')
+    # media_url=request.form.get('media_url')
     audio_url=request.form.get('audio_url')
-    image_url=request.form.get('image_url')
+    primary_image=request.form.get('primary_image')
     video_url=request.form.get('video_url')
     genres=request.form.get('genres')
 
@@ -169,8 +171,8 @@ def handle_add_tag():
 
     if audio_url:
         add_media_to_db(tag.tag_id,audio_url,"audio")
-    if image_url:
-        add_media_to_db(tag.tag_id,image_url,"image")
+    # if image_url:
+    #     add_media_to_db(tag.tag_id,image_url,"image")
     if video_url:
         add_media_to_db(tag.tag_id,video_url,"video")
 
@@ -182,6 +184,7 @@ def handle_add_tag():
             "title": tag.title,
             "artist": tag.artist,
             "details": tag.details,
+            "primary_image": tag.primary_image,
             "media": [{media.media_id : {"media_type":media.media_type,
                                      "url":media.media_url}} for media in tag.medias]
     }
@@ -231,8 +234,9 @@ def handle_registration():
     username = request.form.get('username')
     password = request.form.get('password')
     genres = request.form.getlist('genres')
+    avatar = request.form.getlist('image_url')
 
-    new_user = User(name=name, username=username, password=password)
+    new_user = User(name=name, username=username, password=password, avatar=avatar)
 
     db.session.add(new_user)
     db.session.commit()
@@ -258,13 +262,16 @@ def map_tag_details(queried_tags):
         "latitude": tag.latitude,
         "longitude": tag.longitude,
         "title": tag.title,
+        "excerpt": ' '.join(tag.details.split()[:15]) + '...',
         "artist": tag.artist,
         "details": tag.details,
+        "primaryImage": tag.primary_image,
         "media": [{media.media_id : {"media_type":media.media_type,
                                      "url":media.media_url}} for media in tag.medias],
         "comments": [{comment.comment_id : {"username":comment.user.username, 
-                                           "time":comment.logged_at.strftime("%b %d %Y"), 
-                                           "content":comment.content}} for comment in tag.comments]
+                                            "avatar":comment.user.avatar,
+                                            "time":comment.logged_at.strftime("%b %d %Y"), 
+                                            "content":comment.content}} for comment in tag.comments]
         
         } for tag in queried_tags
     }
@@ -292,6 +299,7 @@ def add_tag_to_db(latitude,longitude,title,artist,details):
                     title=title,
                     artist=artist,
                     details=details,
+                    primary_image=primary_image
                 )
 
     db.session.add(tag)

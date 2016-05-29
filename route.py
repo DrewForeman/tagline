@@ -66,27 +66,44 @@ def find_bounding_box(route_coordinates):
     Currently draws a rectangle around entire set of long/lat points. 
     Plan to upgrade to more sophisticated bounding box later on.
     """
+# if a > lat > b and c > lng > d  OR
+    bboxes = []
 
-    bbox = BoundingBox(route_coordinates)
+    for i in range(len(route_coordinates)-1):
+        bbox = BoundingBox([route_coordinates[i],route_coordinates[i+1]])
+        # print bbox
+        bboxes.append(bbox)
+        i += 1
 
-    return bbox
+    # bbox = BoundingBox(route_coordinates)
+
+    return bboxes
 
 
 
-def query_landmarks(bbox):
+def query_landmarks(bboxes):
     """Returns list of landmark objects from database that fall within given bounding box."""
 
-    min_lat = bbox.min_point[0]
-    min_lng = bbox.min_point[1]
-    max_lat = bbox.max_point[0]
-    max_lng = bbox.max_point[1]
+    all_tags = []
 
-    tags = Tag.query.filter(Tag.latitude >= min_lat, 
-                                    Tag.latitude <= max_lat,
-                                    Tag.longitude >= min_lng,
-                                    Tag.longitude <= max_lng).all()
+    for bbox in bboxes:
 
-    return tags
+        min_lat = bbox.min_point[0]
+        min_lng = bbox.min_point[1]
+        max_lat = bbox.max_point[0]
+        max_lng = bbox.max_point[1]
+
+    # Tag.query.filter(or_(Tag.latitude  lt for lt in ('Alice', 'Bob', 'Carl')))
+
+        tags = Tag.query.filter(Tag.latitude >= min_lat, 
+                                        Tag.latitude <= max_lat,
+                                        Tag.longitude >= min_lng,
+                                        # Tag.longitude <= max_lng).limit(9).all()
+                                        Tag.longitude <= max_lng).limit(7).all()
+
+        all_tags += tags
+    print all_tags
+    return all_tags
 
 
 

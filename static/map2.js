@@ -12,7 +12,7 @@ function initMap() {
   var directionsService = new google.maps.DirectionsService;
   var directionsDisplay = new google.maps.DirectionsRenderer({
       suppressMarkers: true,
-      polylineOptions:{strokeColor:'#FFFFFF', strokeOpacity: 1.0, strokeWeight: 5}
+      polylineOptions:{strokeColor:'gray', strokeOpacity: 1.0, strokeWeight: 5}
   });
 
   var mapDiv = document.getElementById('map');
@@ -28,6 +28,28 @@ function initMap() {
       mapTypeId: google.maps.MapTypeId.ROADS
   });
 
+  var currentLocIcon = {
+        path: fontawesome.markers.MAP_MARKER,
+        strokeColor:'#5cb85c',
+        fillColor: '#5cb85c',
+        fillOpacity: 0.7
+        }
+
+  var addTagIcon = {
+        path: fontawesome.markers.PLUS_CIRCLE,
+        scale: 0.5,
+        fillOpacity: 0.6
+        }
+
+  // var standardTagIcon = {
+  //       path: fontawesome.markers.CIRCLE,
+  //       scale: 0.5,
+  //       strokeColor:'##0099cc',
+  //       strokeOpacity: 0.5,
+  //       fillColor: '##0099cc',
+  //       fillOpacity: 0.5
+  //       }
+
   directionsDisplay.setMap(map);
 
   if (navigator.geolocation) {
@@ -38,24 +60,53 @@ function initMap() {
 
         map.setCenter(pos);
 
+        // var currentLocIcon = {path: fontawesome.markers.MAP_MARKER,
+        //                   strokeColor:'#5cb85c',
+        //                   fillColor: '#5cb85c',
+        //                   fillOpacity: 0.7
+        //                   }
+
+        // var addTagIcon = {path: fontawesome.markers.PLUS_CIRCLE,
+        //                   scale: 0.5,
+        //                   fillOpacity: 0.6
+        //                   }
+
+        // var standardTagIcon = {path: fontawesome.markers.CIRCLE,
+        //                   scale: 0.5,
+        //                   strokeColor:'##0099cc',
+        //                   strokeOpacity: 0.5,
+        //                   fillColor: '##0099cc',
+        //                   fillOpacity: 0.5
+        //                   }
+
         var geolocationMarker = createMarker(pos, currentLocIcon)
+        // var geolocationMarker = new google.maps.Marker({
+        //                   position: pos,
+        //                   map: map,
+        //                   icon: {
+        //                     path: fontawesome.markers.MAP_MARKER,
+        //                     strokeColor:'#5cb85c',
+        //                     fillColor: '#5cb85c',
+        //                     fillOpacity: 0.7
+        //                   },
+        //               });
 
         google.maps.event.addListener(geolocationMarker, 'click', function(event){
           clearClickMarker();
-          geolocationMarker.setIcon(addTagIcon.filepath);
+          geolocationMarker.setIcon(addTagIcon);
           // $('#tag-info-box').html(addNewTagDiv);
           submitTag(position.coords.latitude, position.coords.latitude);
         })
 
         google.maps.event.addListener(map, 'click', function(event){
-          geolocationMarker.setIcon(currentLocIcon.filepath);
+          geolocationMarker.setIcon(currentLocIcon);
         })
       }, function () {
           handleNoGeolocation(true);
       });
 
        
-      v|v|v|v|v|v|v|v| SHOW NEARBY POINTS UPON LOAD v|v|v|v|v|v|v|v|v|v|v|v|
+      // v|v|v|v|v|v|v|v| SHOW NEARBY POINTS UPON LOAD v|v|v|v|v|v|v|v|v|v|v|v|
       google.maps.event.addListenerOnce(map, 'idle', function(){
         // delay this function so the map has time to load before getting bounds
         // shorten timeout but run again if still null after timeout. maybe want to change this into a named function. also define var for getbounds
@@ -68,7 +119,7 @@ function initMap() {
           }
           
           $.post('/tags-geolocation.json', data, function(nearby_tags) {
-            displayTags(nearby_tags);
+            // displayTags(nearby_tags);
           });
 
         },3000);
@@ -185,43 +236,47 @@ function clearClickMarker() {
 
 // v|v|v|v|v|v|v HELPER FUNCTIONS AND VARIABLES TO GENERATE AND DISPLAY QUERIED TAGS v|v|v|v|v|v|v|v|v|
 
-
-// MARKER ICON OPTIONS
-var currentLocIcon = {'filepath':'/static/green-marker.png', 'opacity': 1}
-var standardTagIcon = {'filepath':'/static/circle.png', 'opacity': 0.6}
-var addTagIcon = {'filepath':'/static/add-icon.png', 'opacity': 1}
-
-/** Set infoDiv as global variable to facilitate display on marker toggle off. */
-var infoDiv = '';
-
-
 /** Display all markers and information for queried tags. 
 Includes sidebar list of all tags + sidebar info for each indiv tag on marker click. */
 function displayTags(queriedTags){
-  infoDiv = ''
+  var infoDiv = ''
   assignMarkers(queriedTags);
-  tagList = createTagList(queriedTags)
+  // tagList = createTagList(queriedTags)
   // $('#tag-info-box').html('<div class="media">'+ tagList + '</div>');
 }
 
 
 /** Create marker for each tag returned in query and bind related tag information. */
 function assignMarkers(tags){
-  $('#main-div').html('')
+
+  $('#tag-div-2').html(''); //empty the divs for new tags
+  $('#tag-div-3').html('');
+
+  var count = 0;  //set up a count of the tags so it knows which page column to append to
+
   var tag, marker;
   for (var key in tags) {
+
+      count++;
+
       tag = tags[key];
 
       pos = new google.maps.LatLng(tag.latitude, tag.longitude)
-      marker = createMarker(pos, standardTagIcon, tag.title)
+      marker = createMarker(pos, 
+                           {path: fontawesome.markers.CIRCLE,
+                            scale: 0.5,
+                            strokeColor:'#0099cc',
+                            strokeOpacity: 0.5,
+                            fillColor: '#0099cc',
+                            fillOpacity: 0.5
+                           }, 
+                           tag.title)
 
       allMarkersArray.push(marker) //need to add to array so it can be emptied upon next query
 
-      buildInfoDiv(tag)
+      buildTagDisplayDiv(tag)
 
-      // infoDiv = '<div class="panel panel-default col-md-3">'+infoDiv+'</div>'
-
-      bindMarkerInfo(marker, infoDiv);
+      bindMarkerInfo(marker, infoDiv, count);
   }
 }
 
@@ -232,71 +287,101 @@ function createMarker(position, icon, title=null){
                           position: position,
                           map: map,
                           title: title,
-                          icon: icon.filepath,
-                          opacity: icon.opacity
+                          icon: icon
                       });
   return marker
 }
 
 
-/** Build sidebar div containing all information for tag. */
-function buildInfoDiv(tag){
+/** Build div displaying all information for tag. */
+function buildTagDisplayDiv(tag){
   infoDiv = ''
-  addTitleToDiv(tag);
-  addImageToDiv(tag);
+
+  createDisplayBase(tag);
   // addMediaToDiv(tag);
   addDetailsToDiv(tag);
   addCommentsToDiv(tag);
-
 }
 
 
-/** Add tag title to sidebar div. */
-function addTitleToDiv(tag){
-  infoDiv += '<h4><b>' + tag.title +'</b></h4>'
-  // do some title formatting here?
-}
+// <div class="card card-inverse">
+// '<div class="card-block" data-toggle="collapse" data-target="#'+tag.tagId+'" style="background-color: rgba(51,51,51,0.7);">' +
+// '<h4 class="card-title">'+tag.title+'</h4>' +
+// '<p class="card-text">'+tag.excerpt+'</p>' +
+// '</div>'
+// <div data-toggle="collapse" id="overlayCollapse3" class="collapse" aria-expanded="false">
+// <div class="card-block">
+// <p class="card-text drop-text" style="color: black;">Here are the major details about this thing. This is different than the short description that appears on the tab. Or the tab could have the first few words. </p>
+// </div>
 
-function addImageToDiv(tag){
+
+/** Create basic image and title display that shows on load. */
+function createDisplayBase(tag){
+  infoDiv = '<div class="card card-inverse">';
   if (tag.primaryImage) {
-      infoDiv += '<img style="width:98%;" src="'+tag.primaryImage+'" alt="tag-image">'
+    infoDiv += '<img class="card-img" src="'+tag.primaryImage+'" alt="Card image" style="width: 100%;">' +
+               '<div class="card-img-overlay" style="background-color: rgba(51,51,51,0.7);" data-toggle="collapse" data-target="#'+tag.tagId+'">' +
+               '<h4 class="card-title">'+tag.title+'</h4>' +
+               '<p class="card-text">'+tag.excerpt+'</p>' + // add a char limit to this beforehand
+               // '<p class="card-text"><small>Last updated'+tag.recent_comment_time+'</small></p>' +
+               '</div>'
+  } else {
+    infoDiv += '<div class="card-block" data-toggle="collapse" data-target="#'+tag.tagId+'" style="background-color: rgba(51,51,51,0.7);">' +
+               '<h4 class="card-title">'+tag.title+'</h4>' +
+               '<p class="card-text">'+tag.excerpt+'</p>' +
+               '</div>'
   }
 }
 
 
 /** Add tag media to sidebar div. Multiple media items are possible. */
-function addMediaToDiv(tag){
-  var media = tag.media;
-  if (media[0]) {
-    for (var i = 0; i < media.length; i++){
-      for (var key in media[i]){
-        mediaObject = media[i][key]
-      }
-      if (mediaObject.media_type === "image"){
-        infoDiv += '<img style="width:300px;" src="'+mediaObject.url+'" alt="tag-image">'
-      } else if (mediaObject.media_type === "audio"){
-        infoDiv += '<audio controls><source src="'+mediaObject.url+'" >Your browser does not support the audio element.</audio>'
-      } else {
-        infoDiv += '<video width="300" controls><source src="'+mediaObject.url+'" ></video>'
-      }
-    }
-  } 
-}
+// function addMediaToDiv(tag){
+//   var media = tag.media;
+//   if (media[0]) {
+//     for (var i = 0; i < media.length; i++){
+//       for (var key in media[i]){
+//         mediaObject = media[i][key]
+//       }
+//       if (mediaObject.media_type === "image"){
+//         infoDiv += '<img style="width:300px;" src="'+mediaObject.url+'" alt="tag-image">'
+//       } else if (mediaObject.media_type === "audio"){
+//         infoDiv += '<audio controls><source src="'+mediaObject.url+'" >Your browser does not support the audio element.</audio>'
+//       } else {
+//         infoDiv += '<video width="300" controls><source src="'+mediaObject.url+'" ></video>'
+//       }
+//     }
+//   } 
+// }
 
 
-/** Add tag details and comment box to sidebar div. */
+/** Add tag details to display div to collapse open on click. */
 function addDetailsToDiv(tag) {
-  infoDiv += '<div id="tagId" style="display:none">' + tag.tagId + '</div><p>'
+  infoDiv += '<div data-toggle="collapse" id="'+tag.tagId+'" class="collapse" aria-expanded="false">' +
+            '<ul class="list-group list-group-flush drop-text">' +
+            '<li class="list-group-item"><div>'
+  
   if (tag.artist){ 
-    infoDiv += tag.artist}
-  infoDiv += '<br>'+ tag.details + '</p><textarea class="form-control" cols="35", rows="2", placeholder="Enter a comment:" id="user-comment"/><br>' +
-             '<input type="button" class="btn btn-default" value="Post" id="submit-comment"><br><br>' +
-             '<div id="user-comment-update"></div>' 
+      infoDiv += tag.artist + '<br><br>'
+  }
+
+  infoDiv += tag.details +'</div></li>' 
 }
 
 
 /** Add tag comments to sidebar div ordered by date. */
 function addCommentsToDiv(tag) {
+
+  // add comments box
+  infoDiv += '<li class="list-group-item">' +
+             '<div class="input-group input-group-lg">' +
+             '<input type="text" class="form-control" placeholder="Say something..." aria-describedby="basic-addon1">' +
+             '<i class="fa fa-microphone" aria-hidden="true"></i>' +
+             '<i class="fa fa-picture-o" aria-hidden="true"></i>' +
+             '<i class="fa fa-video-camera" aria-hidden="true"></i>' +
+             '</div>' +
+             '</li>'
+
+  // add comments
   var comments = tag.comments;
 
   if (comments){
@@ -306,20 +391,37 @@ function addCommentsToDiv(tag) {
     for (var i = (comments.length - 1); i >=0; i--){
       for (var key in comments[i]){
         comment = comments[i][key]
-      } commentsList += '<li class="list-group-item"><b>' + comment.username + '</b> ' + comment.time + 
-                        '</div><div class="comment-content">' + comment.content + '</div></li>'
-    } infoDiv += '<ul class="list-group" id="commentsField">' + commentsList + '</ul></p>'
-  } 
+      } commentsList += '<li class="list-group-item">' +
+                        '<div class="media">' +
+                        '<div class="media-left">' + //add avatar
+                        '<a href="#"><img class="media-object" src="/static/placeholder_avatar.jpg" alt="user-avatar"></a>' +
+                        '</div>' +
+                        '<div class="media-body">' +
+                        '<b>'+ comment.username +'</b><span class="card-text"><small class="text-muted">  '+comment.time+'</small></span><br>' + comment.content + 
+                        '</div>' +
+                        '</div>' +
+                        '</li>'
+    } infoDiv += commentsList 
+  } infoDiv += '</ul></div></div></div>'
 }
 
+
 /** Bind marker and related info. Attach event listener to submit comments. */
-function bindMarkerInfo(marker, infoDiv){
-      $('#main-div').append('<div class="item"><div class="panel panel-default">'+infoDiv+'</div></div>');
+function bindMarkerInfo(marker, infoDiv, count){
+
+  if (count % 2 === 0){
+    $('#tag-div-3').append(infoDiv);
+  } else{
+    $('#tag-div-2').append(infoDiv);
+  }
+
+
+  // $('#tag-div-2').html(infoDiv);
 
         google.maps.event.addListener(marker, 'click', function() {
             clearClickMarker()
-            console.log('infodiv below')
-            console.log(infoDiv)
+            // console.log('infodiv below')
+            // console.log(infoDiv)
             // $('#tag-info-box').html(infoDiv);
             
             // $('#main-div').append(infoDiv);
@@ -401,17 +503,25 @@ function submitTag(lat, lng){
               'title': $('#add-title').val(),
               'artist': $('#add-artist').val(),
               'details': $('#add-details').val(),
-              'media_url': $('#add-media-url').val(),
+              // 'media_url': $('#add-media-url').val(),
               'audio_url': $('#audio_url').val(),
-              'image_url': $('#image_url').val(),
+              'primary_image': $('#image_url').val(),
               'video_url': $('#video_url').val(),
               'genres': getGenreVals().toString()
               }
 
       $.post('/new-tag.json', data, function(newTag){ 
-        newTagMarker = createMarker(newMarkersArray[0].position, standardTagIcon, newTag.title) 
+        newTagMarker = createMarker(newMarkersArray[0].position, 
+                                    {path: fontawesome.markers.CIRCLE,
+                                      scale: 0.5,
+                                      strokeColor:'#0099cc',
+                                      strokeOpacity: 0.5,
+                                      fillColor: '#0099cc',
+                                      fillOpacity: 0.5
+                                    },  
+                                    newTag.title) 
         clearClickMarker()
-        buildInfoDiv(newTag)
+        buildTagDisplayDiv(newTag)
         bindMarkerInfo(newTagMarker, infoDiv)
         // $('#tag-info-box').html(infoDiv);
       })
@@ -419,34 +529,34 @@ function submitTag(lat, lng){
 }
 
 // figure out how to make this not be hardcoded
-addNewTagDiv = (  
-        '<h4>Add a new tag</h4>' +  
-        '<input type="text" class="form-control" name="title" placeholder="Title" id="add-title"/><br>' +
-        '<input type="text" class="form-control" name="artist" placeholder="Artist" id="add-artist"/><br>' +
-        '<textarea name="details" class="form-control" cols="35" rows="5" placeholder="Details" id="add-details"/><br>' +
-        '<input type="text" class="form-control" name="media_url" placeholder="Media URL" id="add-media-url"/><br>' +
-        '<span id="audioSpace"><label for="audio"><span class="btn btn-default">Add Audio</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="audio"></span>' +
-        '<span id="imageSpace"><label for="image"><span class="btn btn-default">Add Image</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="image/*;capture=camcorder" id="image"></span>' +
-        '<span id="videoSpace"><label for="video"><span class="btn btn-default">Add Video</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="video"></span><br><br>' +
-        '<div class="btn-group" data-toggle="buttons">' +
+// addNewTagDiv = (  
+//         '<h4>Add a new tag</h4>' +  
+//         '<input type="text" class="form-control" name="title" placeholder="Title" id="add-title"/><br>' +
+//         '<input type="text" class="form-control" name="artist" placeholder="Artist" id="add-artist"/><br>' +
+//         '<textarea name="details" class="form-control" cols="35" rows="5" placeholder="Details" id="add-details"/><br>' +
+//         '<input type="text" class="form-control" name="media_url" placeholder="Media URL" id="add-media-url"/><br>' +
+//         '<span id="audioSpace"><label for="audio"><span class="btn btn-default">Add Audio</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="audio"></span>' +
+//         '<span id="imageSpace"><label for="image"><span class="btn btn-default">Add Image</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="image/*;capture=camcorder" id="image"></span>' +
+//         '<span id="videoSpace"><label for="video"><span class="btn btn-default">Add Video</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="video"></span><br><br>' +
+//         '<div class="btn-group" data-toggle="buttons">' +
         // '{% for genre in genres %}'+
         // '<label class="btn btn-default"><input type="checkbox" name="genres" id="{{genre.genre}}" value="{{genre.genre}}">{{genre.genre}</label>' +
         // '{%endfor%}' +
-          '<label class="btn btn-default"><input type="checkbox" name="genres" id="architecture" value="architecture">architecture</label>' +
-          '<label class="btn btn-default"><input type="checkbox" name="genres" id="art" value="art">art</label>' +
-          '<label class="btn btn-default"><input type="checkbox" name="genres" id="audio" value="audio">audio</label>' +
-          '<label class="btn btn-default"><input type="checkbox" name="genres" id="curiosities" value="curiosities">curiosities</label><br>' +
-          '<label class="btn btn-default"><input type="checkbox" name="genres" id="food" value="food">food</label>' +
-          '<label class="btn btn-default"><input type="checkbox" name="genres" id="history" value="history">history</label>' +
-          '<label class="btn btn-default"><input type="checkbox" name="genres" id="politics" value="politics">politics</label>' +
-          '<label class="btn btn-default"><input type="checkbox" name="genres" id="sports" value="sports">sports</label><br>' +
-          '<label class="btn btn-default"><input type="checkbox" name="genres" id="stories" value="stories">stories</label>' +
-        '</div><br><br>'+
-        '<input type="submit" class="btn btn-primary" value="Tag it" id="submit-tag"/>' +
-        '<input type="hidden" id="image_url">' +
-        '<input type="hidden" id="audio_url">' +
-        '<input type="hidden" id="video_url">' 
-        );
+        //   '<label class="btn btn-default"><input type="checkbox" name="genres" id="architecture" value="architecture">architecture</label>' +
+        //   '<label class="btn btn-default"><input type="checkbox" name="genres" id="art" value="art">art</label>' +
+        //   '<label class="btn btn-default"><input type="checkbox" name="genres" id="audio" value="audio">audio</label>' +
+        //   '<label class="btn btn-default"><input type="checkbox" name="genres" id="curiosities" value="curiosities">curiosities</label><br>' +
+        //   '<label class="btn btn-default"><input type="checkbox" name="genres" id="food" value="food">food</label>' +
+        //   '<label class="btn btn-default"><input type="checkbox" name="genres" id="history" value="history">history</label>' +
+        //   '<label class="btn btn-default"><input type="checkbox" name="genres" id="politics" value="politics">politics</label>' +
+        //   '<label class="btn btn-default"><input type="checkbox" name="genres" id="sports" value="sports">sports</label><br>' +
+        //   '<label class="btn btn-default"><input type="checkbox" name="genres" id="stories" value="stories">stories</label>' +
+        // '</div><br><br>'+
+        // '<input type="submit" class="btn btn-primary" value="Tag it" id="submit-tag"/>' +
+        // '<input type="hidden" id="image_url">' +
+        // '<input type="hidden" id="audio_url">' +
+        // '<input type="hidden" id="video_url">' 
+        // );
 
 
 // v|v|v|v|v|v|v|v|v|v|v|v|v| FUNCTIONS FOR ADDING MEDIA TO AMAZON S3 v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|v
@@ -470,13 +580,14 @@ function uploadFile(file, s3Data, url){
 
         if (file.type.split('/')[0] === 'audio'){
           document.getElementById("audio_url").value = url;
-          $('#audioSpace').html('<audio id="audio-preview" controls><source src="'+url+'" ></audio>');
+          $('#audioSpace').html('<audio style="width:160px; margin:8px; vertical-align: middle;" id="audio-preview" controls><source src="'+url+'" ></audio>');
         } else if (file.type.split('/')[0] === 'image'){
           document.getElementById("image_url").value = url;
-          $('#imageSpace').html('<img style="width:300px;" src="'+url+'" id="image-preview">');
+          $('#imageSpace').html('<img style="max-width:150px; margin:8px;" src="'+url+'" class="img-thumbnail" id="image-preview">');
+          console.log('added image')
         } else {
           document.getElementById("video_url").value = url;
-          $('#videoSpace').html('<video width="300" id="video-preview" controls><source src="'+url+'" ></video>');
+          $('#videoSpace').html('<video width="150" style="margin:8px; vertical-align: middle;" id="video-preview" controls><source src="'+url+'" ></video>');
         }
       }
       else{

@@ -1,5 +1,35 @@
 {% extends 'base.html' %} 
 
+{% block head %}
+<style>
+/**, *:before, *:after {box-sizing:  border-box !important;}
+
+
+.row {
+ -moz-column-width: 22em;
+ -webkit-column-width: 22em;
+ -moz-column-gap: .5em;
+ -webkit-column-gap:.5em; 
+  
+}
+
+.item {
+ display: inline-block;
+ padding:  .5em;
+ width:  100%; 
+}
+
+.panel {
+ position:relative;
+ display: block;
+ padding: 10px;
+ margin:0px;
+}*/
+</style>
+
+  <script src="/static/map.js"></script>
+
+{% endblock %}
 
 {% block body %}
 
@@ -69,10 +99,27 @@
   </div><!-- /.container-fluid -->
 </nav>
 
-    <div id="map"></div>
-    <div class="panel panel-primary fixed-panel" id="tag-info-box">
-        <!-- <div id="tag-info"></div> -->
+<div id="map" class="col-md-3"></div>
+<div class="container-fluid" id="main">
+  <div class="row">
+    <div class="col-md-3"></div>
+
+
+    <!-- <div class="col-md-9" id="right"> -->
+    
+      <!-- item list -->
+<!--       <div class="panel panel-default">
+        <div class="panel-heading"><a href="">Item heading</a></div>
+      </div> -->
+    <div id="main-div" class"col-md-9">
+
     </div>
+</div>
+
+    <!-- <div class="panel panel-primary fixed-panel" id="tag-info-box"> -->
+    <!-- </div> -->
+
+
 
 
     <!-- EVENTUALLY MOVE THIS SCRIPT TO ITS OWN FILE??? -->
@@ -91,6 +138,7 @@ $('#login-button').click(function(){
     console.log(currentUser)}
   )})
 </script>
+
 
 
 {% endblock %}

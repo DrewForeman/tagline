@@ -1,0 +1,404 @@
+{% extends 'base.html' %} 
+
+{% block head %}
+  
+<style>
+
+#map {
+    height: 600px;
+    /*margin-top: 7px;*/
+    /*margin-right:5px;*/
+    /*padding-right: 5px;*/
+    margin-bottom: 10px;
+    /*padding:  .5em;*/
+    /*width: 95%;*/
+    /*float: left;*/
+}
+
+body {
+  font-family: 'Arvo', serif;
+}
+
+.card {
+  margin-left: 8px;
+  border: rgba(51,51,51,0.7);
+}
+
+.col-md-3{
+  padding: 0;
+}
+
+.fa {
+  margin-top: 12px;
+  margin-right: 15px;
+  margin-left: 5px;
+}
+
+.list-group-item{
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.dropdown-menu{
+  background-color: rgba(255,255,255,0.8);
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.dropdown-menu .bottom {
+  background-color: white;
+  text-align: center;
+}
+
+#login-button {
+  width: 100%; 
+  margin-top:4px;
+  margin-bottom: 8px;
+}
+
+.subtext {
+  font-size: 14px;
+  color: white;
+}
+
+.drop-text {
+  font-size: 14px;
+}
+
+.modal-body {
+  padding-bottom: 0px;
+}
+
+.modal-footer {
+  margin-top: 15px;
+}
+
+</style>
+
+<script src="/static/map2.js"></script>
+<script src="/static/fontawesome-markers.min.js"></script>
+
+{% endblock %}
+
+{% block body %}
+
+<nav class="navbar navbar-light">
+  <a class="navbar-brand" href="#">Tagline</a>
+
+  <form class="form-inline">
+    <input class="form-control" type="text" placeholder="Origin" id="origin">
+    <input class="form-control" type="text" placeholder="Destination" id="destination">
+    <button class="btn btn-success-outline" type="button" id="get-route">Go</button>
+
+    <ul class="nav navbar-nav pull-xs-right" id="login-tog">
+      <li>
+    <div class="dropdown">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Login
+    </button>
+    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu2">
+      <!-- <div class="form-group"> -->
+
+      <form class="form" role="form" method="post" action="login" accept-charset="UTF-8" id="login-nav">
+        <div class="form-group">
+           <label class="sr-only" for="inputUsername">Username</label>
+           <input type="text" class="form-control" id="inputUsername" placeholder="Username" required>
+        </div>
+        <div class="form-group">
+           <label class="sr-only" for="inputPassword">Password</label>
+           <input type="password" class="form-control" id="inputPassword" placeholder="Password" required>
+
+        </div>
+        <div class="form-group">
+           <button type="button" class="btn btn-success btn-block" id="login-button">Sign in</button>
+        </div>
+      </form>
+
+      <div class="bottom">
+        <div id="not-registered"></div>
+        <small>New here?<br></small> <a href="/register">Register</a>
+      </div>
+</nav>
+
+
+
+
+<!-- #################################### NAV ABOVE -->
+
+<!-- <div id="map" class="col-md-3"></div> -->
+
+<div class="container-fluid">
+  <div class="row">
+
+    <div id="map" class="col-md-3"></div>
+
+
+<!-- ######################### -->
+
+    <div class="col-md-3" id="tag-div-1">
+
+<!-- ADD NEW TAG CARD -->
+
+      <div class="card card-inverse" style="background-color: #333; border-color: #333;">
+        <div class="card-block">
+          <h3 class="card-title">Tag something</h3>
+          <p class="card-text">Share your thoughts, stories, knowledge. Make your mark on the city.</p>
+          <p class="subtext">Set your location on the map and...</p>
+          <button class="btn btn-success-outline" style="color: white;" data-toggle="modal" data-target="#myModal">Tag it!</button>
+
+        </div>
+      </div>
+
+
+<!-- INSERT NEW TAG DIV -->
+      <div id="new-tag"></div>
+
+
+<!-- HIGHLIGHTED TAG CARD -->
+
+      <div class="card card-inverse">
+        <img class="card-img" src="/static/testimg.jpg" alt="Card image" style="width: 100%;">
+        <div class="card-img-overlay" style="background-color: rgba(51,51,51,0.7);" data-toggle="collapse" data-target="#overlayCollapse1" id="hovercard1">
+          <h4 class="card-title">Os gemeos mural</h4>
+          <p class="card-text">This is a mural painted by some brazilian brothers. It makes...</p>
+          <p class="card-text"><small>Last updated 3 mins ago</small></p>
+        </div>
+        <div data-toggle="collapse" id="overlayCollapse1" class="collapse" aria-expanded="false">
+          <ul class="list-group list-group-flush drop-text">
+            <li class="list-group-item">
+              <div>This is a mural painted by some brazilian brothers. It makes SF not quite as dreary.</div>
+            </li>
+            <li class="list-group-item">
+              <div class="input-group input-group-lg">
+                <input type="text" class="form-control" placeholder="Say something..." aria-describedby="basic-addon1">
+              <i class="fa fa-microphone" aria-hidden="true"></i>
+              <i class="fa fa-picture-o" aria-hidden="true"></i>
+              <i class="fa fa-video-camera" aria-hidden="true"></i>
+              </div>
+            </li>
+            <li class="list-group-item">
+              <div class="media">
+                <div class="media-left">
+                  <a href="#">
+                    <img class="media-object" src="/static/placeholder_avatar.jpg" alt="user-avatar">
+                  </a>
+                </div>
+                <div class="media-body">
+                  <b>drewf</b><span class="card-text"><small class="text-muted">  March 19, 2016</small></span><br>
+                  Here is a comment
+                </div>
+              </div>
+            </li>
+            <li class="list-group-item">
+              <div class="media">
+                <div class="media-left">
+                  <a href="#">
+                    <img class="media-object" src="/static/placeholder_avatar.jpg" alt="user-avatar">
+                  </a>
+                </div>
+                <div class="media-body">
+                  <b>sflvr</b><span class="card-text"><small class="text-muted">  March 12, 2016</small></span><br>
+                  I have something to say too
+                </div>
+              </div>
+            </li>
+            <li class="list-group-item">
+              <div class="media">
+                <div class="media-left">
+                  <a href="#">
+                    <img class="media-object" src="/static/placeholder_avatar.jpg" alt="user-avatar">
+                  </a>
+                </div>
+                <div class="media-body">
+                  <b>username</b><span class="card-text"><small class="text-muted">  March 1, 2016</small></span><br>
+                  Here is the first comment
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div> <!-- column end -->
+
+<!-- QUERIED TAG COLUMN 2 -->
+
+    <div class="col-md-3" id="tag-div-2">
+
+    </div> <!-- close second column -->
+
+
+<!-- THIRD TAG COLUMN -->
+
+    <div class="col-md-3" id="tag-div-3">
+
+
+        <div class="card card-inverse">
+          <div class="card-block" data-toggle="collapse" data-target="#overlayCollapse3" style="background-color: rgba(51,51,51,0.7);">
+            <h4 class="card-title">An audio tag</h4>
+            <p class="card-text">A native american powow by the Caltrain station...</p>
+          </div>
+          <div data-toggle="collapse" id="overlayCollapse3" class="collapse" aria-expanded="false">
+          <div class="card-block">
+              <p class="card-text drop-text" style="color: black;">Here are the major details about this thing. This is different than the short description that appears on the tab. Or the tab could have the first few words. </p>
+          </div>
+
+          <ul class="list-group list-group-flush drop-text">
+            <li class="list-group-item">
+              <div class="input-group input-group-lg">
+                <input type="text" class="form-control" placeholder="Say something..." aria-describedby="basic-addon1">
+                <i class="fa fa-microphone" aria-hidden="true"></i>
+                <i class="fa fa-picture-o" aria-hidden="true"></i>
+                <i class="fa fa-video-camera" aria-hidden="true"></i>
+              </div>
+            </li>
+
+            <li class="list-group-item">
+              <div class="media">
+                <div class="media-left">
+                  <a href="#">
+                    <img class="media-object" src="/static/placeholder_avatar.jpg" alt="user-avatar">
+                  </a>
+                </div>
+                <div class="media-body">
+                  <b>drewf</b><span class="card-text"><small class="text-muted">  March 19, 2016</small></span><br>
+                  Here is a comment
+                </div>
+              </div>
+            </li>
+
+            <li class="list-group-item">
+              <div class="media">
+                <div class="media-left">
+                  <a href="#">
+                    <img class="media-object" src="/static/placeholder_avatar.jpg" alt="user-avatar">
+                  </a>
+                </div>
+                <div class="media-body">
+                  <b>sflvr</b><span class="card-text"><small class="text-muted">  March 12, 2016</small></span><br>
+                  I have something to say too
+                </div>
+              </div>
+            </li>
+
+            <li class="list-group-item">
+              <div class="media">
+                <div class="media-left">
+                  <a href="#">
+                    <img class="media-object" src="/static/placeholder_avatar.jpg" alt="user-avatar">
+                  </a>
+                </div>
+                <div class="media-body">
+                  <b>username</b><span class="card-text"><small class="text-muted">  March 1, 2016</small></span><br>
+                  Here is the first comment
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div> <!-- end column -->
+
+</div>   <!--  end row -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="myModalLabel">Add a tag</h4>
+      </div>
+      <div class="modal-body">
+         
+        <input type="text" class="form-control" name="title" placeholder="Title" style="margin-bottom: 4px;" id="add-title"/>
+        <input type="text" class="form-control" name="artist" placeholder="Creator" style="margin-bottom: 4px;" id="add-artist"/>
+        <input type="text" class="form-control" name="media_url" placeholder="Details" id="add-media-url"/>
+
+        <span id="audioSpace"><label for="audio"><span class="btn btn-default"><i class="fa fa-microphone" aria-hidden="true"></i></span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="audio"></span>
+
+        <span id="imageSpace"><label for="image"><span class="btn btn-default"><i class="fa fa-picture-o" aria-hidden="true"></i></span></label><input type="file" style="visibility: hidden; position: absolute;" accept="image/*;capture=camcorder" id="image"></span>
+        
+        <span id="videoSpace"><label for="video"><span class="btn btn-default"><i class="fa fa-video-camera" aria-hidden="true"></i></span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="video"></span><br>
+        <div class="btn-group" data-toggle="buttons">
+        <button class="btn btn-secondary"><input type="checkbox" name="genres" id="architecture" value="architecture">architecture</button>
+        <button class="btn btn-secondary"><input type="checkbox" name="genres" id="art" value="art">art</button>
+        <button class="btn btn-secondary"><input type="checkbox" name="genres" id="audio" value="audio">audio</button>
+        <button class="btn btn-secondary"><input type="checkbox" name="genres" id="curiosities" value="curiosities">curiosities</button>
+        <button class="btn btn-secondary"><input type="checkbox" name="genres" id="food" value="food">food</button>
+        <button class="btn btn-secondary"><input type="checkbox" name="genres" id="history" value="history">history</button>
+        <button class="btn btn-secondary"><input type="checkbox" name="genres" id="music" value="music">music</button>
+        <button class="btn btn-secondary"><input type="checkbox" name="genres" id="politics" value="politics">politics</button>
+        <button class="btn btn-secondary"><input type="checkbox" name="genres" id="sports" value="sports">sports</button>
+        <button class="btn btn-secondary"><input type="checkbox" name="genres" id="stories" value="stories">stories</button>
+
+        <input type="hidden" id="image_url">
+        <input type="hidden" id="audio_url">
+        <input type="hidden" id="video_url">
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="submit-tag">Tag it</button>
+      </div>
+    </div>
+  </div>
+</div>
+        
+
+
+<script>
+
+
+// $("#hovercard").click(function(){
+//     $('.card-img-overlay').toggle();
+// });
+
+
+// $('#maincard').click(function(){
+//   $('#headingOne').toggle()
+// })
+
+// $(".card-inverse").click(function(){
+//   if ($(this).attr("data-toggle")) {
+//     $(this).removeAttr("data-toggle")
+//   } else {
+//      $(this).attr('data-toggle', "collapse");
+//   }
+// });
+
+// $(".card-inverse").hover(function(){
+//      $(this).attr('data-toggle', "collapse");
+//   }, function(){
+//     $(this).removeAttr("data-toggle")
+//   }
+// );
+
+
+
+
+</script>
+
+<script>
+$('#login-button').click(function(){
+    console.log('clicked login');
+    $.post('/login.json',{
+      'username': $('#inputUsername').val(),
+      'password': $('#inputPassword').val()
+    }, function(currentUser){
+      if (currentUser.name === "not recognized") {
+           $('#not-registered').html('<p>Username or password <br> not recognized.</p>'); 
+    } else {
+      $('#login-tog').html('<li><p class="navbar-text">Welcome, ' + currentUser.name + '</p></li>');
+    }
+    console.log(currentUser)}
+  )})
+</script>
+
+
+{% endblock %}
+
+

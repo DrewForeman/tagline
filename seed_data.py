@@ -111,7 +111,8 @@ def load_waymarks():
                       longitude=longitude,
                       title=title,
                       artist=artist,
-                      details=details)
+                      details=details,
+                      primary_image=media_url)
 
         db.session.add(tag)
         db.session.commit()
@@ -120,12 +121,6 @@ def load_waymarks():
                                  genre="art")
 
         db.session.add(tag_genre)
-
-        media = Media(tag_id = tag.tag_id,
-                      media_url = media_url,
-                      media_type = "image")
-
-        db.session.add(media)
 
     db.session.commit()  
 
