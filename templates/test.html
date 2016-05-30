@@ -73,6 +73,16 @@ body {
   margin-top: 15px;
 }
 
+.media-object{
+  width:50px;
+}
+
+.thumb1 { 
+background: url(blah.jpg) 50% 50% no-repeat; /* 50% 50% centers image in div */
+width: 64px;
+height: 64px;
+}
+
 </style>
 
 <script src="/static/map2.js"></script>
@@ -81,6 +91,9 @@ body {
 {% endblock %}
 
 {% block body %}
+
+
+      
 
 <nav class="navbar navbar-light">
   <a class="navbar-brand" href="#">Tagline</a>
@@ -103,6 +116,9 @@ body {
     </div> -->
 
     <ul class="nav navbar-nav pull-xs-right" id="login-tog">
+    {% if name %}
+      <li><p class="navbar-text">Welcome, {{name}}</p></li>
+    {% else %}
       <li>
     <div class="dropdown">
     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -130,6 +146,8 @@ body {
         <div id="not-registered"></div>
         <small>New here?<br></small> <a href="/register">Register</a>
       </div>
+    {% endif %}
+  </ul>
 </nav>
 
 
@@ -181,6 +199,18 @@ body {
               <div>This is a mural painted by some brazilian brothers. It makes SF not quite as dreary.</div>
             </li>
             <li class="list-group-item">
+              <img src="/static/testimg2.jpg" alt="image thumbnail" title="Click to view" hspace="2" class="thumb1"/> <!-- make these modal -->
+              <img src="/static/testimg.jpg" alt="image thumbnail" title="Click to view" hspace="2" class="thumb1"/>
+
+
+<!-- <a href="/static/testimg2.jpg" target="_blank">
+<img src="/static/testimg2.jpg" alt="Resized JPEG graphic" title="Click to view" border="2" width="64" height="64" hspace="2" /></a>
+<a href="/static/testimg.jpg" target="_blank">
+<img src="/static/testimg.jpg" alt="Resized JPEG graphic" title="Click to view" border="2" width="64" height="64" hspace="2" /></a>
+<a href="/static/testimg2.jpg" target="_blank">
+<img src="/static/testimg2.jpg" alt="Resized JPEG graphic" title="Click to view" border="2" width="64" height="64" hspace="2" /></a> -->
+            </li>
+            <li class="list-group-item">
               <div class="input-group input-group-lg">
                 <input type="text" class="form-control" placeholder="Say something..." aria-describedby="basic-addon1">
               <i class="fa fa-microphone" aria-hidden="true"></i>
@@ -230,7 +260,6 @@ body {
           </ul>
         </div>
       </div>
-
     </div> <!-- column end -->
 
 <!-- QUERIED TAG COLUMN 2 -->
@@ -339,7 +368,26 @@ body {
         <span id="imageSpace"><label for="image"><span class="btn btn-default"><i class="fa fa-picture-o" aria-hidden="true"></i></span></label><input type="file" style="visibility: hidden; position: absolute;" accept="image/*;capture=camcorder" id="image"></span>
         
         <span id="videoSpace"><label for="video"><span class="btn btn-default"><i class="fa fa-video-camera" aria-hidden="true"></i></span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="video"></span><br>
-        <div class="btn-group" data-toggle="buttons">
+
+        <div class="btn-group" data-toggle="buttons"> 
+
+          {% for genre in genres %}
+
+          <label class="btn btn-secondary">
+              <input type="checkbox" name="genres" id="{{genre.genre}}" value="{{genre.genre}}">{{genre.genre}}
+          </label>
+
+          {%endfor%}
+
+          <input type="hidden" id="image_url">
+          <input type="hidden" id="audio_url">
+          <input type="hidden" id="video_url">
+
+        
+        </div>
+
+
+<!--         <div class="btn-group" data-toggle="buttons">
         <button class="btn btn-secondary"><input type="checkbox" name="genres" id="architecture" value="architecture">architecture</button>
         <button class="btn btn-secondary"><input type="checkbox" name="genres" id="art" value="art">art</button>
         <button class="btn btn-secondary"><input type="checkbox" name="genres" id="audio" value="audio">audio</button>
@@ -355,7 +403,7 @@ body {
         <input type="hidden" id="audio_url">
         <input type="hidden" id="video_url">
 
-      </div>
+      </div> -->
       <div class="modal-footer">
         <button type="button" class="btn btn-success" id="submit-tag">Tag it</button>
       </div>
@@ -381,6 +429,8 @@ $('#login-button').click(function(){
     console.log(currentUser)}
   )})
 </script>
+
+
 
 
 {% endblock %}

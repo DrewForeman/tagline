@@ -25,11 +25,11 @@ app.secret_key = "ABC"
 app.jinja_env.undefined = StrictUndefined
 
 
-@app.route('/test')
-def test():
-    """page for trying out html in browser."""
+# @app.route('/test')
+# def test():
+#     """page for trying out html in browser."""
 
-    return render_template("test.html")
+#     return render_template("test.html")
 
 
 
@@ -235,7 +235,7 @@ def handle_registration():
     username = request.form.get('username')
     password = request.form.get('password')
     genres = request.form.getlist('genres')
-    avatar = request.form.getlist('image_url')
+    avatar = request.form.get('image_url')
 
     new_user = User(name=name, username=username, password=password, avatar=avatar)
 
@@ -294,6 +294,8 @@ def add_comment_to_db(tag_id, user_id, content):
 
 def add_tag_to_db(latitude,longitude,title,artist,details):
     """Update database with new tag"""
+
+    print '************ entered server add tag'
 
     tag = Tag(latitude=latitude,
                     longitude=longitude,

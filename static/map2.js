@@ -203,8 +203,6 @@ Includes sidebar list of all tags + sidebar info for each indiv tag on marker cl
 function displayTags(queriedTags){
   var infoDiv = ''
   assignMarkers(queriedTags);
-  // tagList = createTagList(queriedTags)
-  // $('#tag-info-box').html('<div class="media">'+ tagList + '</div>');
 }
 
 
@@ -260,8 +258,8 @@ function buildTagDisplayDiv(tag){
   infoDiv = ''
 
   createDisplayBase(tag);
-  // addMediaToDiv(tag);
   addDetailsToDiv(tag);
+  addMediaToDiv(tag);
   addCommentsToDiv(tag);
 }
 
@@ -288,22 +286,26 @@ function createDisplayBase(tag){
 // fix this function so that alt media objects are inserted into the dropdown- 
 // maybe thumbnails above the comments window?
 
-/** Add tag media to sidebar div. Multiple media items are possible. */
+
+/** Add tag media to div. Multiple media items are possible. */
 function addMediaToDiv(tag){
   var media = tag.media;
   if (media[0]) {
+    infoDiv += '<li class="list-group-item">'
     for (var i = 0; i < media.length; i++){
       for (var key in media[i]){
         mediaObject = media[i][key]
       }
-      if (mediaObject.media_type === "image"){
-        infoDiv += '<img style="width:300px;" src="'+mediaObject.url+'" alt="tag-image">'
-      } else if (mediaObject.media_type === "audio"){
+      if (mediaObject.media_type === "image"){    //link not working
+        infoDiv += '<a href="'+mediaObject.url+'" target="_blank">' +
+                   '<img src="'+mediaObject.url+'" alt="Resized image" title="Click to view" border="2" width="64" height="64" hspace="2" /></a>'
+      } 
+      else if (mediaObject.media_type === "audio"){
         infoDiv += '<audio controls><source src="'+mediaObject.url+'" >Your browser does not support the audio element.</audio>'
-      } else {
-        infoDiv += '<video width="300" controls><source src="'+mediaObject.url+'" ></video>'
+      } else { //experiment to see how this lo
+        infoDiv += '<video width="100%" controls><source src="'+mediaObject.url+'" ></video>'
       }
-    }
+    } infoDiv += '</li>'
   } 
 }
 
@@ -407,6 +409,13 @@ function bindMarkerInfo(marker, infoDiv, tag, count){
   google.maps.event.addListener(marker, 'click', function() {
       clearClickMarker()
       $('#'+tag.tagId).collapse('toggle');
+      // marker.setIcon({path: fontawesome.markers.CIRCLE,
+      //                 scale: 0.5,
+      //                 strokeColor:'#0099cc',
+      //                 strokeOpacity: 0.5,
+      //                 fillColor: '#0099cc',
+      //                 fillOpacity: 1
+      //                })
     });
 }
 
@@ -459,7 +468,6 @@ function submitTag(lat, lng){
         clearClickMarker()
         buildTagDisplayDiv(newTag)
         bindMarkerInfo(newTagMarker, infoDiv)
-        // $('#tag-info-box').html(infoDiv);
       })
   });
 }

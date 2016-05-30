@@ -29,8 +29,8 @@
     <input type="text" class="form-control" name="username" placeholder="Username" id="username-input"/><br>
     <input type="password" class="form-control" name="password" placeholder="Password" id="password-input"/><br>
 <!--     <input type="file" style="position: absolute;" accept="image/*;capture=camcorder" id="add-avatar"> -->
-    <span id="imageSpace"><label for="add-avatar"><span class="btn btn-default">Add Image</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="image/*;capture=camcorder" id="add-avatar"></span><br>
-    <input type="hidden" id="image_url">
+    <span id="imageSpace"><label for="add-avatar"><span class="btn btn-secondary">Add Image</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="image/*;capture=camcorder" id="add-avatar"></span><br>
+    <input type="hidden" name="image_url" id="image_url">
 
     <!-- make for loop for genres here -->
     <br><h5>I like:<h5>
@@ -38,7 +38,7 @@
 
         {% for genre in genres %}
 
-        <label class="btn btn-default">
+        <label class="btn btn-secondary">
             <input type="checkbox" name="genres" id="{{genre.genre}}" value="{{genre.genre}}">{{genre.genre}}
         </label>
 
@@ -88,6 +88,7 @@ function uploadFile(file, s3Data, url){
     if(xhr.readyState === 4){
       if(xhr.status === 200 || xhr.status === 204){
           document.getElementById("image_url").value = url;
+          console.log($('#image_url').val())
           $('#imageSpace').html('<img style="width:100%;" src="'+url+'" id="image-preview">');
       } else{
         alert("Could not upload file.");
