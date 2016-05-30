@@ -4,7 +4,7 @@ var newMarkersArray = [];
 
 var allMarkersArray = [];
 
-var tagList;
+// var tagList;
 
 
 function initMap() {
@@ -17,7 +17,6 @@ function initMap() {
 
   var mapDiv = document.getElementById('map');
   map = new google.maps.Map(mapDiv, {
-      // center: {lat: 37.7749, lng: -122.4194},
       zoom: 16,
       scrollwheel: true,
       zoomControl: true,
@@ -32,7 +31,8 @@ function initMap() {
         path: fontawesome.markers.MAP_MARKER,
         strokeColor:'#5cb85c',
         fillColor: '#5cb85c',
-        fillOpacity: 0.7
+        fillOpacity: 1,
+        scale: 1.2
         }
 
   var addTagIcon = {
@@ -41,14 +41,6 @@ function initMap() {
         fillOpacity: 0.6
         }
 
-  // var standardTagIcon = {
-  //       path: fontawesome.markers.CIRCLE,
-  //       scale: 0.5,
-  //       strokeColor:'##0099cc',
-  //       strokeOpacity: 0.5,
-  //       fillColor: '##0099cc',
-  //       fillOpacity: 0.5
-  //       }
 
   directionsDisplay.setMap(map);
 
@@ -60,41 +52,11 @@ function initMap() {
 
         map.setCenter(pos);
 
-        // var currentLocIcon = {path: fontawesome.markers.MAP_MARKER,
-        //                   strokeColor:'#5cb85c',
-        //                   fillColor: '#5cb85c',
-        //                   fillOpacity: 0.7
-        //                   }
-
-        // var addTagIcon = {path: fontawesome.markers.PLUS_CIRCLE,
-        //                   scale: 0.5,
-        //                   fillOpacity: 0.6
-        //                   }
-
-        // var standardTagIcon = {path: fontawesome.markers.CIRCLE,
-        //                   scale: 0.5,
-        //                   strokeColor:'##0099cc',
-        //                   strokeOpacity: 0.5,
-        //                   fillColor: '##0099cc',
-        //                   fillOpacity: 0.5
-        //                   }
-
-        var geolocationMarker = createMarker(pos, currentLocIcon)
-        // var geolocationMarker = new google.maps.Marker({
-        //                   position: pos,
-        //                   map: map,
-        //                   icon: {
-        //                     path: fontawesome.markers.MAP_MARKER,
-        //                     strokeColor:'#5cb85c',
-        //                     fillColor: '#5cb85c',
-        //                     fillOpacity: 0.7
-        //                   },
-        //               });
+        var geolocationMarker = createMarker(pos, currentLocIcon);
 
         google.maps.event.addListener(geolocationMarker, 'click', function(event){
           clearClickMarker();
           geolocationMarker.setIcon(addTagIcon);
-          // $('#tag-info-box').html(addNewTagDiv);
           submitTag(position.coords.latitude, position.coords.latitude);
         })
 
@@ -119,7 +81,7 @@ function initMap() {
           }
           
           $.post('/tags-geolocation.json', data, function(nearby_tags) {
-            // displayTags(nearby_tags);
+            displayTags(nearby_tags);
           });
 
         },3000);
@@ -303,18 +265,6 @@ function buildTagDisplayDiv(tag){
   addCommentsToDiv(tag);
 }
 
-
-// <div class="card card-inverse">
-// '<div class="card-block" data-toggle="collapse" data-target="#'+tag.tagId+'" style="background-color: rgba(51,51,51,0.7);">' +
-// '<h4 class="card-title">'+tag.title+'</h4>' +
-// '<p class="card-text">'+tag.excerpt+'</p>' +
-// '</div>'
-// <div data-toggle="collapse" id="overlayCollapse3" class="collapse" aria-expanded="false">
-// <div class="card-block">
-// <p class="card-text drop-text" style="color: black;">Here are the major details about this thing. This is different than the short description that appears on the tab. Or the tab could have the first few words. </p>
-// </div>
-
-
 /** Create basic image and title display that shows on load. */
 function createDisplayBase(tag){
   infoDiv = '<div class="card card-inverse">';
@@ -322,7 +272,7 @@ function createDisplayBase(tag){
     infoDiv += '<img class="card-img" src="'+tag.primaryImage+'" alt="Card image" style="width: 100%;">' +
                '<div class="card-img-overlay" style="background-color: rgba(51,51,51,0.7);" data-toggle="collapse" data-target="#'+tag.tagId+'">' +
                '<h4 class="card-title">'+tag.title+'</h4>' +
-               '<p class="card-text">'+tag.excerpt+'</p>' + // add a char limit to this beforehand
+               '<p class="card-text">'+tag.excerpt+'</p>' + 
                // '<p class="card-text"><small>Last updated'+tag.recent_comment_time+'</small></p>' +
                '</div>'
   } else {
@@ -334,30 +284,34 @@ function createDisplayBase(tag){
 }
 
 
+// TO DO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// fix this function so that alt media objects are inserted into the dropdown- 
+// maybe thumbnails above the comments window?
+
 /** Add tag media to sidebar div. Multiple media items are possible. */
-// function addMediaToDiv(tag){
-//   var media = tag.media;
-//   if (media[0]) {
-//     for (var i = 0; i < media.length; i++){
-//       for (var key in media[i]){
-//         mediaObject = media[i][key]
-//       }
-//       if (mediaObject.media_type === "image"){
-//         infoDiv += '<img style="width:300px;" src="'+mediaObject.url+'" alt="tag-image">'
-//       } else if (mediaObject.media_type === "audio"){
-//         infoDiv += '<audio controls><source src="'+mediaObject.url+'" >Your browser does not support the audio element.</audio>'
-//       } else {
-//         infoDiv += '<video width="300" controls><source src="'+mediaObject.url+'" ></video>'
-//       }
-//     }
-//   } 
-// }
+function addMediaToDiv(tag){
+  var media = tag.media;
+  if (media[0]) {
+    for (var i = 0; i < media.length; i++){
+      for (var key in media[i]){
+        mediaObject = media[i][key]
+      }
+      if (mediaObject.media_type === "image"){
+        infoDiv += '<img style="width:300px;" src="'+mediaObject.url+'" alt="tag-image">'
+      } else if (mediaObject.media_type === "audio"){
+        infoDiv += '<audio controls><source src="'+mediaObject.url+'" >Your browser does not support the audio element.</audio>'
+      } else {
+        infoDiv += '<video width="300" controls><source src="'+mediaObject.url+'" ></video>'
+      }
+    }
+  } 
+}
 
 
 /** Add tag details to display div to collapse open on click. */
 function addDetailsToDiv(tag) {
   infoDiv += '<div data-toggle="collapse" id="'+tag.tagId+'" class="collapse" aria-expanded="false">' +
-            '<ul class="list-group list-group-flush drop-text">' +
+            '<ul class="list-group list-group-flush drop-text" id="details-'+tag.tagId+'">' +
             '<li class="list-group-item"><div>'
   
   if (tag.artist){ 
@@ -368,16 +322,22 @@ function addDetailsToDiv(tag) {
 }
 
 
+// TO DO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// fix this so users can actually leave comments and media. 
+// prob going to need to have some way to get the id number for db updating 
+// and making the info stay on the page
+
 /** Add tag comments to sidebar div ordered by date. */
 function addCommentsToDiv(tag) {
 
-  // add comments box
+  // add new comments form 
   infoDiv += '<li class="list-group-item">' +
              '<div class="input-group input-group-lg">' +
-             '<input type="text" class="form-control" placeholder="Say something..." aria-describedby="basic-addon1">' +
+             '<input type="text" class="form-control" placeholder="Say something..." aria-describedby="basic-addon1" id="new-comment-'+tag.tagId+'">' +
              '<i class="fa fa-microphone" aria-hidden="true"></i>' +
              '<i class="fa fa-picture-o" aria-hidden="true"></i>' +
              '<i class="fa fa-video-camera" aria-hidden="true"></i>' +
+             '<button type="submit" class="btn btn-secondary btn-sm pull-right" style="margin-top:4px;" id="submit-comment-'+tag.tagId+'">Post</button>' +
              '</div>' +
              '</li>'
 
@@ -393,8 +353,8 @@ function addCommentsToDiv(tag) {
         comment = comments[i][key]
       } commentsList += '<li class="list-group-item">' +
                         '<div class="media">' +
-                        '<div class="media-left">' + //add avatar
-                        '<a href="#"><img class="media-object" src="/static/placeholder_avatar.jpg" alt="user-avatar"></a>' +
+                        '<div class="media-left">' + //something is wrong w avatar
+                        '<a href="#"><img class="media-object" src="'+comment.avatar+'" alt="user-avatar"></a>' +
                         '</div>' +
                         '<div class="media-body">' +
                         '<b>'+ comment.username +'</b><span class="card-text"><small class="text-muted">  '+comment.time+'</small></span><br>' + comment.content + 
@@ -415,63 +375,79 @@ function bindMarkerInfo(marker, infoDiv, count){
     $('#tag-div-2').append(infoDiv);
   }
 
+  function submitComment (evt) {
+    console.log(this.id)
 
-  // $('#tag-div-2').html(infoDiv);
+    var id = this.id.split('-')[2];
+    console.log(id)
+    console.log('#new-comment-'+id)
+    var comment = $('#new-comment-'+id).val();
+    console.log(comment)
 
-        google.maps.event.addListener(marker, 'click', function() {
-            clearClickMarker()
+    $.post('/add-comment.json', {'comment': comment, 'tagId': id}, updateCommentsList);
+
+  }
+
+  function updateCommentsList(newComment){
+    console.log('added comment to db');
+
+    var tagId = newComment.tagId;
+    console.log(tagId);
+
+    console.log()
+
+    $('#details-'+tagId+' li:eq(1)').after(
+              '<li class="list-group-item">' +
+              '<div class="media">' +
+              '<div class="media-left">' + 
+              '<a href="#"><img class="media-object" src="'+newComment.avatar+'" alt="user-avatar"></a>' +
+              '</div>' +
+              '<div class="media-body">' +
+              '<b>'+ newComment.username +'</b><span class="card-text"><small class="text-muted">  '+newComment.time+'</small></span><br>' + newComment.content + 
+              '</div>' +
+              '</div>' +
+              '</li>'
+          );
+  }
+
+$('.btn.btn-secondary.btn-sm.pull-right').click(submitComment);
+
+
+// TO DO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// fix the binding portion so that when a marker is clicked, the related info div either gets 
+// a different border or automatically unscrolls and maybe the marker turns a different color
+
+        // google.maps.event.addListener(marker, 'click', function() {
+        //     clearClickMarker()
             // console.log('infodiv below')
             // console.log(infoDiv)
             // $('#tag-info-box').html(infoDiv);
             
             // $('#main-div').append(infoDiv);
-            $('#submit-comment').click(function(){ submitComment();});
-        });
-    }
+            // $('.btn.btn-secondary.btn-sm.pull-right').click(function(){ 
+            //   console.log('clicked post');
+
+}
+
 
 /** Create sidebar list of all queried tags. */
-function createTagList(tags){
-  var tag, media;
-  var tagHTML = ''
-  for (var key in tags) {
-    tag = tags[key];
-    media = tag.media
-    if (media[0]) {
-      for (var i = 0; i < media.length; i++){
-        for (var key in media[i]){
-          mediaObject = media[i][key]
-        } if (mediaObject.media_type === "image"){
-          tagHTML += '<div class="media-left"><img class="media-object" src="'+mediaObject.url+'" alt="tag-image" style="width:64px;" class="thumbnail"></div>'
-        }  
-      }
-    } tagHTML += '<div class="media-body"><h4 class="media-heading">'+tag.title+'</h4><p>'+tag.details+'<p></div><br>'
-  } return tagHTML
-}
-
-
-// v|v|v|v|v|v|v HELPER FUNCTIONS FOR ADDING COMMENTS v|v|v|v|v|v|v|v|v|
-
-/** Adds new user comment to db and updates comment list on page
-New comment disappears if unclicked, unless new search is made. Need to fix this. */
-function submitComment () {
-  console.log('comment added to db');
-
-  $.post('/add-comment.json', {
-    'comment': document.getElementById('user-comment').value, 
-    'tagId': document.getElementById('tagId').innerHTML
-  },
-    function(newComment){
-
-      if (newComment.comment === "Not logged in.") {
-        $('#user-comment-update').html('Log in to leave a comment.')
-      } else {
-        var htmlComment = ('<p><div class="comment-poster"><b>' + newComment.username + '</b> ' + newComment.loggedAt + 
-                           '</div><div class="comment-content">' + newComment.content + '</div>');
-        $('#user-comment-update').html(htmlComment);
-      }
-    
-    });
-}
+// function createTagList(tags){
+//   var tag, media;
+//   var tagHTML = ''
+//   for (var key in tags) {
+//     tag = tags[key];
+//     media = tag.media
+//     if (media[0]) {
+//       for (var i = 0; i < media.length; i++){
+//         for (var key in media[i]){
+//           mediaObject = media[i][key]
+//         } if (mediaObject.media_type === "image"){
+//           tagHTML += '<div class="media-left"><img class="media-object" src="'+mediaObject.url+'" alt="tag-image" style="width:64px;" class="thumbnail"></div>'
+//         }  
+//       }
+//     } tagHTML += '<div class="media-body"><h4 class="media-heading">'+tag.title+'</h4><p>'+tag.details+'<p></div><br>'
+//   } return tagHTML
+// }
 
 
 // v|v|v|v|v|v|v HELPER FUNCTIONS FOR DISPLAYING ROUTE v|v|v|v|v|v|v|v|v|

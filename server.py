@@ -47,7 +47,7 @@ def index():
 
     genres = Genre.query.all()
 
-    return render_template("homepage.html", name=name, genres=genres)
+    return render_template("test.html", name=name, genres=genres)
 
 
 
@@ -101,7 +101,6 @@ def tags():
     return jsonify(tags)
 
 
-
 @app.route('/add-comment.json', methods=["GET","POST"])
 def add_comment():
     """Add user's comment to db and update current page."""
@@ -116,9 +115,11 @@ def add_comment():
         comment = add_comment_to_db(tag_id, user_id, content)
 
         newComment = {
+            "tagId": comment.tag.tag_id,
             "username": comment.user.username,
+            "avatar":comment.user.avatar,
             "content": comment.content,
-            "loggedAt": comment.logged_at.strftime("%b %d %Y")
+            "time": comment.logged_at.strftime("%b %d %Y")
         }
         return jsonify(newComment)
     else:

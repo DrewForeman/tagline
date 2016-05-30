@@ -52,7 +52,7 @@ body {
 
 #login-button {
   width: 100%; 
-  margin-top:4px;
+  margin-top: 4px;
   margin-bottom: 8px;
 }
 
@@ -89,6 +89,18 @@ body {
     <input class="form-control" type="text" placeholder="Origin" id="origin">
     <input class="form-control" type="text" placeholder="Destination" id="destination">
     <button class="btn btn-success-outline" type="button" id="get-route">Go</button>
+<!-- !!!!!!!!buttons for pagination here!!!!!! -->
+    <!-- <div class="btn-group" data-toggle="buttons">
+      <label class="btn btn-secondary active" style="margin-bottom:0px;">
+        <input type="radio" name="pages" id="page1" autocomplete="off" checked>1
+      </label>
+      <label class="btn btn-secondary" style="margin-bottom:0px;">
+        <input type="radio" name="pages" id="page2" autocomplete="off">2
+      </label>
+      <label class="btn btn-secondary" style="margin-bottom:0px;">
+        <input type="radio" name="pages" id="page3" autocomplete="off">3
+      </label>
+    </div> -->
 
     <ul class="nav navbar-nav pull-xs-right" id="login-tog">
       <li>
@@ -143,7 +155,7 @@ body {
         <div class="card-block">
           <h3 class="card-title">Tag something</h3>
           <p class="card-text">Share your thoughts, stories, knowledge. Make your mark on the city.</p>
-          <p class="subtext">Set your location on the map and...</p>
+          <p class="subtext">Add your location to the map and...</p>
           <button class="btn btn-success-outline" style="color: white;" data-toggle="modal" data-target="#myModal">Tag it!</button>
 
         </div>
@@ -315,9 +327,12 @@ body {
       </div>
       <div class="modal-body">
          
-        <input type="text" class="form-control" name="title" placeholder="Title" style="margin-bottom: 4px;" id="add-title"/>
-        <input type="text" class="form-control" name="artist" placeholder="Creator" style="margin-bottom: 4px;" id="add-artist"/>
-        <input type="text" class="form-control" name="media_url" placeholder="Details" id="add-media-url"/>
+        <input type="text" class="form-control" name="add-title" placeholder="Title" style="margin-bottom: 4px;" id="add-title"/>
+        <input type="text" class="form-control" name="add-artist" placeholder="Creator" style="margin-bottom: 4px;" id="add-artist"/>
+        <fieldset class="form-group" style="margin-top: 0px;">
+          <label for="exampleTextarea"></label>
+          <textarea class="form-control" id="add-details" placeholder="Details" rows="3"></textarea>
+        </fieldset>
 
         <span id="audioSpace"><label for="audio"><span class="btn btn-default"><i class="fa fa-microphone" aria-hidden="true"></i></span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="audio"></span>
 
@@ -350,37 +365,6 @@ body {
         
 
 
-<script>
-
-
-// $("#hovercard").click(function(){
-//     $('.card-img-overlay').toggle();
-// });
-
-
-// $('#maincard').click(function(){
-//   $('#headingOne').toggle()
-// })
-
-// $(".card-inverse").click(function(){
-//   if ($(this).attr("data-toggle")) {
-//     $(this).removeAttr("data-toggle")
-//   } else {
-//      $(this).attr('data-toggle', "collapse");
-//   }
-// });
-
-// $(".card-inverse").hover(function(){
-//      $(this).attr('data-toggle', "collapse");
-//   }, function(){
-//     $(this).removeAttr("data-toggle")
-//   }
-// );
-
-
-
-
-</script>
 
 <script>
 $('#login-button').click(function(){
