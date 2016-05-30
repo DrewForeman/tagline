@@ -238,7 +238,7 @@ function assignMarkers(tags){
 
       buildTagDisplayDiv(tag)
 
-      bindMarkerInfo(marker, infoDiv, count);
+      bindMarkerInfo(marker, infoDiv, tag, count);
   }
 }
 
@@ -323,14 +323,12 @@ function addDetailsToDiv(tag) {
 
 
 // TO DO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// fix this so users can actually leave comments and media. 
-// prob going to need to have some way to get the id number for db updating 
-// and making the info stay on the page
+// fix this so users can leave media. 
 
 /** Add tag comments to sidebar div ordered by date. */
 function addCommentsToDiv(tag) {
 
-  // add new comments form 
+  // new comment form 
   infoDiv += '<li class="list-group-item">' +
              '<div class="input-group input-group-lg">' +
              '<input type="text" class="form-control" placeholder="Say something..." aria-describedby="basic-addon1" id="new-comment-'+tag.tagId+'">' +
@@ -341,7 +339,7 @@ function addCommentsToDiv(tag) {
              '</div>' +
              '</li>'
 
-  // add comments
+  // comments display
   var comments = tag.comments;
 
   if (comments){
@@ -366,8 +364,8 @@ function addCommentsToDiv(tag) {
 }
 
 
-/** Bind marker and related info. Attach event listener to submit comments. */
-function bindMarkerInfo(marker, infoDiv, count){
+/** Bind marker and related info, add to page and attach event listener to submit comments. */
+function bindMarkerInfo(marker, infoDiv, tag, count){
 
   if (count % 2 === 0){
     $('#tag-div-3').append(infoDiv);
@@ -376,25 +374,18 @@ function bindMarkerInfo(marker, infoDiv, count){
   }
 
   function submitComment (evt) {
-    console.log(this.id)
 
     var id = this.id.split('-')[2];
-    console.log(id)
-    console.log('#new-comment-'+id)
     var comment = $('#new-comment-'+id).val();
-    console.log(comment)
 
-    $.post('/add-comment.json', {'comment': comment, 'tagId': id}, updateCommentsList);
-
+    $.post('/add-comment.json', 
+      {'comment': comment, 'tagId': id}, 
+      updateCommentsList);
   }
 
   function updateCommentsList(newComment){
-    console.log('added comment to db');
 
     var tagId = newComment.tagId;
-    console.log(tagId);
-
-    console.log()
 
     $('#details-'+tagId+' li:eq(1)').after(
               '<li class="list-group-item">' +
@@ -410,44 +401,14 @@ function bindMarkerInfo(marker, infoDiv, count){
           );
   }
 
-$('.btn.btn-secondary.btn-sm.pull-right').click(submitComment);
+  $('.btn.btn-secondary.btn-sm.pull-right').click(submitComment);
 
-
-// TO DO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// fix the binding portion so that when a marker is clicked, the related info div either gets 
-// a different border or automatically unscrolls and maybe the marker turns a different color
-
-        // google.maps.event.addListener(marker, 'click', function() {
-        //     clearClickMarker()
-            // console.log('infodiv below')
-            // console.log(infoDiv)
-            // $('#tag-info-box').html(infoDiv);
-            
-            // $('#main-div').append(infoDiv);
-            // $('.btn.btn-secondary.btn-sm.pull-right').click(function(){ 
-            //   console.log('clicked post');
-
+  // on click of marker, tag display scrolls open/closed
+  google.maps.event.addListener(marker, 'click', function() {
+      clearClickMarker()
+      $('#'+tag.tagId).collapse('toggle');
+    });
 }
-
-
-/** Create sidebar list of all queried tags. */
-// function createTagList(tags){
-//   var tag, media;
-//   var tagHTML = ''
-//   for (var key in tags) {
-//     tag = tags[key];
-//     media = tag.media
-//     if (media[0]) {
-//       for (var i = 0; i < media.length; i++){
-//         for (var key in media[i]){
-//           mediaObject = media[i][key]
-//         } if (mediaObject.media_type === "image"){
-//           tagHTML += '<div class="media-left"><img class="media-object" src="'+mediaObject.url+'" alt="tag-image" style="width:64px;" class="thumbnail"></div>'
-//         }  
-//       }
-//     } tagHTML += '<div class="media-body"><h4 class="media-heading">'+tag.title+'</h4><p>'+tag.details+'<p></div><br>'
-//   } return tagHTML
-// }
 
 
 // v|v|v|v|v|v|v HELPER FUNCTIONS FOR DISPLAYING ROUTE v|v|v|v|v|v|v|v|v|
@@ -479,7 +440,6 @@ function submitTag(lat, lng){
               'title': $('#add-title').val(),
               'artist': $('#add-artist').val(),
               'details': $('#add-details').val(),
-              // 'media_url': $('#add-media-url').val(),
               'audio_url': $('#audio_url').val(),
               'primary_image': $('#image_url').val(),
               'video_url': $('#video_url').val(),
@@ -503,37 +463,6 @@ function submitTag(lat, lng){
       })
   });
 }
-
-// figure out how to make this not be hardcoded
-// addNewTagDiv = (  
-//         '<h4>Add a new tag</h4>' +  
-//         '<input type="text" class="form-control" name="title" placeholder="Title" id="add-title"/><br>' +
-//         '<input type="text" class="form-control" name="artist" placeholder="Artist" id="add-artist"/><br>' +
-//         '<textarea name="details" class="form-control" cols="35" rows="5" placeholder="Details" id="add-details"/><br>' +
-//         '<input type="text" class="form-control" name="media_url" placeholder="Media URL" id="add-media-url"/><br>' +
-//         '<span id="audioSpace"><label for="audio"><span class="btn btn-default">Add Audio</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="audio"></span>' +
-//         '<span id="imageSpace"><label for="image"><span class="btn btn-default">Add Image</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="image/*;capture=camcorder" id="image"></span>' +
-//         '<span id="videoSpace"><label for="video"><span class="btn btn-default">Add Video</span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="video"></span><br><br>' +
-//         '<div class="btn-group" data-toggle="buttons">' +
-        // '{% for genre in genres %}'+
-        // '<label class="btn btn-default"><input type="checkbox" name="genres" id="{{genre.genre}}" value="{{genre.genre}}">{{genre.genre}</label>' +
-        // '{%endfor%}' +
-        //   '<label class="btn btn-default"><input type="checkbox" name="genres" id="architecture" value="architecture">architecture</label>' +
-        //   '<label class="btn btn-default"><input type="checkbox" name="genres" id="art" value="art">art</label>' +
-        //   '<label class="btn btn-default"><input type="checkbox" name="genres" id="audio" value="audio">audio</label>' +
-        //   '<label class="btn btn-default"><input type="checkbox" name="genres" id="curiosities" value="curiosities">curiosities</label><br>' +
-        //   '<label class="btn btn-default"><input type="checkbox" name="genres" id="food" value="food">food</label>' +
-        //   '<label class="btn btn-default"><input type="checkbox" name="genres" id="history" value="history">history</label>' +
-        //   '<label class="btn btn-default"><input type="checkbox" name="genres" id="politics" value="politics">politics</label>' +
-        //   '<label class="btn btn-default"><input type="checkbox" name="genres" id="sports" value="sports">sports</label><br>' +
-        //   '<label class="btn btn-default"><input type="checkbox" name="genres" id="stories" value="stories">stories</label>' +
-        // '</div><br><br>'+
-        // '<input type="submit" class="btn btn-primary" value="Tag it" id="submit-tag"/>' +
-        // '<input type="hidden" id="image_url">' +
-        // '<input type="hidden" id="audio_url">' +
-        // '<input type="hidden" id="video_url">' 
-        // );
-
 
 // v|v|v|v|v|v|v|v|v|v|v|v|v| FUNCTIONS FOR ADDING MEDIA TO AMAZON S3 v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|v
 
