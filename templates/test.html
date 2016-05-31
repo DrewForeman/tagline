@@ -4,11 +4,18 @@
   
 <style>
 
+
+.navbar{
+  background-color: white;
+  height: 50px;
+}
 #map {
     height: 600px;
-    /*margin-top: 7px;*/
-    /*margin-right:5px;*/
-    /*padding-right: 5px;*/
+    position: fixed;
+    top: 60;
+    z-index: 999;
+    left: 10;
+
     margin-bottom: 10px;
     /*padding:  .5em;*/
     /*width: 95%;*/
@@ -17,10 +24,14 @@
 
 body {
   font-family: 'Arvo', serif;
+  padding-top: 60px;
 }
 
 .card {
-  margin-left: 8px;
+  margin-top: 0px;
+  margin-left: 6px;
+  margin-bottom:6px;
+  border-radius: 2px;
   border: rgba(51,51,51,0.7);
 }
 
@@ -95,7 +106,7 @@ height: 64px;
 
       
 
-<nav class="navbar navbar-light">
+<nav class="navbar navbar-light navbar-fixed-top">
   <a class="navbar-brand" href="#">Tagline</a>
 
   <form class="form-inline">
@@ -198,14 +209,6 @@ height: 64px;
             <li class="list-group-item">
               <img src="/static/testimg2.jpg" alt="image thumbnail" title="Click to view" hspace="2" class="thumb1"/> <!-- make these modal -->
               <img src="/static/testimg.jpg" alt="image thumbnail" title="Click to view" hspace="2" class="thumb1"/>
-
-
-<!-- <a href="/static/testimg2.jpg" target="_blank">
-<img src="/static/testimg2.jpg" alt="Resized JPEG graphic" title="Click to view" border="2" width="64" height="64" hspace="2" /></a>
-<a href="/static/testimg.jpg" target="_blank">
-<img src="/static/testimg.jpg" alt="Resized JPEG graphic" title="Click to view" border="2" width="64" height="64" hspace="2" /></a>
-<a href="/static/testimg2.jpg" target="_blank">
-<img src="/static/testimg2.jpg" alt="Resized JPEG graphic" title="Click to view" border="2" width="64" height="64" hspace="2" /></a> -->
             </li>
             <li class="list-group-item">
               <div class="input-group input-group-lg">

@@ -80,6 +80,7 @@ function initMap() {
           
           $.post('/tags-geolocation.json', data, function(nearby_tags) {
             displayTags(nearby_tags);
+            $('.post-button').click(submitComment);
           });
 
         },3000);
@@ -129,9 +130,10 @@ function initMap() {
 
       $.post('/tags.json', data, function(tags) { 
           displayTags(tags);
+          $('.post-button').click(submitComment);
       });
   });
-
+// $('.post-button').click(submitComment);
 }
 
 // v|v|v|v|v|v|v|v| CREATE THE MAP WHEN THE PAGE LOADS v|v|v|v|v|v|v|v|v|v|v|v|
@@ -207,12 +209,12 @@ function assignMarkers(tags){
   $('#tag-div-2').html(''); //empty the divs for new tags
   $('#tag-div-3').html('');
 
-  var counter = 0;  //set up a count of the tags so it knows which page column to append to
+  var counter = 1;  //set up a count of the tags so it knows which page column to append to
 
   var tag, marker;
   for (var key in tags) {
 
-      counter++;
+      counter = -(counter);
 
       tag = tags[key];
 
@@ -254,7 +256,7 @@ function buildTagDisplayDiv(tag){
 
   createDisplayBase(tag);
   addDetailsToDiv(tag);
-  // addMediaToDiv(tag);
+  addMediaToDiv(tag);
   addCommentsToDiv(tag);
 }
 
@@ -292,10 +294,10 @@ function addMediaToDiv(tag){
       }
       if (mediaObject.media_type === "image"){    //link not working
         infoDiv += '<a href="'+mediaObject.url+'" target="_blank">' +
-                   '<img src="'+mediaObject.url+'" alt="Resized image" title="Click to view" border="2" width="64" height="64" hspace="2" /></a>'
+                   '<img src="'+mediaObject.url+'" alt="img-thumbnail" title="Click to view" border="2" width="64" height="64" hspace="2" /></a>'
       } 
       else if (mediaObject.media_type === "audio"){
-        infoDiv += '<audio controls><source src="'+mediaObject.url+'" >Your browser does not support the audio element.</audio>'
+        infoDiv += '<audio style="width:100%; vertical-align: middle;" controls><source src="'+mediaObject.url+'">Your browser does not support the audio element.</audio>'
       } else { //experiment to see how this lo
         infoDiv += '<video width="100%" controls><source src="'+mediaObject.url+'" ></video>'
       }
@@ -319,20 +321,24 @@ function addDetailsToDiv(tag) {
 
 
 // TO DO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// fix this so users can leave media. 
+// fix this so users can leave media as well
 
-/** Add tag comments to sidebar div ordered by date. */
+/** Add tag comments to div ordered by date. */
 function addCommentsToDiv(tag) {
 
   // new comment form 
-  infoDiv += '<li class="list-group-item">' +
-             '<div class="input-group input-group-lg">' +
+  infoDiv += '<li class="list-group-item" id="add-comment-'+tag.tagId+'">' +
+             '<form class="input-group input-group-lg" id="comment-form'+tag.tagId+'">' +
              '<input type="text" class="form-control" placeholder="Say something..." aria-describedby="basic-addon1" id="new-comment-'+tag.tagId+'">' +
+             // '<div><input type="file" name="pic" accept="image/*"></div>'+
+             // '<input type="reset" visibility="hidden">'+
              '<i class="fa fa-microphone" aria-hidden="true"></i>' +
              '<i class="fa fa-picture-o" aria-hidden="true"></i>' +
              '<i class="fa fa-video-camera" aria-hidden="true"></i>' +
-             '<button type="button" class="btn btn-secondary btn-sm pull-right post-button" style="margin-top:4px;" id="submit-comment-'+tag.tagId+'">Post</button>' +
-             '</div>' +
+             '<button type="button" class="btn btn-secondary btn-sm pull-right post-button" style="margin-top:4px;" id="submit-comment-'+tag.tagId+'">' +
+             // 'Post<input type="reset" style="display: none;">'+
+             'Post</button>' +
+             '</form>' +
              '</li>'
 
   // comments display
@@ -363,20 +369,17 @@ function addCommentsToDiv(tag) {
 /** Bind marker and related info, add to page and attach event listener to submit comments. */
 function bindMarkerInfo(marker, infoDiv, tag, counter){
 
-  if (counter % 2 === 0){
+  if (counter > 0){
     $('#tag-div-3').append(infoDiv);
-    console.log(counter)
   } else{
     $('#tag-div-2').append(infoDiv);
   }
-
-  $('.post-button').click(submitComment);
 
   // on click of marker, tag display scrolls open/closed
   google.maps.event.addListener(marker, 'click', function() {
       clearClickMarker()
       $('#'+tag.tagId).collapse('toggle');
-      // marker.setIcon({path: fontawesome.markers.CIRCLE,
+      // marker.setIcon({path: fontawesome.markers.CIRCLE,    
       //                 scale: 0.5,
       //                 strokeColor:'#0099cc',
       //                 strokeOpacity: 0.5,
@@ -394,7 +397,11 @@ function submitComment (evt) {
 
   var id = this.id.split('-')[2];
   console.log(id)
+  console.log($('#comment-form-'+id)[0])
+  // $('#comment-form-'+id).reset(); // not working to reset the input field
+
   var comment = $('#new-comment-'+id).val();
+
   console.log(comment)
 
   $.post('/add-comment.json', 
@@ -406,8 +413,7 @@ function updateCommentsList(newComment){
 
   var tagId = newComment.tagId;
 
-  $('#details-'+tagId+' li:eq(1)').after(
-  // $('#details-'+tagId+' li:eq(1)').after(
+  $('#add-comment-'+tagId).after(
             '<li class="list-group-item">' +
             '<div class="media">' +
             '<div class="media-left">' + 
