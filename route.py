@@ -6,11 +6,9 @@ from planar import BoundingBox
 
 from model import Tag, connect_to_db
 
-# from pprint import pprint
-
-import logging
-logging.basicConfig()
-logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+# import logging
+# logging.basicConfig()
+# logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 
 api_key = os.environ['GOOGLE_DIRECTIONS_API_KEY']
@@ -60,13 +58,15 @@ def find_route_coordinates(origin, destination):
 
 
 def find_bounding_box(route_coordinates):
-    """Returns rough bounding box for given route coordinates to help query landmarks along route.  
-    
+    """Returns rough bounding box for given route coordinates to help query landmarks along route. 
 
-    Currently draws a rectangle around entire set of long/lat points. 
-    Plan to upgrade to more sophisticated bounding box later on.
+    >>> find_bounding_box([(37,122),(36,123),(36,122)])
+    [BoundingBox([(36, 122), (37, 123)]), BoundingBox([(36, 122), (36, 123)])]
+    >>>  
+
+    Currently draws a rectangle around each set of long/lat points that make a path segment. 
     """
-# if a > lat > b and c > lng > d  OR
+
     bboxes = []
 
     for i in range(len(route_coordinates)-1):

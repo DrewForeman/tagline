@@ -4,8 +4,6 @@ var newMarkersArray = [];
 
 var allMarkersArray = [];
 
-// var tagList;
-
 
 function initMap() {
 
@@ -103,8 +101,6 @@ function initMap() {
 
     newMarkersArray.push(newMarker);
 
-    // $('#tag-info-box').html(addNewTagDiv);
-
     // add media to Amazon S3 as it is uploaded
     $('input[type="file"]').change(function(){
           var file = this.files[0];
@@ -116,7 +112,6 @@ function initMap() {
     // clear add marker if clicked again (basically click on-click off)
     google.maps.event.addListener(newMarker, 'click', function(event){
       clearClickMarker();
-      // $('#tag-info-box').html('<div class="media">'+ tagList + '</div>');
     })
   });
 
@@ -212,12 +207,12 @@ function assignMarkers(tags){
   $('#tag-div-2').html(''); //empty the divs for new tags
   $('#tag-div-3').html('');
 
-  var count = 0;  //set up a count of the tags so it knows which page column to append to
+  var counter = 0;  //set up a count of the tags so it knows which page column to append to
 
   var tag, marker;
   for (var key in tags) {
 
-      count++;
+      counter++;
 
       tag = tags[key];
 
@@ -236,7 +231,7 @@ function assignMarkers(tags){
 
       buildTagDisplayDiv(tag)
 
-      bindMarkerInfo(marker, infoDiv, tag, count);
+      bindMarkerInfo(marker, infoDiv, tag, counter);
   }
 }
 
@@ -259,7 +254,7 @@ function buildTagDisplayDiv(tag){
 
   createDisplayBase(tag);
   addDetailsToDiv(tag);
-  addMediaToDiv(tag);
+  // addMediaToDiv(tag);
   addCommentsToDiv(tag);
 }
 
@@ -283,8 +278,7 @@ function createDisplayBase(tag){
 
 
 // TO DO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// fix this function so that alt media objects are inserted into the dropdown- 
-// maybe thumbnails above the comments window?
+// fix this function so that it can handle audio and video media
 
 
 /** Add tag media to div. Multiple media items are possible. */
@@ -337,7 +331,7 @@ function addCommentsToDiv(tag) {
              '<i class="fa fa-microphone" aria-hidden="true"></i>' +
              '<i class="fa fa-picture-o" aria-hidden="true"></i>' +
              '<i class="fa fa-video-camera" aria-hidden="true"></i>' +
-             '<button type="submit" class="btn btn-secondary btn-sm pull-right" style="margin-top:4px;" id="submit-comment-'+tag.tagId+'">Post</button>' +
+             '<button type="button" class="btn btn-secondary btn-sm pull-right post-button" style="margin-top:4px;" id="submit-comment-'+tag.tagId+'">Post</button>' +
              '</div>' +
              '</li>'
 
@@ -353,8 +347,8 @@ function addCommentsToDiv(tag) {
         comment = comments[i][key]
       } commentsList += '<li class="list-group-item">' +
                         '<div class="media">' +
-                        '<div class="media-left">' + //something is wrong w avatar
-                        '<a href="#"><img class="media-object" src="'+comment.avatar+'" alt="user-avatar"></a>' +
+                        '<div class="media-left">' + 
+                        // '<a href="#"><img class="media-object" src="'+comment.avatar+'" alt="user-avatar"></a>' +
                         '</div>' +
                         '<div class="media-body">' +
                         '<b>'+ comment.username +'</b><span class="card-text"><small class="text-muted">  '+comment.time+'</small></span><br>' + comment.content + 
@@ -367,43 +361,16 @@ function addCommentsToDiv(tag) {
 
 
 /** Bind marker and related info, add to page and attach event listener to submit comments. */
-function bindMarkerInfo(marker, infoDiv, tag, count){
+function bindMarkerInfo(marker, infoDiv, tag, counter){
 
-  if (count % 2 === 0){
+  if (counter % 2 === 0){
     $('#tag-div-3').append(infoDiv);
+    console.log(counter)
   } else{
     $('#tag-div-2').append(infoDiv);
   }
 
-  function submitComment (evt) {
-
-    var id = this.id.split('-')[2];
-    var comment = $('#new-comment-'+id).val();
-
-    $.post('/add-comment.json', 
-      {'comment': comment, 'tagId': id}, 
-      updateCommentsList);
-  }
-
-  function updateCommentsList(newComment){
-
-    var tagId = newComment.tagId;
-
-    $('#details-'+tagId+' li:eq(1)').after(
-              '<li class="list-group-item">' +
-              '<div class="media">' +
-              '<div class="media-left">' + 
-              '<a href="#"><img class="media-object" src="'+newComment.avatar+'" alt="user-avatar"></a>' +
-              '</div>' +
-              '<div class="media-body">' +
-              '<b>'+ newComment.username +'</b><span class="card-text"><small class="text-muted">  '+newComment.time+'</small></span><br>' + newComment.content + 
-              '</div>' +
-              '</div>' +
-              '</li>'
-          );
-  }
-
-  $('.btn.btn-secondary.btn-sm.pull-right').click(submitComment);
+  $('.post-button').click(submitComment);
 
   // on click of marker, tag display scrolls open/closed
   google.maps.event.addListener(marker, 'click', function() {
@@ -417,6 +384,41 @@ function bindMarkerInfo(marker, infoDiv, tag, count){
       //                 fillOpacity: 1
       //                })
     });
+}
+
+
+function submitComment (evt) {
+  console.log(this)
+
+  console.log('clicked post button')
+
+  var id = this.id.split('-')[2];
+  console.log(id)
+  var comment = $('#new-comment-'+id).val();
+  console.log(comment)
+
+  $.post('/add-comment.json', 
+    {'comment': comment, 'tagId': id}, 
+    updateCommentsList);
+}
+
+function updateCommentsList(newComment){
+
+  var tagId = newComment.tagId;
+
+  $('#details-'+tagId+' li:eq(1)').after(
+  // $('#details-'+tagId+' li:eq(1)').after(
+            '<li class="list-group-item">' +
+            '<div class="media">' +
+            '<div class="media-left">' + 
+            // '<a href="#"><img class="media-object" src="'+newComment.avatar+'" alt="user-avatar"></a>' +
+            '</div>' +
+            '<div class="media-body">' +
+            '<b>'+ newComment.username +'</b><span class="card-text"><small class="text-muted">  '+newComment.time+'</small></span><br>' + newComment.content + 
+            '</div>' +
+            '</div>' +
+            '</li>'
+        );
 }
 
 

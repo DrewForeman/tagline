@@ -106,8 +106,9 @@ def add_comment():
     """Add user's comment to db and update current page."""
 
     content = request.form.get('comment')
+    print '************************', content
     tag_id = request.form.get('tagId')
-
+    print '************************', tag_id
     user_id = session.get("user")
 
     if user_id:
