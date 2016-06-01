@@ -70,7 +70,7 @@ def nearby_tags():
         all_found_tags = Tag.query.filter(Tag.latitude >= min_lat, 
                                     Tag.latitude <= max_lat,
                                     Tag.longitude >= min_lng,
-                                    Tag.longitude <= max_lng).limit(9).all()
+                                    Tag.longitude <= max_lng).all()
 
         # this list comprehension works but does not seem as efficient as possible
         queried_tags = [tag for tag in all_found_tags if (set([genre.genre for genre in tag.genres]) & set(genres_list))]
@@ -79,7 +79,7 @@ def nearby_tags():
         queried_tags = Tag.query.filter(Tag.latitude >= min_lat, 
                                     Tag.latitude <= max_lat,
                                     Tag.longitude >= min_lng,
-                                    Tag.longitude <= max_lng).limit(7).all()
+                                    Tag.longitude <= max_lng).all()
 
     tag_dict = map_tag_details(queried_tags)
     
@@ -169,7 +169,7 @@ def handle_add_tag():
     video_url=request.form.get('video_url')
     genres=request.form.get('genres')
 
-    tag = add_tag_to_db(latitude,longitude,title,artist,details)
+    tag = add_tag_to_db(latitude,longitude,title,artist,details,primary_image)
 
     if audio_url:
         add_media_to_db(tag.tag_id,audio_url,"audio")
@@ -182,14 +182,27 @@ def handle_add_tag():
     add_genres_to_db(tag.tag_id, genres)
 
     newTag = {
-            "tagId": tag.tag_id,
-            "title": tag.title,
-            "artist": tag.artist,
-            "details": tag.details,
-            "primary_image": tag.primary_image,
-            "media": [{media.media_id : {"media_type":media.media_type,
+        "tagId": tag.tag_id,
+        "latitude": tag.latitude,
+        "longitude": tag.longitude,
+        "title": tag.title,
+        "excerpt": ' '.join(tag.details.split()[:15]) + '...',
+        "artist": tag.artist,
+        "details": tag.details,
+        "primaryImage": tag.primary_image,
+        "media": [{media.media_id : {"media_type":media.media_type,
                                      "url":media.media_url}} for media in tag.medias]
     }
+
+    # newTag = {
+    #         "tagId": tag.tag_id,
+    #         "title": tag.title,
+    #         "artist": tag.artist,
+    #         "details": tag.details,
+    #         "primaryImage": tag.primary_image,
+    #         "media": [{media.media_id : {"media_type":media.media_type,
+    #                                  "url":media.media_url}} for media in tag.medias]
+    # }
     
     return jsonify(newTag)
 
@@ -293,7 +306,7 @@ def add_comment_to_db(tag_id, user_id, content):
     return comment
 
 
-def add_tag_to_db(latitude,longitude,title,artist,details):
+def add_tag_to_db(latitude,longitude,title,artist,details,primary_image):
     """Update database with new tag"""
 
     print '************ entered server add tag'

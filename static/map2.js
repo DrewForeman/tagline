@@ -133,7 +133,6 @@ function initMap() {
           $('.post-button').click(submitComment);
       });
   });
-// $('.post-button').click(submitComment);
 }
 
 // v|v|v|v|v|v|v|v| CREATE THE MAP WHEN THE PAGE LOADS v|v|v|v|v|v|v|v|v|v|v|v|
@@ -209,7 +208,7 @@ function assignMarkers(tags){
   $('#tag-div-2').html(''); //empty the divs for new tags
   $('#tag-div-3').html('');
 
-  var counter = 1;  //set up a count of the tags so it knows which page column to append to
+  var counter = 1;  //set up a count of the tags so it knows to which page column to append the tag div
 
   var tag, marker;
   for (var key in tags) {
@@ -328,15 +327,13 @@ function addCommentsToDiv(tag) {
 
   // new comment form 
   infoDiv += '<li class="list-group-item" id="add-comment-'+tag.tagId+'">' +
-             '<form class="input-group input-group-lg" id="comment-form'+tag.tagId+'">' +
+             '<form class="form input-group input-group-lg" id="comment-form-'+tag.tagId+'">' +
              '<input type="text" class="form-control" placeholder="Say something..." aria-describedby="basic-addon1" id="new-comment-'+tag.tagId+'">' +
-             // '<div><input type="file" name="pic" accept="image/*"></div>'+
-             // '<input type="reset" visibility="hidden">'+
+             // '<input type="file" id="file-'+tag.tagId+'" accept="image/*" >' +
              '<i class="fa fa-microphone" aria-hidden="true"></i>' +
              '<i class="fa fa-picture-o" aria-hidden="true"></i>' +
              '<i class="fa fa-video-camera" aria-hidden="true"></i>' +
              '<button type="button" class="btn btn-secondary btn-sm pull-right post-button" style="margin-top:4px;" id="submit-comment-'+tag.tagId+'">' +
-             // 'Post<input type="reset" style="display: none;">'+
              'Post</button>' +
              '</form>' +
              '</li>'
@@ -396,9 +393,9 @@ function submitComment (evt) {
   console.log('clicked post button')
 
   var id = this.id.split('-')[2];
-  console.log(id)
-  console.log($('#comment-form-'+id)[0])
-  // $('#comment-form-'+id).reset(); // not working to reset the input field
+  // console.log(id)
+  // console.log($('#comment-form-'+id)[0])
+  // $('#comment-form-'+id)[0].reset(); 
 
   var comment = $('#new-comment-'+id).val();
 
@@ -425,6 +422,7 @@ function updateCommentsList(newComment){
             '</div>' +
             '</li>'
         );
+  // $('#comment-form-'+id)[0].reset(); 
 }
 
 
@@ -475,7 +473,10 @@ function submitTag(lat, lng){
                                     newTag.title) 
         clearClickMarker()
         buildTagDisplayDiv(newTag)
-        bindMarkerInfo(newTagMarker, infoDiv)
+        bindMarkerInfo(newTagMarker, infoDiv, newTag, -1)
+        $('#add-tag-form')[0].reset();
+        $('#myModal').modal('hide');
+        $('.genre').removeClass('active');
       })
   });
 }
