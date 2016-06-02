@@ -159,14 +159,13 @@ function addCommentsToDiv(tag) {
   var comments = tag.comments;
 
   if (comments){
-    var commentsList = ''
+    var commentsList = '<ul class="list-group list-group-flush drop-text" id="all-comments-'+tag.tagId+'" style="overflow-y: scroll; max-height:350px;">'
     var comment, username, date, content;
 
     for (var i = (comments.length - 1); i >=0; i--){
       for (var key in comments[i]){
         comment = comments[i][key]
-      } commentsList += '<ul class="list-group list-group-flush drop-text" id="all-comments-'+tag.tagId+'" style="overflow-y: scroll; height:400px;">'+
-                        '<li class="nav-item list-group-item">' +
+      } commentsList += '<li class="nav-item list-group-item">' +
                         '<div class="media">' +
                         '<div class="media-left">' + 
                         // '<a href="#"><img class="media-object" src="'+comment.avatar+'" alt="user-avatar"></a>' +
@@ -183,8 +182,10 @@ function addCommentsToDiv(tag) {
 
 /** Bind marker and related info, add to page and attach event listener to submit comments. */
 function bindMarkerInfo(marker, infoDiv, tag, counter){
-
-  if (counter === 1){
+  
+  if (counter === 0){
+    $('#tag-div-2').prepend(infoDiv);
+  } else if (counter === 1){
     $('#tag-div-2').append(infoDiv);
   } else if (counter === 2){
     $('#tag-div-3').append(infoDiv);
@@ -211,6 +212,7 @@ function submitComment (evt) {
 
   var id = this.id.split('-')[2];
   var comment = $('#new-comment-'+id).val();
+  console.log(comment);
 
   $.post('/add-comment.json', 
     {'comment': comment, 'tagId': id}, 
@@ -234,7 +236,7 @@ function updateCommentsList(newComment){
             '</div>' +
             '</li>'
         );
-  console.log($('#comment-form-'+tagId)[0])
+  // console.log($('#comment-form-'+tagId)[0])
   $('#comment-form-'+tagId)[0].reset(); 
 }
 
@@ -266,7 +268,7 @@ function submitTag(lat, lng){
                                     newTag.title) 
         clearClickMarker()
         buildTagDisplayDiv(newTag)
-        bindMarkerInfo(newTagMarker, infoDiv, newTag, -1)
+        bindMarkerInfo(newTagMarker, infoDiv, newTag, 0)
         $('#add-tag-form')[0].reset();
         $('#myModal').modal('hide');
         $('.genre').removeClass('active');
