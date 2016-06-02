@@ -1,196 +1,3 @@
-var map;
-
-var newMarkersArray = [];
-
-var allMarkersArray = [];
-
-
-function initMap() {
-
-  var directionsService = new google.maps.DirectionsService;
-  var directionsDisplay = new google.maps.DirectionsRenderer({
-      suppressMarkers: true,
-      polylineOptions:{strokeColor:'gray', strokeOpacity: 1.0, strokeWeight: 5}
-  });
-
-  var mapDiv = document.getElementById('map');
-  map = new google.maps.Map(mapDiv, {
-      zoom: 16,
-      scrollwheel: true,
-      zoomControl: true,
-      panControl: false,
-      mapTypeControl: false,
-      streetViewControl: false,
-      styles: MAPSTYLES,
-      mapTypeId: google.maps.MapTypeId.ROADS
-  });
-
-  var currentLocIcon = {
-        path: fontawesome.markers.MAP_MARKER,
-        strokeColor:'#5cb85c',
-        fillColor: '#5cb85c',
-        fillOpacity: 1,
-        scale: 1.2
-        }
-
-  var addTagIcon = {
-        path: fontawesome.markers.PLUS_CIRCLE,
-        scale: 0.5,
-        fillOpacity: 0.6
-        }
-
-
-  directionsDisplay.setMap(map);
-
-  if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(function (position) {
-        var pos = new google.maps.LatLng(
-                position.coords.latitude,
-                position.coords.longitude);
-
-        map.setCenter(pos);
-
-        var geolocationMarker = createMarker(pos, currentLocIcon);
-
-        google.maps.event.addListener(geolocationMarker, 'click', function(event){
-          clearClickMarker();
-          geolocationMarker.setIcon(addTagIcon);
-          submitTag(position.coords.latitude, position.coords.latitude);
-        })
-
-        google.maps.event.addListener(map, 'click', function(event){
-          geolocationMarker.setIcon(currentLocIcon);
-        })
-      }, function () {
-          handleNoGeolocation(true);
-      });
-
-       
-      // v|v|v|v|v|v|v|v| SHOW NEARBY POINTS UPON LOAD v|v|v|v|v|v|v|v|v|v|v|v|
-      google.maps.event.addListenerOnce(map, 'idle', function(){
-        // delay this function so the map has time to load before getting bounds
-        // shorten timeout but run again if still null after timeout. maybe want to change this into a named function. also define var for getbounds
-        setTimeout(function(){
-          data = {
-            'minLat' : map.getBounds().H['H'],
-            'minLng' : map.getBounds().j['j'],
-            'maxLat' : map.getBounds().H['j'],
-            'maxLng' : map.getBounds().j['H'],
-          }
-          
-          $.post('/tags-geolocation.json', data, function(nearby_tags) {
-            displayTags(nearby_tags);
-            $('.post-button').click(submitComment);
-          });
-
-        },3000);
-      });
-  } else {
-      // Browser doesn't support Geolocation
-      handleNoGeolocation(false);
-  }
-
-
-  // v|v|v|v|v|v|v|v| ALLOW ADD NEW TAG FUNCTIONALITY ON MAP CLICK v|v|v|v|v|v|v|v|v|v|v|v|
-  google.maps.event.addListener(map, 'click', function(event) {
-
-    clearClickMarker();
-
-    position = new google.maps.LatLng(event.latLng.lat(),event.latLng.lng())
-
-    var newMarker = createMarker(position, addTagIcon)
-
-    newMarkersArray.push(newMarker);
-
-    // add media to Amazon S3 as it is uploaded
-    $('input[type="file"]').change(function(){
-          var file = this.files[0];
-          getSignedRequest(file);
-    });
-
-    submitTag(position.lat(),position.lng());
-
-    // clear add marker if clicked again (basically click on-click off)
-    google.maps.event.addListener(newMarker, 'click', function(event){
-      clearClickMarker();
-    })
-  });
-
-
-// v|v|v|v|v|v|v|v| CALCULATE ROUTE AND DISPLAY TAGS ON PATH v|v|v|v|v|v|v|v|v|v|v|v|
-  $('#get-route').click(function() {
-      clearClickMarker();
-      clearMarkers();
-      // on directions search submission, find and display the path
-      calcAndDisplayRoute(directionsService, directionsDisplay);
-
-      data = {'origin': document.getElementById('origin').value,
-              'destination': document.getElementById('destination').value
-             }
-
-      $.post('/tags.json', data, function(tags) { 
-          displayTags(tags);
-          $('.post-button').click(submitComment);
-      });
-  });
-}
-
-// v|v|v|v|v|v|v|v| CREATE THE MAP WHEN THE PAGE LOADS v|v|v|v|v|v|v|v|v|v|v|v|
-
-google.maps.event.addDomListener(window, 'load', function(){
-  initMap();
-});
-
-
-
-
-
-
-
-
-
-// v|v|v|v|v|v|v|v|v|v|v|v|v| HELPER FUNCTIONS v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|
-// v|v|v|v|v|v|v|v|v|v|v|v|v| HELPER FUNCTIONS v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|
-
-
-
-/** If no geolocation, sets default map center and raises error flag. */
-function handleNoGeolocation(errorFlag) {
-    var content;
-
-    if (errorFlag) {
-        content = "Error: The Geolocation service failed.";
-    } else {
-        content = "Error: Your browser doesn't support geolocation.";
-    }
-
-    var options = {
-        map: map,
-        position: new google.maps.LatLng(37.7749, -122.4194),
-        content: content
-    };
-
-    var infowindow = new google.maps.InfoWindow(options);
-    map.setCenter(options.position);
-}
-
-
-/** Clears markers from prior query. */
-function clearMarkers() {
-  for (var i = 0; i < allMarkersArray.length; i++ ) {
-    allMarkersArray[i].setMap(null);
-  }
-  allMarkersArray.length = 0;
-}
-
-/** Provides toggle on-off capability for new tag markers. */
-function clearClickMarker() {
-  for (var i = 0; i < newMarkersArray.length; i++ ) {
-    newMarkersArray[newMarkersArray.length - 1].setMap(null);
-  }
-  newMarkersArray.length = 0;
-}
-
 
 // v|v|v|v|v|v|v HELPER FUNCTIONS AND VARIABLES TO GENERATE AND DISPLAY QUERIED TAGS v|v|v|v|v|v|v|v|v|
 
@@ -205,15 +12,29 @@ function displayTags(queriedTags){
 /** Create marker for each tag returned in query and bind related tag information. */
 function assignMarkers(tags){
 
-  $('#tag-div-2').html(''); //empty the divs for new tags
+  //empty the divs for new tags
+  $('#tag-div-1').html(
+                  '<div class="card card-inverse" style="background-color: #333; border-color: #333;">' +
+                  '<div class="card-block">' +
+                  '<h3 class="card-title">Tag something</h3>' +
+                  '<p class="card-text">Share your thoughts, stories, knowledge. Make your mark on the city.</p>' +
+                  '<p class="subtext">Add your location to the map and...</p>' +
+                  '<button class="btn btn-success-outline" style="color: white;" data-toggle="modal" data-target="#myModal">Tag it!</button>' +
+                  '</div>' +
+                  '</div>'
+                  ); 
+  $('#tag-div-2').html(''); 
   $('#tag-div-3').html('');
 
-  var counter = 1;  //set up a count of the tags so it knows to which page column to append the tag div
+  var counter = 0;  //set up a count of the tags so it knows to which page column to append the tag div
 
   var tag, marker;
   for (var key in tags) {
 
-      counter = -(counter);
+      counter++;
+      if (counter > 3) {
+        counter = 1;
+      }
 
       tag = tags[key];
 
@@ -277,11 +98,6 @@ function createDisplayBase(tag){
   }
 }
 
-
-// TO DO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// fix this function so that it can handle audio and video media
-
-
 /** Add tag media to div. Multiple media items are possible. */
 function addMediaToDiv(tag){
   var media = tag.media;
@@ -336,7 +152,8 @@ function addCommentsToDiv(tag) {
              '<button type="button" class="btn btn-secondary btn-sm pull-right post-button" style="margin-top:4px;" id="submit-comment-'+tag.tagId+'">' +
              'Post</button>' +
              '</form>' +
-             '</li>'
+             '</li>' +
+             '</ul>'
 
   // comments display
   var comments = tag.comments;
@@ -348,7 +165,8 @@ function addCommentsToDiv(tag) {
     for (var i = (comments.length - 1); i >=0; i--){
       for (var key in comments[i]){
         comment = comments[i][key]
-      } commentsList += '<li class="list-group-item">' +
+      } commentsList += '<ul class="list-group list-group-flush drop-text" id="all-comments-'+tag.tagId+'" style="overflow-y: scroll; height:400px;">'+
+                        '<li class="nav-item list-group-item">' +
                         '<div class="media">' +
                         '<div class="media-left">' + 
                         // '<a href="#"><img class="media-object" src="'+comment.avatar+'" alt="user-avatar"></a>' +
@@ -366,10 +184,12 @@ function addCommentsToDiv(tag) {
 /** Bind marker and related info, add to page and attach event listener to submit comments. */
 function bindMarkerInfo(marker, infoDiv, tag, counter){
 
-  if (counter > 0){
-    $('#tag-div-3').append(infoDiv);
-  } else{
+  if (counter === 1){
     $('#tag-div-2').append(infoDiv);
+  } else if (counter === 2){
+    $('#tag-div-3').append(infoDiv);
+  } else {
+    $('#tag-div-1').append(infoDiv);
   }
 
   // on click of marker, tag display scrolls open/closed
@@ -388,29 +208,21 @@ function bindMarkerInfo(marker, infoDiv, tag, counter){
 
 
 function submitComment (evt) {
-  console.log(this)
-
-  console.log('clicked post button')
 
   var id = this.id.split('-')[2];
-  // console.log(id)
-  // console.log($('#comment-form-'+id)[0])
-  // $('#comment-form-'+id)[0].reset(); 
-
   var comment = $('#new-comment-'+id).val();
-
-  console.log(comment)
 
   $.post('/add-comment.json', 
     {'comment': comment, 'tagId': id}, 
     updateCommentsList);
 }
 
+
 function updateCommentsList(newComment){
 
   var tagId = newComment.tagId;
 
-  $('#add-comment-'+tagId).after(
+  $('#all-comments-'+tagId).prepend(
             '<li class="list-group-item">' +
             '<div class="media">' +
             '<div class="media-left">' + 
@@ -422,29 +234,10 @@ function updateCommentsList(newComment){
             '</div>' +
             '</li>'
         );
-  // $('#comment-form-'+id)[0].reset(); 
+  console.log($('#comment-form-'+tagId)[0])
+  $('#comment-form-'+tagId)[0].reset(); 
 }
 
-
-// v|v|v|v|v|v|v HELPER FUNCTIONS FOR DISPLAYING ROUTE v|v|v|v|v|v|v|v|v|
-
-/** Uses Google's directions service to display user input route. */
-function calcAndDisplayRoute(directionsService, directionsDisplay) {
-    directionsService.route({
-        origin: document.getElementById('origin').value,
-        destination: document.getElementById('destination').value,
-        travelMode: google.maps.TravelMode.WALKING
-    }, function(response, status){
-        if (status === google.maps.DirectionsStatus.OK) {
-            directionsDisplay.setDirections(response);
-        } else{ 
-            window.alert('Directions request failed');
-        }
-    });
-}
-
-
-// v|v|v|v|v|v|v|v HELPER FUNCTIONS & VARIABLES FOR ADDING TAGS v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|
 
 /** Adds new tag to db on submission and displays on page. */
 function submitTag(lat, lng){
@@ -480,76 +273,6 @@ function submitTag(lat, lng){
       })
   });
 }
-
-// v|v|v|v|v|v|v|v|v|v|v|v|v| FUNCTIONS FOR ADDING MEDIA TO AMAZON S3 v|v|v|v|v|v|v|v|v|v|v|v|v|v|v|v
-
-
-function uploadFile(file, s3Data, url){
-
-  var xhr = new XMLHttpRequest();
-  xhr.open("POST", s3Data.url);
-  xhr.setRequestHeader('x-amz-acl', 'public-read');
-
-  var postData = new FormData();
-  for(key in s3Data.fields){
-    postData.append(key, s3Data.fields[key]);
-  }
-  postData.append('file', file);
-
-  xhr.onreadystatechange = function() {
-    if(xhr.readyState === 4){
-      if(xhr.status === 200 || xhr.status === 204){     
-
-        if (file.type.split('/')[0] === 'audio'){
-          document.getElementById("audio_url").value = url;
-          $('#audioSpace').html('<audio style="width:160px; margin:8px; vertical-align: middle;" id="audio-preview" controls><source src="'+url+'" ></audio>');
-        } else if (file.type.split('/')[0] === 'image'){
-          document.getElementById("image_url").value = url;
-          $('#imageSpace').html('<img style="max-width:150px; margin:8px;" src="'+url+'" class="img-thumbnail" id="image-preview">');
-          console.log('added image')
-        } else {
-          document.getElementById("video_url").value = url;
-          $('#videoSpace').html('<video width="150" style="margin:8px; vertical-align: middle;" id="video-preview" controls><source src="'+url+'" ></video>');
-        }
-      }
-      else{
-        alert("Could not upload file.");
-      }
-    }
-  };
-  xhr.send(postData);
-}
-
-
-function getSignedRequest(file){
-  var fileInfo = {'file_name':file.name,'file_type':file.type}
-  $.post('/sign.json', fileInfo, function(postInfo){
-    uploadFile(file, postInfo.data, postInfo.url);
-  })
-}
-
-
-// HELPER FUNCTION FOR COLLECTING GENRE PREFERENCES FROM MULI-CHECKBOX FORM
-
-function getGenreVals() {
-  var checkbox_value = "";
-    $(":checkbox").each(function () {
-        var ischecked = $(this).is(":checked");
-        if (ischecked) {
-            checkbox_value += $(this).val() + ",";
-        }
-    });
-    return checkbox_value
-  }
-
-
-
-
-
-
-
-
-
 
 
 

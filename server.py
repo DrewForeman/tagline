@@ -47,7 +47,7 @@ def index():
 
     genres = Genre.query.all()
 
-    return render_template("test.html", name=name, genres=genres)
+    return render_template("homepage.html", name=name, genres=genres)
 
 
 

@@ -1,131 +1,266 @@
 {% extends 'base.html' %} 
 
 {% block head %}
-<style>
-/**, *:before, *:after {box-sizing:  border-box !important;}
-
-
-.row {
- -moz-column-width: 22em;
- -webkit-column-width: 22em;
- -moz-column-gap: .5em;
- -webkit-column-gap:.5em; 
   
-}
 
-.item {
- display: inline-block;
- padding:  .5em;
- width:  100%; 
-}
 
-.panel {
- position:relative;
- display: block;
- padding: 10px;
- margin:0px;
-}*/
-</style>
-
-  <script src="/static/map.js"></script>
+<script src="/static/map.js"></script>
+<script src="/static/infodivs.js"></script>
+<script src="/static/page.js"></script>
+<script src="/static/mediaupload.js"></script>
+<script src="/static/fontawesome-markers.min.js"></script>
 
 {% endblock %}
 
 {% block body %}
 
-<nav class="navbar navbar-default navbar-inverse navbar-fixed-top" role="navigation">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="/">Tagline</a>
+
+
+<nav class="navbar navbar-light navbar-fixed-top">
+  <a class="navbar-brand" style="margin-top:15px;"href="/">Tagline</a>
+
+  <form class="form-inline" id="nav-form">
+    <input class="form-control" type="text" placeholder="Origin" id="origin">
+    <input class="form-control" type="text" placeholder="Destination" id="destination">
+    <button class="btn btn-success-outline" type="button" id="get-route">Go</button>
+  <!-- </form> -->
+<!-- !!!!!!!!buttons for pagination here!!!!!! -->
+<!--     <div class="btn-group" data-toggle="buttons">
+      <label class="btn btn-secondary active" style="margin-bottom:0px;">
+        <input type="radio" name="pages" id="page1" autocomplete="off" checked>1
+      </label>
+      <label class="btn btn-secondary" style="margin-bottom:0px;">
+        <input type="radio" name="pages" id="page2" autocomplete="off">2
+      </label>
+      <label class="btn btn-secondary" style="margin-bottom:0px;">
+        <input type="radio" name="pages" id="page3" autocomplete="off">3
+      </label>
     </div>
+ -->
+    <ul class="nav navbar-nav pull-xs-right" id="login-tog">
 
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    {% if name %}
+      <li>
+        <p class="navbar-text">Welcome, {{name}}</p>
+      </li>
 
-      <!-- ################### ROUTE SEARCH IN NAVBAR ########################### -->
-      <form class="navbar-form navbar-left" role="search" id="route-form">
+    {% else %}
+
+      <li>
+    <div class="dropdown">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      Login
+    </button>
+    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu2">
+
+      <form class="form" role="form" method="post" action="login" accept-charset="UTF-8" id="login-nav">
         <div class="form-group">
-          <input type="text" class="form-control" placeholder="Origin" id="origin">
-          <input type="text" class="form-control" placeholder="Destination" id="destination">
+           <label class="sr-only" for="inputUsername">Username</label>
+           <input type="text" class="form-control" id="inputUsername" placeholder="Username" required>
         </div>
-        <button type="button" class="btn btn-default" id="get-route">Go</button>
+        <div class="form-group">
+           <label class="sr-only" for="inputPassword">Password</label>
+           <input type="password" class="form-control" id="inputPassword" placeholder="Password" required>
+
+        </div>
+        <div class="form-group">
+           <button type="button" class="btn btn-success btn-block" id="login-button">Sign in</button>
+        </div>
       </form>
-      <!-- ###################################################################### -->
 
-      <ul class="nav navbar-nav navbar-right" id="login-tog">
-      {% if name %}
-      <li><p class="navbar-text">Welcome, {{name}}</p></li>
+      <div class="bottom">
+        <div id="not-registered"></div>
+        <small>New here?<br></small> <a href="/register">Register</a>
+      </div>
+    </li>
+    {% endif %}
 
-      {% else %}
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Login</b> <span class="caret"></span></a>
-      <ul id="login-dp" class="dropdown-menu">
-        <li>
-           <div class="row">
-              <div class="col-md-12">
-                 <form class="form" role="form" method="post" action="login" accept-charset="UTF-8" id="login-nav">
-                    <div class="form-group">
-                       <label class="sr-only" for="inputUsername">Username</label>
-                       <input type="text" class="form-control" id="inputUsername" placeholder="Username" required>
-                    </div>
-                    <div class="form-group">
-                       <label class="sr-only" for="inputPassword">Password</label>
-                       <input type="password" class="form-control" id="inputPassword" placeholder="Password" required>
-
-                    </div>
-                    <div class="form-group">
-                       <button type="button" class="btn btn-primary btn-block" id="login-button">Sign in</button>
-                    </div>
-                 </form>
-              </div>
-              <div class="bottom text-center">
-                <div id="not-registered"></div>
-                New here? <a href="/register"><b>Register</b></a>
-              </div>
-           </div>
-        </li>
-      </ul>
-      {% endif %}
-        </li>
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
+  </ul>
+</form>
 </nav>
 
-<div id="map" class="col-md-3"></div>
-<div class="container-fluid" id="main">
+
+
+
+<!-- #################################### NAV ABOVE -->
+
+<!-- <div id="map" class="col-md-3"></div> -->
+
+<div class="container-fluid">
   <div class="row">
-    <div class="col-md-3"></div>
+
+  <div id="map-container" class="fixed col-md-3">
+    <div id="map" class="col-md-3"></div>
+  </div>
+
+  <div class="col-md-3"></div>
 
 
-    <!-- <div class="col-md-9" id="right"> -->
-    
-      <!-- item list -->
-<!--       <div class="panel panel-default">
-        <div class="panel-heading"><a href="">Item heading</a></div>
+<!-- ######################### -->
+
+    <div class="col-md-3" id="tag-div-1">
+
+<!-- ADD NEW TAG CARD -->
+
+      <div class="card card-inverse" style="background-color: #333; border-color: #333;">
+        <div class="card-block">
+          <h3 class="card-title">Tag something</h3>
+          <p class="card-text">Share your thoughts, stories, knowledge. Make your mark on the city.</p>
+          <p class="subtext">Add your location to the map and...</p>
+          <button class="btn btn-success-outline" style="color: white;" data-toggle="modal" data-target="#myModal">Tag it!</button>
+
+        </div>
+      </div>
+
+
+<!-- INSERT NEW TAG DIV -->
+      <div id="new-tag"></div>
+
+
+<!-- HIGHLIGHTED TAG CARD -->
+<!-- 
+      <div class="card card-inverse">
+        <img class="card-img" src="/static/testimg.jpg" alt="Card image" style="width: 100%;">
+        <div class="card-img-overlay" style="background-color: rgba(51,51,51,0.7);" data-toggle="collapse" data-target="#overlayCollapse1" id="hovercard1">
+          <h4 class="card-title">Os gemeos mural</h4>
+          <p class="card-text">This is a mural painted by some brazilian brothers. It makes...</p>
+          <p class="card-text"><small>Last updated 3 mins ago</small></p>
+        </div>
+        <div data-toggle="collapse" id="overlayCollapse1" class="collapse" aria-expanded="false">
+          <ul class="list-group list-group-flush drop-text">
+            <li class="list-group-item">
+              <div>This is a mural painted by some brazilian brothers. It makes SF not quite as dreary.</div>
+            </li>
+            <li class="list-group-item">
+              <img src="/static/testimg2.jpg" alt="image thumbnail" title="Click to view" hspace="2" class="thumb1"/> 
+              <img src="/static/testimg.jpg" alt="image thumbnail" title="Click to view" hspace="2" class="thumb1"/>
+            </li>
+            <li class="list-group-item">
+              <div class="input-group input-group-lg">
+                <input type="text" class="form-control" placeholder="Say something..." aria-describedby="basic-addon1">
+              <i class="fa fa-microphone" aria-hidden="true"></i>
+              <i class="fa fa-picture-o" aria-hidden="true"></i>
+              <i class="fa fa-video-camera" aria-hidden="true"></i>
+              </div>
+            </li>
+            <li class="list-group-item">
+              <div class="media">
+                <div class="media-left">
+                  <a href="#">
+                    <img class="media-object" src="/static/placeholder_avatar.jpg" alt="user-avatar">
+                  </a>
+                </div>
+                <div class="media-body">
+                  <b>drewf</b><span class="card-text"><small class="text-muted">  March 19, 2016</small></span><br>
+                  Here is a comment
+                </div>
+              </div>
+            </li>
+            <li class="list-group-item">
+              <div class="media">
+                <div class="media-left">
+                  <a href="#">
+                    <img class="media-object" src="/static/placeholder_avatar.jpg" alt="user-avatar">
+                  </a>
+                </div>
+                <div class="media-body">
+                  <b>sflvr</b><span class="card-text"><small class="text-muted">  March 12, 2016</small></span><br>
+                  I have something to say too
+                </div>
+              </div>
+            </li>
+            <li class="list-group-item">
+              <div class="media">
+                <div class="media-left">
+                  <a href="#">
+                    <img class="media-object" src="/static/placeholder_avatar.jpg" alt="user-avatar">
+                  </a>
+                </div>
+                <div class="media-body">
+                  <b>username</b><span class="card-text"><small class="text-muted">  March 1, 2016</small></span><br>
+                  Here is the first comment
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div> -->
-    <div id="main-div" class"col-md-9">
+    </div> <!-- column end -->
 
+<!-- QUERIED TAG COLUMN 2 -->
+
+    <div class="col-md-3" id="tag-div-2">
+
+    </div> <!-- close second column -->
+
+
+<!-- THIRD TAG COLUMN -->
+
+    <div class="col-md-3" id="tag-div-3">
+
+    </div> <!-- end column -->
+
+</div>   <!--  end row -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="myModalLabel">Add a tag</h4>
+      </div>
+      <div class="modal-body">
+      <form class="form" role="form" id="add-tag-form">
+         
+        <input type="text" class="form-control" name="add-title" placeholder="Title" style="margin-bottom: 4px;" id="add-title"/>
+        <input type="text" class="form-control" name="add-artist" placeholder="Creator" style="margin-bottom: 4px;" id="add-artist"/>
+        <fieldset class="form-group" style="margin-top: 0px;">
+          <label for="exampleTextarea"></label>
+          <textarea class="form-control" id="add-details" placeholder="Details" rows="3"></textarea>
+        </fieldset>
+
+        <span id="audioSpace"><label for="audio"><span class="btn btn-default"><i class="fa fa-microphone" aria-hidden="true"></i></span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="audio"></span>
+
+        <span id="imageSpace"><label for="image"><span class="btn btn-default"><i class="fa fa-picture-o" aria-hidden="true"></i></span></label><input type="file" style="visibility: hidden; position: absolute;" accept="image/*;capture=camcorder" id="image"></span>
+        
+        <span id="videoSpace"><label for="video"><span class="btn btn-default"><i class="fa fa-video-camera" aria-hidden="true"></i></span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="video"></span><br>
+
+        <div class="btn-group" data-toggle="buttons"> 
+
+          {% for genre in genres %}
+
+          <label class="btn btn-secondary genre">
+              <input type="checkbox" name="genres" id="{{genre.genre}}" value="{{genre.genre}}">{{genre.genre}}
+          </label>
+
+          {%endfor%}
+
+          <input type="hidden" id="image_url">
+          <input type="hidden" id="audio_url">
+          <input type="hidden" id="video_url">
+
+        <!-- </form> -->
+        </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-success" id="submit-tag">Tag it</button>
+        <!-- <button type="button" class="btn btn-success" data-dismiss="modal" id="submit-tag">Tag it</button> -->
+      </div>
+    </form>
     </div>
+  </div>
 </div>
-
-    <!-- <div class="panel panel-primary fixed-panel" id="tag-info-box"> -->
-    <!-- </div> -->
+        
 
 
 
-
-    <!-- EVENTUALLY MOVE THIS SCRIPT TO ITS OWN FILE??? -->
 <script>
 $('#login-button').click(function(){
-    console.log('clicked button');
+    console.log('clicked login');
     $.post('/login.json',{
       'username': $('#inputUsername').val(),
       'password': $('#inputPassword').val()
@@ -138,6 +273,7 @@ $('#login-button').click(function(){
     console.log(currentUser)}
   )})
 </script>
+
 
 
 

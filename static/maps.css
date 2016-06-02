@@ -1,67 +1,111 @@
 html, body {
-/*    padding-top: 30px; */
     margin: 10px;
-/*    height: 100%;
-    width: 100%;*/
 }
 
 .navbar{
-    background-color: none;
-    border: none;
-    padding-bottom: 30px;
+  background-color: white;
+  /*background-color: black;*/
+  opacity: 0.9;
+  height: 80px;
+  /*padding-top: 10px;*/
+}
+
+#nav-form {
+  margin-top: 15px;
+}
+
+.fixed {
+  position: fixed;
 
 }
 
+#map-container{
+  height:86%;
+}
 
-/*.tag-tab{
-    margin:0;
-    padding:4px;
+#map {
+    height: 100%;
+    width: 95%;
+    top: 60;
+    /*top: 60;*/
+    /*z-index: 999;*/
+    /*left: 10;*/
 
+    margin-bottom: 10px;
+
+}
+
+body {
+  font-family: 'Arvo', serif;
+  padding-top: 60px;
+  /*background-color: gray;*/
+}
+
+.card {
+  margin-top: 0px;
+  margin-left: 6px;
+  margin-bottom:6px;
+  border-radius: 2px;
+  border: rgba(51,51,51,0.7);
+}
+
+.col-md-3{
+  padding: 0;
+}
+
+.fa {
+  margin-top: 12px;
+  margin-right: 15px;
+  margin-left: 5px;
+}
+
+.list-group-item{
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.dropdown-menu{
+  background-color: rgba(255,255,255,0.8);
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.dropdown-menu .bottom {
+  background-color: white;
+  text-align: center;
+}
+
+#login-button {
+  width: 100%; 
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.subtext {
+  font-size: 14px;
+  color: white;
+}
+
+.drop-text {
+  font-size: 14px;
+}
+
+.modal-body {
+  padding-bottom: 0px;
+}
+
+.modal-footer {
+  margin-top: 15px;
 }
 
 .media-object{
-height: 37px;
-padding: 2px;
+  width:50px;
 }
 
-.media{
-max-width: 100%;
-padding: 0;
+.thumb1 { 
+background: url(blah.jpg) 50% 50% no-repeat; /* 50% 50% centers image in div */
+width: 64px;
+height: 64px;
 }
 
 
-
-/*#######################################################*/
-
-
-#login-dp{
-    min-width: 250px;
-    padding: 14px 14px 0;
-    overflow:hidden;
-    background-color:rgba(255,255,255,.85);
-    z-index:99;
-}
-
-#login-dp .bottom{
-    background-color:rgba(255,255,255,.8);
-    border-top:1px solid #ddd;
-    clear:both;
-    padding:14px;
-}
-
-}
-#login-dp .form-group {
-    margin-bottom: 10px;
-}
-
-}*/
-@media(max-width:768px){
-    #login-dp{
-        background-color: inherit;
-        color: #fff;
-    }
-    #login-dp .bottom{
-        background-color: inherit;
-        border-top:0 none;
-    }
-}
