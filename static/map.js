@@ -27,8 +27,8 @@ function initMap() {
 
   var currentLocIcon = {
         path: fontawesome.markers.MAP_MARKER,
-        strokeColor:'#5cb85c',
-        fillColor: '#5cb85c',
+        strokeColor:'#29a3a3',
+        fillColor: '#29a3a3',
         fillOpacity: 1,
         scale: 1.2
         }
@@ -36,7 +36,9 @@ function initMap() {
   var addTagIcon = {
         path: fontawesome.markers.PLUS_CIRCLE,
         scale: 0.5,
-        fillOpacity: 0.6
+        fillOpacity: 1,
+        strokeColor:'#e65c00',
+        fillColor: '#e65c00'
         }
 
 
@@ -65,7 +67,6 @@ function initMap() {
           handleNoGeolocation(true);
       });
 
-       
       // v|v|v|v|v|v|v|v| SHOW NEARBY POINTS UPON LOAD v|v|v|v|v|v|v|v|v|v|v|v|
       google.maps.event.addListenerOnce(map, 'idle', function(){
         // delay this function so the map has time to load before getting bounds
@@ -81,6 +82,11 @@ function initMap() {
           $.post('/tags-geolocation.json', data, function(nearby_tags) {
             displayTags(nearby_tags);
             $('.post-button').click(submitComment);
+            $('div.card-img-overlay').click(function(){
+              $(this).toggleClass('hidden-overlay');
+            })
+
+
           });
 
         },3000);
@@ -89,6 +95,7 @@ function initMap() {
       // Browser doesn't support Geolocation
       handleNoGeolocation(false);
   }
+
 
 
   // v|v|v|v|v|v|v|v| ALLOW ADD NEW TAG FUNCTIONALITY ON MAP CLICK v|v|v|v|v|v|v|v|v|v|v|v|
@@ -131,6 +138,9 @@ function initMap() {
       $.post('/tags.json', data, function(tags) { 
           displayTags(tags);
           $('.post-button').click(submitComment);
+          $('div.card-img-overlay').click(function(){
+              $(this).toggleClass('hidden-overlay');
+            });
       });
   });
 }

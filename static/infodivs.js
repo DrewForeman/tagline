@@ -16,7 +16,8 @@ function assignMarkers(tags){
   $('#tag-div-1').html(
                   '<div class="card card-inverse" style="background-color: #333; border-color: #333;">' +
                   '<div class="card-block">' +
-                  '<h3 class="card-title">Tag something</h3>' +
+                  '<p class="card-title" style="font-family:BlowBrush; font-size:100px; line-height: 78%; letter-spacing: 2px; ">TAg some-<br>thing:</p>' +
+                  // '<h3 class="card-title">Tag something</h3>' +
                   '<p class="card-text">Share your thoughts, stories, knowledge. Make your mark on the city.</p>' +
                   '<p class="subtext">Add your location to the map and...</p>' +
                   '<button class="btn btn-success-outline" style="color: white;" data-toggle="modal" data-target="#myModal">Tag it!</button>' +
@@ -42,9 +43,9 @@ function assignMarkers(tags){
       marker = createMarker(pos, 
                            {path: fontawesome.markers.CIRCLE,
                             scale: 0.5,
-                            strokeColor:'#0099cc',
+                            strokeColor:'black',
                             strokeOpacity: 0.5,
-                            fillColor: '#0099cc',
+                            fillColor: 'black',
                             fillOpacity: 0.5
                            }, 
                            tag.title)
@@ -85,7 +86,8 @@ function createDisplayBase(tag){
   infoDiv = '<div class="card card-inverse">';
   if (tag.primaryImage) {
     infoDiv += '<img class="card-img" src="'+tag.primaryImage+'" alt="Card image" style="width: 100%;">' +
-               '<div class="card-img-overlay" style="background-color: rgba(51,51,51,0.7);" data-toggle="collapse" data-target="#'+tag.tagId+'">' +
+               '<div class="card-img-overlay" style="background-color: rgba(51,51,51,0.4);" data-toggle="collapse" data-target="#'+tag.tagId+'" id="img-toggle-'+tag.tagId+'">' +
+               // '<div class="card-img-overlay" style="background-color: rgba(255,255,255,0.2);" data-toggle="collapse" data-target="#'+tag.tagId+'" id="img-toggle-'+tag.tagId+'">' +
                '<h4 class="card-title">'+tag.title+'</h4>' +
                '<p class="card-text">'+tag.excerpt+'</p>' + 
                // '<p class="card-text"><small>Last updated'+tag.recent_comment_time+'</small></p>' +
@@ -125,7 +127,7 @@ function addMediaToDiv(tag){
 function addDetailsToDiv(tag) {
   infoDiv += '<div data-toggle="collapse" id="'+tag.tagId+'" class="collapse" aria-expanded="false">' +
             '<ul class="list-group list-group-flush drop-text" id="details-'+tag.tagId+'">' +
-            '<li class="list-group-item"><div>'
+            '<li class="list-group-item"><div><h5>'+tag.title+'</h5>'
   
   if (tag.artist){ 
       infoDiv += tag.artist + '<br><br>'
@@ -197,6 +199,8 @@ function bindMarkerInfo(marker, infoDiv, tag, counter){
   google.maps.event.addListener(marker, 'click', function() {
       clearClickMarker()
       $('#'+tag.tagId).collapse('toggle');
+      $('#img-toggle-'+tag.tagId).toggleClass('hidden-overlay');
+
       // marker.setIcon({path: fontawesome.markers.CIRCLE,    
       //                 scale: 0.5,
       //                 strokeColor:'#0099cc',
@@ -212,7 +216,6 @@ function submitComment (evt) {
 
   var id = this.id.split('-')[2];
   var comment = $('#new-comment-'+id).val();
-  console.log(comment);
 
   $.post('/add-comment.json', 
     {'comment': comment, 'tagId': id}, 
@@ -276,5 +279,7 @@ function submitTag(lat, lng){
   });
 }
 
+
+// $('#img-toggle-'+tag.tagId).toggleClass('hidden-overlay');
 
 

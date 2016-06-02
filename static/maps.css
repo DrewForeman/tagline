@@ -27,6 +27,7 @@ html, body {
     height: 100%;
     width: 95%;
     top: 60;
+    position:absolute;
     /*top: 60;*/
     /*z-index: 999;*/
     /*left: 10;*/
@@ -35,19 +36,48 @@ html, body {
 
 }
 
+/*h4 {
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+
+  background-image: url(https://tag-media.s3.amazonaws.com/bottomsup.jpg);
+}*/
+
 body {
   font-family: 'Arvo', serif;
   padding-top: 60px;
   /*background-color: gray;*/
 }
 
+.btn-success-outline{
+  border: 2px solid #29a3a3;
+  color:#29a3a3;
+}
+
+.btn-success.outline:hover {
+  color: #29a3a3;
+  border-color: #29a3a3;
+}
+.btn-success.outline:active, .btn-success.outline.active {
+  border-color: #29a3a3;
+  color: #29a3a3;
+  box-shadow: none;
+}
+
+
 .card {
   margin-top: 0px;
-  margin-left: 6px;
-  margin-bottom:6px;
-  border-radius: 2px;
+  margin-left: 10px;
+  margin-bottom:10px;
+  border-radius:0px;
   border: rgba(51,51,51,0.7);
+  box-shadow: 6px 10px 47px -4px rgba(0,0,0,0.5);
 }
+
+.card-img {
+  border-radius:0px;
+}
+
 
 .col-md-3{
   padding: 0;
@@ -108,4 +138,7 @@ width: 64px;
 height: 64px;
 }
 
+.hidden-overlay{
+  opacity: 0.0;
+}
 
