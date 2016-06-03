@@ -17,14 +17,14 @@ api_key = os.environ['GOOGLE_DIRECTIONS_API_KEY']
 # origin = '1523 8th St, Oakland, CA 94607'
 # destination = '1555 40th St, Emeryville, CA 94608'
 
-def find_landmarks(origin, destination):
-    """Returns list of landmarks along user's input route."""
+def find_tags_on_route(origin, destination):
+    """Returns list of tags along user's input route."""
 
     route_coordinates = find_route_coordinates(origin, destination)
 
     bbox = find_bounding_box(route_coordinates)
 
-    return query_landmarks(bbox)
+    return query_tags(bbox)
 
 
 ###### HELPER FUNCTIONS ##########################################
@@ -51,19 +51,14 @@ def find_route_coordinates(origin, destination):
     s = 'start_location'
     e = 'end_location'
 
-    # route_segment_coords = [(segment[s]['lat'], segment[s]['lng']) for segment in route_segments] + [(segment[e]['lat'], segment[e]['lng'])]
-
     route_segment_coords = [(segment[s]['lat'], segment[s]['lng']) for segment in route_segments] + [(segment[e]['lat'], segment[e]['lng'])]
-
-    # route_coordinates = [(pt[0]-.001, pt[1]+.001) for pt in route_segment_coords]
-    # print route_coordinates
 
     return route_segment_coords
 
 
 
 def find_bounding_box(route_coordinates):
-    """Returns rough bounding box for given route coordinates to help query landmarks along route. 
+    """Returns rough bounding box for given route coordinates to help query tags along route. 
 
     >>> find_bounding_box([(37,122),(36,123),(36,122)])
     [BoundingBox([(36, 122), (37, 123)]), BoundingBox([(36, 122), (36, 123)])]
@@ -76,20 +71,16 @@ def find_bounding_box(route_coordinates):
 
     for i in range(len(route_coordinates)-1):
         bbox = BoundingBox([route_coordinates[i],route_coordinates[i+1]])
-        # print "*********************", bbox
         bbox = bbox.inflate(.002)
-        # print "*********************", bbox
         bboxes.append(bbox)
         i += 1
 
-# add .001 on each side to make the bounding box a bit bigger
-    # bbox = BoundingBox(route_coordinates)
 
     return bboxes
 
 
 
-def query_landmarks(bboxes):
+def query_tags(bboxes):
     """Returns list of landmark objects from database that fall within given bounding box."""
 
     all_tags = []
@@ -106,16 +97,12 @@ def query_landmarks(bboxes):
                                         Tag.longitude >= min_lng,
                                         Tag.longitude <= max_lng).all()
 
-        print "1***************", tags
-
         tags = Tag.query.filter(Tag.latitude >= min_lat, 
                                         Tag.latitude <= max_lat,
                                         Tag.longitude >= min_lng,
                                         # Tag.longitude <= max_lng).order_by(Tag.comments.logged_at).all()
-                                        Tag.longitude <= max_lng).order_by(Tag.tag_id.desc()).limit(4).all()
+                                        Tag.longitude <= max_lng).order_by(Tag.tag_id.desc()).all()
                                         # Tag.longitude <= max_lng).limit(1).all()
-
-        print "2***************", tags
 
 
         all_tags += tags

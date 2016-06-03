@@ -10,6 +10,44 @@
 <script src="/static/mediaupload.js"></script>
 <script src="/static/fontawesome-markers.min.js"></script>
 
+<style>
+
+.wf-fontawesome-n4-active {
+  margin: 0px;
+}
+
+body{
+  background-image: url("/static/bkgrnd.png");
+  background-size: cover;
+  /*background-width: 1400px;*/
+  /*margin:0px;*/
+}
+
+.navbar{
+  background-color: transparent;
+}
+
+.for-title{
+  padding-top:90px;
+  padding-left:50px;
+}
+
+.header{
+  color:black;
+  font-family: 'BlowBrush'; 
+  font-size:165px; 
+  line-height: 78%;
+  letter-spacing: 2px;
+  text-align: center;
+}
+
+#title-spacing{
+  font-size:175px; 
+  letter-spacing: 12px;
+}
+
+</style>
+
 {% endblock %}
 
 {% block body %}
@@ -17,34 +55,11 @@
 
 
 <nav class="navbar navbar-light navbar-fixed-top">
-  <a class="navbar-brand" style="margin-top:15px;"href="/">Tagline</a>
+  <a class="navbar-brand" href="/"><img class="navbar-brand" src="/static/logo.png"></a>
 
   <form class="form-inline" id="nav-form">
-    <input class="form-control" type="text" placeholder="Origin" id="origin">
-    <input class="form-control" type="text" placeholder="Destination" id="destination">
-    <button class="btn btn-success-outline" type="button" id="get-route">Go</button>
-  <!-- </form> -->
-<!-- !!!!!!!!buttons for pagination here!!!!!! -->
-<!--     <div class="btn-group" data-toggle="buttons">
-      <label class="btn btn-secondary active" style="margin-bottom:0px;">
-        <input type="radio" name="pages" id="page1" autocomplete="off" checked>1
-      </label>
-      <label class="btn btn-secondary" style="margin-bottom:0px;">
-        <input type="radio" name="pages" id="page2" autocomplete="off">2
-      </label>
-      <label class="btn btn-secondary" style="margin-bottom:0px;">
-        <input type="radio" name="pages" id="page3" autocomplete="off">3
-      </label>
-    </div>
- -->
+
     <ul class="nav navbar-nav pull-xs-right" id="login-tog">
-
-    {% if name %}
-      <li>
-        <p class="navbar-text">Welcome, {{name}}</p>
-      </li>
-
-    {% else %}
 
       <li>
     <div class="dropdown">
@@ -73,188 +88,38 @@
         <small>New here?<br></small> <a href="/register">Register</a>
       </div>
     </li>
-    {% endif %}
 
   </ul>
 </form>
 </nav>
 
 
-
-
-<!-- #################################### NAV ABOVE -->
-
-<!-- <div id="map" class="col-md-3"></div> -->
-
 <div class="container-fluid">
-  <div class="row">
-
-  <div id="map-container" class="fixed col-md-3">
-    <div id="map" class="col-md-3"></div>
+ <!--  <div class="row">
+    <div class="col-md-2" style="border: 2px solid black;"></div>
+    <div class="col-md-3" style="border: 2px solid red;"></div>
+    <div class="col-md-2" style="border: 2px solid black;"></div>
+    <div class="col-md-2" style="border: 2px solid red;"></div>
+    <div class="col-md-2" style="border: 2px solid black;"></div>
+    <div class="col-md-1" style="border: 2px solid red;"></div>
   </div>
+  <div class="row"> -->
 
-  <div class="col-md-3"></div>
+    <div class="col-md-7"></div>
 
-
-<!-- ######################### -->
-
-    <div class="col-md-3" id="tag-div-1">
-
-<!-- ADD NEW TAG CARD -->
-
-      <div class="card card-inverse" style="background-color: #333; border-color: #333;">
-        <div class="card-block">
-          <h3 class="card-title">Tag something</h3>
-          <p class="card-text">Share your thoughts, stories, knowledge. Make your mark on the city.</p>
-          <p class="subtext">Add your location to the map and...</p>
-          <button class="btn btn-success-outline" style="color: white;" data-toggle="modal" data-target="#myModal">Tag it!</button>
-
-        </div>
-      </div>
-
-
-<!-- INSERT NEW TAG DIV -->
-      <div id="new-tag"></div>
-
-
-<!-- HIGHLIGHTED TAG CARD -->
-<!-- 
-      <div class="card card-inverse">
-        <img class="card-img" src="/static/testimg.jpg" alt="Card image" style="width: 100%;">
-        <div class="card-img-overlay" style="background-color: rgba(51,51,51,0.7);" data-toggle="collapse" data-target="#overlayCollapse1" id="hovercard1">
-          <h4 class="card-title">Os gemeos mural</h4>
-          <p class="card-text">This is a mural painted by some brazilian brothers. It makes...</p>
-          <p class="card-text"><small>Last updated 3 mins ago</small></p>
-        </div>
-        <div data-toggle="collapse" id="overlayCollapse1" class="collapse" aria-expanded="false">
-          <ul class="list-group list-group-flush drop-text">
-            <li class="list-group-item">
-              <div>This is a mural painted by some brazilian brothers. It makes SF not quite as dreary.</div>
-            </li>
-            <li class="list-group-item">
-              <img src="/static/testimg2.jpg" alt="image thumbnail" title="Click to view" hspace="2" class="thumb1"/> 
-              <img src="/static/testimg.jpg" alt="image thumbnail" title="Click to view" hspace="2" class="thumb1"/>
-            </li>
-            <li class="list-group-item">
-              <div class="input-group input-group-lg">
-                <input type="text" class="form-control" placeholder="Say something..." aria-describedby="basic-addon1">
-              <i class="fa fa-microphone" aria-hidden="true"></i>
-              <i class="fa fa-picture-o" aria-hidden="true"></i>
-              <i class="fa fa-video-camera" aria-hidden="true"></i>
-              </div>
-            </li>
-            <li class="list-group-item">
-              <div class="media">
-                <div class="media-left">
-                  <a href="#">
-                    <img class="media-object" src="/static/placeholder_avatar.jpg" alt="user-avatar">
-                  </a>
-                </div>
-                <div class="media-body">
-                  <b>drewf</b><span class="card-text"><small class="text-muted">  March 19, 2016</small></span><br>
-                  Here is a comment
-                </div>
-              </div>
-            </li>
-            <li class="list-group-item">
-              <div class="media">
-                <div class="media-left">
-                  <a href="#">
-                    <img class="media-object" src="/static/placeholder_avatar.jpg" alt="user-avatar">
-                  </a>
-                </div>
-                <div class="media-body">
-                  <b>sflvr</b><span class="card-text"><small class="text-muted">  March 12, 2016</small></span><br>
-                  I have something to say too
-                </div>
-              </div>
-            </li>
-            <li class="list-group-item">
-              <div class="media">
-                <div class="media-left">
-                  <a href="#">
-                    <img class="media-object" src="/static/placeholder_avatar.jpg" alt="user-avatar">
-                  </a>
-                </div>
-                <div class="media-body">
-                  <b>username</b><span class="card-text"><small class="text-muted">  March 1, 2016</small></span><br>
-                  Here is the first comment
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-      </div> -->
-    </div> <!-- column end -->
-
-<!-- QUERIED TAG COLUMN 2 -->
-
-    <div class="col-md-3" id="tag-div-2">
-
-    </div> <!-- close second column -->
-
-
-<!-- THIRD TAG COLUMN -->
-
-    <div class="col-md-3" id="tag-div-3">
-
-    </div> <!-- end column -->
-
-</div>   <!--  end row -->
-
-
-<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        <h4 class="modal-title" id="myModalLabel">Add a tag</h4>
-      </div>
-      <div class="modal-body">
-      <form class="form" role="form" id="add-tag-form">
-         
-        <input type="text" class="form-control" name="add-title" placeholder="Title" style="margin-bottom: 4px;" id="add-title"/>
-        <input type="text" class="form-control" name="add-artist" placeholder="Creator" style="margin-bottom: 4px;" id="add-artist"/>
-        <fieldset class="form-group" style="margin-top: 0px;">
-          <label for="exampleTextarea"></label>
-          <textarea class="form-control" id="add-details" placeholder="Details" rows="3"></textarea>
-        </fieldset>
-
-        <span id="audioSpace"><label for="audio"><span class="btn btn-default"><i class="fa fa-microphone" aria-hidden="true"></i></span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="audio"></span>
-
-        <span id="imageSpace"><label for="image"><span class="btn btn-default"><i class="fa fa-picture-o" aria-hidden="true"></i></span></label><input type="file" style="visibility: hidden; position: absolute;" accept="image/*;capture=camcorder" id="image"></span>
-        
-        <span id="videoSpace"><label for="video"><span class="btn btn-default"><i class="fa fa-video-camera" aria-hidden="true"></i></span></label><input type="file" style="visibility: hidden; position: absolute;" accept="video/*;capture=camcorder" id="video"></span><br>
-
-        <div class="btn-group" data-toggle="buttons"> 
-
-          {% for genre in genres %}
-
-          <label class="btn btn-secondary genre">
-              <input type="checkbox" name="genres" id="{{genre.genre}}" value="{{genre.genre}}">{{genre.genre}}
-          </label>
-
-          {%endfor%}
-
-          <input type="hidden" id="image_url">
-          <input type="hidden" id="audio_url">
-          <input type="hidden" id="video_url">
-
-        <!-- </form> -->
-        </div>
-
-      <div class="modal-footer">
-        <button type="button" class="btn btn-success" id="submit-tag">Tag it</button>
-        <!-- <button type="button" class="btn btn-success" data-dismiss="modal" id="submit-tag">Tag it</button> -->
-      </div>
-    </form>
+    <div class="col-md-3 for-title"> 
+      <p class="header"><span id="title-spacing">Tag</span><br>line</p>
+      <p>some descriptive text about the site</p>
+      <a type="button" class="btn btn-success btn-lg btn-block" href="/">Enter</a>
     </div>
+
+    <!-- <div class="col-md-1" i></div>  -->
+
   </div>
-</div>
-        
+
+
+</div>  
+
 
 
 
@@ -272,9 +137,10 @@ $('#login-button').click(function(){
     }
     console.log(currentUser)}
   )})
+
+
+
 </script>
-
-
 
 
 {% endblock %}

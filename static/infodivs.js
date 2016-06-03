@@ -16,10 +16,9 @@ function assignMarkers(tags){
   $('#tag-div-1').html(
                   '<div class="card card-inverse" style="background-color: #333; border-color: #333;">' +
                   '<div class="card-block">' +
-                  '<p class="card-title" style="font-family:BlowBrush; font-size:100px; line-height: 78%; letter-spacing: 2px; ">TAg some-<br>thing:</p>' +
-                  // '<h3 class="card-title">Tag something</h3>' +
+                  '<p class="card-title" style="font-family:BlowBrush; font-size:100px; line-height: 78%; letter-spacing: 2px;" >TAg some-<br>thing:</p>' +
                   '<p class="card-text">Share your thoughts, stories, knowledge. Make your mark on the city.</p>' +
-                  '<p class="subtext">Add your location to the map and...</p>' +
+                  '<p class="subtext small-text">Add your location to the map and...</p>' +
                   '<button class="btn btn-success-outline" style="color: white;" data-toggle="modal" data-target="#myModal">Tag it!</button>' +
                   '</div>' +
                   '</div>'
@@ -87,7 +86,7 @@ function createDisplayBase(tag){
   if (tag.primaryImage) {
     infoDiv += '<img class="card-img" src="'+tag.primaryImage+'" alt="Card image" style="width: 100%;">' +
                '<div class="card-img-overlay" style="background-color: rgba(51,51,51,0.4);" data-toggle="collapse" data-target="#'+tag.tagId+'" id="img-toggle-'+tag.tagId+'">' +
-               // '<div class="card-img-overlay" style="background-color: rgba(255,255,255,0.2);" data-toggle="collapse" data-target="#'+tag.tagId+'" id="img-toggle-'+tag.tagId+'">' +
+               // '<div class="card-img-overlay" style="background-color: rgba(255,255,255,0.4);" data-toggle="collapse" data-target="#'+tag.tagId+'" id="img-toggle-'+tag.tagId+'">' +
                '<h4 class="card-title">'+tag.title+'</h4>' +
                '<p class="card-text">'+tag.excerpt+'</p>' + 
                // '<p class="card-text"><small>Last updated'+tag.recent_comment_time+'</small></p>' +
@@ -167,13 +166,15 @@ function addCommentsToDiv(tag) {
     for (var i = (comments.length - 1); i >=0; i--){
       for (var key in comments[i]){
         comment = comments[i][key]
-      } commentsList += '<li class="nav-item list-group-item">' +
+      } commentsList += '<li class="list-group-item comment-list">' +
                         '<div class="media">' +
                         '<div class="media-left">' + 
                         // '<a href="#"><img class="media-object" src="'+comment.avatar+'" alt="user-avatar"></a>' +
                         '</div>' +
                         '<div class="media-body">' +
-                        '<b>'+ comment.username +'</b><span class="card-text"><small class="text-muted">  '+comment.time+'</small></span><br>' + comment.content + 
+                        // '<b>'+ comment.username +'</b><span class="card-text"><small class="text-muted">  '+comment.time+
+                        comment.username +'<span class="card-text"><small class="text-muted">  '+comment.time+
+                        '</small></span><br><span class="small-text">'+comment.content+'</span>' + 
                         '</div>' +
                         '</div>' +
                         '</li>'
@@ -234,7 +235,8 @@ function updateCommentsList(newComment){
             // '<a href="#"><img class="media-object" src="'+newComment.avatar+'" alt="user-avatar"></a>' +
             '</div>' +
             '<div class="media-body">' +
-            '<b>'+ newComment.username +'</b><span class="card-text"><small class="text-muted">  '+newComment.time+'</small></span><br>' + newComment.content + 
+            '<b>'+ newComment.username +'</b><span class="card-text"><small class="text-muted">  '+
+            newComment.time+'</small></span><br><span class="small-text">'+newComment.content+'</span>' + 
             '</div>' +
             '</div>' +
             '</li>'
@@ -263,9 +265,9 @@ function submitTag(lat, lng){
         newTagMarker = createMarker(newMarkersArray[0].position, 
                                     {path: fontawesome.markers.CIRCLE,
                                       scale: 0.5,
-                                      strokeColor:'#0099cc',
+                                      strokeColor:'#e65c00',
                                       strokeOpacity: 0.5,
-                                      fillColor: '#0099cc',
+                                      fillColor: '#e65c00',
                                       fillOpacity: 0.5
                                     },  
                                     newTag.title) 
@@ -279,7 +281,5 @@ function submitTag(lat, lng){
   });
 }
 
-
-// $('#img-toggle-'+tag.tagId).toggleClass('hidden-overlay');
 
 

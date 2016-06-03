@@ -17,7 +17,7 @@
 
 
 <nav class="navbar navbar-light navbar-fixed-top">
-  <a class="navbar-brand" style="margin-top:15px;"href="/">Tagline</a>
+  <a class="navbar-brand" href="/"><img class="navbar-brand" src="/static/logo.png"></a>
 
   <form class="form-inline" id="nav-form">
     <input class="form-control" type="text" placeholder="Origin" id="origin">
@@ -177,6 +177,16 @@ $('#login-button').click(function(){
     }
     console.log(currentUser)}
   )})
+
+
+
+
+
+$(function() {
+    while( $('#fitin-div').height() > $('#fitin').height() ) {
+        $('#fitin-div').css('font-size', (parseInt($('#fitin-div').css('font-size')) - 1) + "px" );
+    }
+});
 </script>
 
 

@@ -70,7 +70,7 @@ function initMap() {
       // v|v|v|v|v|v|v|v| SHOW NEARBY POINTS UPON LOAD v|v|v|v|v|v|v|v|v|v|v|v|
       google.maps.event.addListenerOnce(map, 'idle', function(){
         // delay this function so the map has time to load before getting bounds
-        // shorten timeout but run again if still null after timeout. maybe want to change this into a named function. also define var for getbounds
+        // shorten timeout but run again if still null after timeout. 
         setTimeout(function(){
           data = {
             'minLat' : map.getBounds().H['H'],

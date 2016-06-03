@@ -13,7 +13,9 @@ from flask_debugtoolbar import DebugToolbarExtension
 
 from model import Tag, User, Comment, Media, Genre, TagGenre, UserGenre, connect_to_db, db
 
-from route import api_key, find_landmarks, find_route_coordinates, find_bounding_box, query_landmarks
+from route import api_key, find_tags_on_route, find_route_coordinates, find_bounding_box, query_tags
+
+import utils
 
 
 app = Flask(__name__)
@@ -25,12 +27,12 @@ app.secret_key = "ABC"
 app.jinja_env.undefined = StrictUndefined
 
 
-# @app.route('/test')
-# def test():
-#     """page for trying out html in browser."""
+@app.route('/test')
+def test():
+    """Homepage. Allows user to search for desired route."""
 
-#     return render_template("test.html")
 
+    return render_template("test.html")
 
 
 @app.route('/')
@@ -38,16 +40,9 @@ def index():
     """Homepage. Allows user to search for desired route."""
 
     user_id = session.get("user") 
+    user = utils.toggle_login(user_id)
 
-    if user_id:
-        user = User.query.filter_by(user_id = user_id).first()
-        name = user.name
-    else:
-        name = False
-
-    genres = Genre.query.all()
-
-    return render_template("homepage.html", name=name, genres=genres)
+    return render_template("homepage.html", name=user, genres=Genre.query.all())
 
 
 
@@ -60,31 +55,15 @@ def nearby_tags():
     max_lat = request.form.get('maxLat');
     max_lng = request.form.get('maxLng');
 
-    # if logged in, show the user tags according to preference, else show them everything
+    query_results = Tag.query.filter(Tag.latitude >= min_lat, 
+                                Tag.latitude <= max_lat,
+                                Tag.longitude >= min_lng,
+                                Tag.longitude <= max_lng).all()
+
     user_id = session.get("user") 
-
-    if user_id:
-        user_genres = UserGenre.query.filter(UserGenre.user_id == user_id).all() #get objects for all user-genre pairs in db
-        genres_list = [user_genre.genre for user_genre in user_genres] #get list of genre ids
-
-        all_found_tags = Tag.query.filter(Tag.latitude >= min_lat, 
-                                    Tag.latitude <= max_lat,
-                                    Tag.longitude >= min_lng,
-                                    Tag.longitude <= max_lng).all()
-
-        # this list comprehension works but does not seem as efficient as possible
-        queried_tags = [tag for tag in all_found_tags if (set([genre.genre for genre in tag.genres]) & set(genres_list))]
-
-    else:
-        queried_tags = Tag.query.filter(Tag.latitude >= min_lat, 
-                                    Tag.latitude <= max_lat,
-                                    Tag.longitude >= min_lng,
-                                    Tag.longitude <= max_lng).all()
-
-    tag_dict = map_tag_details(queried_tags)
+    tag_dict = utils.find_tags_for_user(user_id, query_results)
     
     return jsonify(tag_dict)
-
 
 
 @app.route('/tags.json', methods=["GET", "POST"])
@@ -94,9 +73,9 @@ def tags():
     origin = request.form.get('origin')
     destination = request.form.get('destination')
 
-    queried_tags = find_landmarks(origin, destination)
+    queried_tags = find_tags_on_route(origin, destination)
 
-    tags = map_tag_details(queried_tags)
+    tags = utils.map_tag_details(queried_tags)
 
     return jsonify(tags)
 
@@ -106,51 +85,23 @@ def add_comment():
     """Add user's comment to db and update current page."""
 
     content = request.form.get('comment')
-    print '************************', content
     tag_id = request.form.get('tagId')
-    print '************************', tag_id
+
     user_id = session.get("user")
 
-    if user_id:
+    newComment = utils.process_user_comment(tag_id, user_id, content)
 
-        comment = add_comment_to_db(tag_id, user_id, content)
-
-        newComment = {
-            "tagId": comment.tag.tag_id,
-            "username": comment.user.username,
-            "avatar":comment.user.avatar,
-            "content": comment.content,
-            "time": comment.logged_at.strftime("%b %d %Y")
-        }
-        return jsonify(newComment)
-    else:
-        newComment = {"comment": "Not logged in."}
-        return jsonify(newComment)
+    return jsonify(newComment)
 
 
 
 @app.route('/sign.json', methods=["POST"])
 def sign_s3():
-  """Generate a 'presigned post' to allow media upload to Amazon S3"""
+    """Generate a 'presigned post' to allow media upload to Amazon S3"""
+    
+    post_info = utils.get_signed_post()
 
-  S3_BUCKET ='tag-media'
-  file_name = request.form.get('file_name')
-  file_type = request.form.get('file_type')
-
-  s3 = boto3.client('s3')
-
-  presigned_post = s3.generate_presigned_post(
-    Bucket = S3_BUCKET,
-    Key = file_name,
-    Fields = {"acl": "public-read", "Content-Type": file_type},
-    Conditions = [{"acl": "public-read"},{"Content-Type": file_type}],
-    ExpiresIn = 3600
-  )
-  post_info = {'data': presigned_post,
-               'url': 'https://{}.s3.amazonaws.com/{}'.format(S3_BUCKET, file_name)
-               }
-
-  return jsonify(post_info)
+    return jsonify(post_info)
 
 
 
@@ -163,7 +114,6 @@ def handle_add_tag():
     title=request.form.get('title'),
     artist=request.form.get('artist'),
     details=request.form.get('details'),
-    # media_url=request.form.get('media_url')
     audio_url=request.form.get('audio_url')
     primary_image=request.form.get('primary_image')
     video_url=request.form.get('video_url')
@@ -173,15 +123,14 @@ def handle_add_tag():
 
     if audio_url:
         add_media_to_db(tag.tag_id,audio_url,"audio")
-    # if image_url:
-    #     add_media_to_db(tag.tag_id,image_url,"image")
+
     if video_url:
         add_media_to_db(tag.tag_id,video_url,"video")
 
     genres = genres.split(',')
     add_genres_to_db(tag.tag_id, genres)
 
-    newTag = {
+    new_tag = {
         "tagId": tag.tag_id,
         "latitude": tag.latitude,
         "longitude": tag.longitude,
@@ -193,18 +142,9 @@ def handle_add_tag():
         "media": [{media.media_id : {"media_type":media.media_type,
                                      "url":media.media_url}} for media in tag.medias]
     }
-
-    # newTag = {
-    #         "tagId": tag.tag_id,
-    #         "title": tag.title,
-    #         "artist": tag.artist,
-    #         "details": tag.details,
-    #         "primaryImage": tag.primary_image,
-    #         "media": [{media.media_id : {"media_type":media.media_type,
-    #                                  "url":media.media_url}} for media in tag.medias]
-    # }
     
-    return jsonify(newTag)
+    return jsonify(new_tag)
+
 
 
 
@@ -217,17 +157,8 @@ def handle_login():
 
     user = User.query.filter(User.username == username).first()
 
-    if user:
-        if password == user.password:
-            session['user'] = user.user_id
-            currentUser = {"name": user.name}
-            return jsonify(currentUser)
-        else:
-            currentUser = {"name": "not recognized"}
-            return jsonify(currentUser)
-    else:
-        currentUser = {"name": "not recognized"}
-        return jsonify(currentUser)
+    currentUser = utils.process_login(user, password)
+    return jsonify(currentUser)
 
 
 
@@ -235,9 +166,7 @@ def handle_login():
 def register():
     """Show registration form for user."""
 
-    genres = Genre.query.all()
-
-    return render_template("register.html", genres=genres)
+    return render_template("register.html", genres=Genre.query.all())
 
 
 
@@ -251,101 +180,91 @@ def handle_registration():
     genres = request.form.getlist('genres')
     avatar = request.form.get('image_url')
 
-    new_user = User(name=name, username=username, password=password, avatar=avatar)
-
-    db.session.add(new_user)
-    db.session.commit()
-
-    session['user'] = new_user.user_id
-
-    for genre in genres:
-        user_genre = UserGenre(user_id=new_user.user_id, genre=genre)
-        db.session.add(user_genre)
-    db.session.commit()
+    utils.register_user(name, username, password, genres, avatar)
 
     return redirect('/')
+
+
 
 ##################### HELPER FUNCTIONS #############################
 
 
-def map_tag_details(queried_tags):
-    """Create dictionary of tag info to pass to client as json"""
+# def map_tag_details(queried_tags):
+#     """Create dictionary of tag info to pass to client as json"""
 
-    tags = {
-        tag.tag_id: {
-        "tagId": tag.tag_id,
-        "latitude": tag.latitude,
-        "longitude": tag.longitude,
-        "title": tag.title,
-        "excerpt": ' '.join(tag.details.split()[:15]) + '...',
-        "artist": tag.artist,
-        "details": tag.details,
-        "primaryImage": tag.primary_image,
-        "media": [{media.media_id : {"media_type":media.media_type,
-                                     "url":media.media_url}} for media in tag.medias],
-        "comments": [{comment.comment_id : {"username":comment.user.username, 
-                                            "avatar":comment.user.avatar,
-                                            "time":comment.logged_at.strftime("%b %d %Y"), 
-                                            "content":comment.content}} for comment in tag.comments]
+#     tags = {
+#         tag.tag_id: {
+#         "tagId": tag.tag_id,
+#         "latitude": tag.latitude,
+#         "longitude": tag.longitude,
+#         "title": tag.title,
+#         "excerpt": ' '.join(tag.details.split()[:15]) + '...',
+#         "artist": tag.artist,
+#         "details": tag.details,
+#         "primaryImage": tag.primary_image,
+#         "media": [{media.media_id : {"media_type":media.media_type,
+#                                      "url":media.media_url}} for media in tag.medias],
+#         "comments": [{comment.comment_id : {"username":comment.user.username, 
+#                                             "avatar":comment.user.avatar,
+#                                             "time":comment.logged_at.strftime("%b %d %Y"), 
+#                                             "content":comment.content}} for comment in tag.comments]
         
-        } for tag in queried_tags
-    }
-    return tags
+#         } for tag in queried_tags
+#     }
+#     return tags
 
 
 
-def add_comment_to_db(tag_id, user_id, content):
-    """Update database with new comment"""
+# def add_comment_to_db(tag_id, user_id, content):
+#     """Update database with new comment"""
 
-    comment = Comment(tag_id=tag_id,
-                          user_id=user_id,
-                          content=content)
-    db.session.add(comment)
-    db.session.commit()
+#     comment = Comment(tag_id=tag_id,
+#                           user_id=user_id,
+#                           content=content)
+#     db.session.add(comment)
+#     db.session.commit()
 
-    return comment
+#     return comment
 
 
-def add_tag_to_db(latitude,longitude,title,artist,details,primary_image):
-    """Update database with new tag"""
+# def add_tag_to_db(latitude,longitude,title,artist,details,primary_image):
+#     """Update database with new tag"""
 
-    print '************ entered server add tag'
+#     tag = Tag(latitude=latitude,
+#                     longitude=longitude,
+#                     title=title,
+#                     artist=artist,
+#                     details=details,
+#                     primary_image=primary_image
+#                 )
 
-    tag = Tag(latitude=latitude,
-                    longitude=longitude,
-                    title=title,
-                    artist=artist,
-                    details=details,
-                    primary_image=primary_image
-                )
+#     db.session.add(tag)
+#     db.session.commit()
 
-    db.session.add(tag)
-    db.session.commit()
-
-    return tag
+#     return tag
 
 
 
-def add_media_to_db(tag_id,media_url,media_type):
-    """Update database with new media info for tag.
-    One tag may have multiple media files"""
+# def add_media_to_db(tag_id,media_url,media_type):
+#     """Update database with new media info for tag.
+#     One tag may have multiple media files"""
 
-    media = Media(tag_id=tag_id,
-                  media_url=media_url,
-                  media_type=media_type)
+#     media = Media(tag_id=tag_id,
+#                   media_url=media_url,
+#                   media_type=media_type)
 
-    db.session.add(media)
-    db.session.commit()
+#     db.session.add(media)
+#     db.session.commit()
 
 
-def add_genres_to_db(tag_id, genres):
-    """Update database with genre information.
-    One tag may have mulitple genres."""
+# def add_genres_to_db(tag_id, genres):
+#     """Update database with genre information.
+#     One tag may have mulitple genres."""
 
-    for genre in genres[:-1]:
-        tag_genre = TagGenre(tag_id=tag_id, genre=genre)
-        db.session.add(tag_genre)
-    db.session.commit()
+#     for genre in genres[:-1]:
+#         tag_genre = TagGenre(tag_id=tag_id, genre=genre)
+#         db.session.add(tag_genre)
+#     db.session.commit()
 
 
 
