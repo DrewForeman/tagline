@@ -13,8 +13,10 @@ from flask_debugtoolbar import DebugToolbarExtension
 
 from model import Tag, User, Comment, Media, Genre, TagGenre, UserGenre, connect_to_db, db
 
+# from modules.route import api_key, find_tags_on_route, find_route_coordinates, find_bounding_box, query_tags
 from route import api_key, find_tags_on_route, find_route_coordinates, find_bounding_box, query_tags
 
+# import modules.utils
 import utils
 
 
@@ -185,86 +187,6 @@ def handle_registration():
     return redirect('/')
 
 
-
-##################### HELPER FUNCTIONS #############################
-
-
-# def map_tag_details(queried_tags):
-#     """Create dictionary of tag info to pass to client as json"""
-
-#     tags = {
-#         tag.tag_id: {
-#         "tagId": tag.tag_id,
-#         "latitude": tag.latitude,
-#         "longitude": tag.longitude,
-#         "title": tag.title,
-#         "excerpt": ' '.join(tag.details.split()[:15]) + '...',
-#         "artist": tag.artist,
-#         "details": tag.details,
-#         "primaryImage": tag.primary_image,
-#         "media": [{media.media_id : {"media_type":media.media_type,
-#                                      "url":media.media_url}} for media in tag.medias],
-#         "comments": [{comment.comment_id : {"username":comment.user.username, 
-#                                             "avatar":comment.user.avatar,
-#                                             "time":comment.logged_at.strftime("%b %d %Y"), 
-#                                             "content":comment.content}} for comment in tag.comments]
-        
-#         } for tag in queried_tags
-#     }
-#     return tags
-
-
-
-# def add_comment_to_db(tag_id, user_id, content):
-#     """Update database with new comment"""
-
-#     comment = Comment(tag_id=tag_id,
-#                           user_id=user_id,
-#                           content=content)
-#     db.session.add(comment)
-#     db.session.commit()
-
-#     return comment
-
-
-# def add_tag_to_db(latitude,longitude,title,artist,details,primary_image):
-#     """Update database with new tag"""
-
-#     tag = Tag(latitude=latitude,
-#                     longitude=longitude,
-#                     title=title,
-#                     artist=artist,
-#                     details=details,
-#                     primary_image=primary_image
-#                 )
-
-#     db.session.add(tag)
-#     db.session.commit()
-
-#     return tag
-
-
-
-# def add_media_to_db(tag_id,media_url,media_type):
-#     """Update database with new media info for tag.
-#     One tag may have multiple media files"""
-
-#     media = Media(tag_id=tag_id,
-#                   media_url=media_url,
-#                   media_type=media_type)
-
-#     db.session.add(media)
-#     db.session.commit()
-
-
-# def add_genres_to_db(tag_id, genres):
-#     """Update database with genre information.
-#     One tag may have mulitple genres."""
-
-#     for genre in genres[:-1]:
-#         tag_genre = TagGenre(tag_id=tag_id, genre=genre)
-#         db.session.add(tag_genre)
-#     db.session.commit()
 
 
 

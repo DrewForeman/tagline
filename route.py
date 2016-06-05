@@ -101,7 +101,7 @@ def query_tags(bboxes):
                                         Tag.latitude <= max_lat,
                                         Tag.longitude >= min_lng,
                                         # Tag.longitude <= max_lng).order_by(Tag.comments.logged_at).all()
-                                        Tag.longitude <= max_lng).order_by(Tag.tag_id.desc()).all()
+                                        Tag.longitude <= max_lng).order_by(Tag.tag_id.desc()).limit(4).all()
                                         # Tag.longitude <= max_lng).limit(1).all()
 
 

@@ -105,7 +105,7 @@ def map_tag_details(queried_tags):
         "latitude": tag.latitude,
         "longitude": tag.longitude,
         "title": tag.title,
-        "excerpt": ' '.join(tag.details.split()[:15]) + '...',
+        "excerpt": ' '.join(tag.details.split()[:8]) + '...',
         "artist": tag.artist,
         "details": tag.details,
         "primaryImage": tag.primary_image,

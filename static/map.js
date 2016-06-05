@@ -68,28 +68,23 @@ function initMap() {
       });
 
       // v|v|v|v|v|v|v|v| SHOW NEARBY POINTS UPON LOAD v|v|v|v|v|v|v|v|v|v|v|v|
-      google.maps.event.addListenerOnce(map, 'idle', function(){
+      google.maps.event.addListenerOnce(map, 'tilesloaded', function(){
         // delay this function so the map has time to load before getting bounds
         // shorten timeout but run again if still null after timeout. 
-        setTimeout(function(){
-          data = {
+          var data = {
             'minLat' : map.getBounds().H['H'],
             'minLng' : map.getBounds().j['j'],
             'maxLat' : map.getBounds().H['j'],
             'maxLng' : map.getBounds().j['H'],
-          }
+          };
           
           $.post('/tags-geolocation.json', data, function(nearby_tags) {
             displayTags(nearby_tags);
             $('.post-button').click(submitComment);
             $('div.card-img-overlay').click(function(){
               $(this).toggleClass('hidden-overlay');
-            })
-
-
+            });
           });
-
-        },3000);
       });
   } else {
       // Browser doesn't support Geolocation

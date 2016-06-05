@@ -5,9 +5,10 @@ html, body {
 
 .navbar{
   background-color: white;
+  /*background-color: #ff8000;*/
   /*background-color: black;*/
   opacity: 0.9;
-  height: 140px;
+  height: 130px;
   padding-top: 3px;
 }
 
@@ -21,7 +22,7 @@ html, body {
 }
 
 
-textarea:-webkit-autofill {
+/*textarea:-webkit-autofill {
     background-color: rgb(255, 255, 255);
     background-image: none;
     color: rgb(0, 0, 0);
@@ -31,7 +32,7 @@ input:-webkit-autofill {
     background-color: white;
     background-image: none;
     color: rgb(0, 0, 0);
-}
+}*/
 
 .fixed {
   position: fixed;
@@ -40,19 +41,14 @@ input:-webkit-autofill {
 
 #map-container{
   height:80%;
+  padding-right:6px;
 }
 
 #map {
     height: 100%;
     width: 88%;
     top: 60;
-    position:absolute;
-    /*top: 60;*/
-    /*z-index: 999;*/
-    /*left: 10;*/
-
     margin-bottom: 10px;
-
 }
 
 
@@ -79,7 +75,16 @@ body {
   box-shadow: none;
 }
 
+.btn-success-outline:focus {
+  background-color: #29a3a3;
+}
+
 .btn-success {
+  border-color: #29a3a3;
+  background-color: #29a3a3;
+}
+
+.btn-success:focus {
   border-color: #29a3a3;
   background-color: #29a3a3;
 }
@@ -110,8 +115,7 @@ body {
   border-radius:0px;
 }
 
-
-.col-md-3{
+.col-sm-12, .col-md-4, .col-lg-3{
   padding: 0;
 }
 
@@ -143,12 +147,21 @@ body {
   margin-bottom: 8px;
 }
 
+a {
+  color:#e65c00;
+}
+
+a:hover{
+  color:#bf4c00;
+}
+
 .subtext {
   color: white;
 }
 
 .small-text {
-  font-family: 'Open Sans', sans-serif;
+  font-family: 'Fira Sans', sans-serif;
+  /*font-family: 'Open Sans', sans-serif;*/
   font-weight: 300;
   font-size: 13px;
 }
@@ -184,5 +197,56 @@ height: 64px;
 
 .hidden-overlay{
   opacity: 0.0;
+}
+
+.for-title{
+  padding-top:90px;
+  padding-left:50px;
+}
+
+
+@media (max-width: 768px) {
+    .container-fluid {
+      padding:0;
+      margin:0;
+    }
+
+    body {
+      padding-top:140px;
+      margin: 0;
+    }
+
+    .fixed {
+      position: relative;
+    }
+
+    #map-container{
+      margin-top: 6px;
+      margin-bottom: 6px;
+      height:200px;
+      width:100%;
+    }
+
+    #map {
+        height: 200px;
+        width:100%;
+
+        margin-bottom: 10px;
+    }
+
+    .search{
+      width:70%;
+    }
+
+    .for-title{
+      padding-top:50px;
+      padding-left:20px;
+      padding-right:20px;
+    }
+
+    .card{
+      width:100%;
+      margin-left: 0px;
+    }
 }
 

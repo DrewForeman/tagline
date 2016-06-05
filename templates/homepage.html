@@ -17,26 +17,13 @@
 
 
 <nav class="navbar navbar-light navbar-fixed-top">
-  <a class="navbar-brand" href="/"><img class="navbar-brand" src="/static/logo.png"></a>
+  <a class="navbar-brand" href="/"><img class="navbar-brand" src="/static/img/logo.png"></a>
 
   <form class="form-inline" id="nav-form">
-    <input class="form-control" type="text" placeholder="Origin" id="origin">
-    <input class="form-control" type="text" placeholder="Destination" id="destination">
+    <input class="form-control search" type="text" placeholder="Origin" id="origin">
+    <input class="form-control search" type="text" placeholder="Destination" id="destination">
     <button class="btn btn-success-outline" type="button" id="get-route">Go</button>
-  <!-- </form> -->
-<!-- !!!!!!!!buttons for pagination here!!!!!! -->
-<!--     <div class="btn-group" data-toggle="buttons">
-      <label class="btn btn-secondary active" style="margin-bottom:0px;">
-        <input type="radio" name="pages" id="page1" autocomplete="off" checked>1
-      </label>
-      <label class="btn btn-secondary" style="margin-bottom:0px;">
-        <input type="radio" name="pages" id="page2" autocomplete="off">2
-      </label>
-      <label class="btn btn-secondary" style="margin-bottom:0px;">
-        <input type="radio" name="pages" id="page3" autocomplete="off">3
-      </label>
-    </div>
- -->
+
     <ul class="nav navbar-nav pull-xs-right" id="login-tog">
 
     {% if name %}
@@ -79,35 +66,60 @@
 </form>
 </nav>
 
+<!-- col-md-4 col-lg-3 -->
 
+<div class="container-fluid">
+  <div class="row">
+
+  <div id="map-container" class="fixed col-sm-12 col-md-4 col-lg-3">
+    <div id="map" class="col-sm-12 col-md-4 col-lg-3"></div>
+  </div>
+
+  <div class="col-sm-12 col-md-4 col-lg-3"></div>
+
+
+<!-- NEW TAG & QUERIED TAG COLUMN 1 -->
+
+    <div class="col-sm-12 col-md-4 col-lg-3" id="tag-div-1"></div>
+
+<!-- QUERIED TAG COLUMN 2 -->
+
+    <div class="col-sm-12 col-md-4 col-lg-3" id="tag-div-2"></div> 
+
+
+<!-- THIRD TAG COLUMN -->
+
+    <div class="col-sm-12 col-md-4 col-lg-3" id="tag-div-3"></div> 
+
+</div> 
 
 
 <!-- MAP CONTAINER AND OFFSET -->
 
-<div class="container-fluid">
+<!-- <div class="container-fluid">
   <div class="row">
 
   <div id="map-container" class="fixed col-md-3">
     <div id="map" class="col-md-3"></div>
   </div>
 
-  <div class="col-md-3"></div>
+  <div class="col-md-3"></div> -->
 
 
 <!-- NEW TAG & QUERIED TAG COLUMN 1 -->
 
-    <div class="col-md-3" id="tag-div-1"></div>
+<!--     <div class="col-md-3" id="tag-div-1"></div> -->
 
 <!-- QUERIED TAG COLUMN 2 -->
 
-    <div class="col-md-3" id="tag-div-2"></div> 
+<!--     <div class="col-md-3" id="tag-div-2"></div>  -->
 
 
 <!-- THIRD TAG COLUMN -->
 
-    <div class="col-md-3" id="tag-div-3"></div> 
+<!--     <div class="col-md-3" id="tag-div-3"></div> 
 
-</div>  
+</div>   -->
 
 
 <!-- MODAL -->

@@ -83,20 +83,23 @@ function buildTagDisplayDiv(tag){
 /** Create basic image and title display that shows on load. */
 function createDisplayBase(tag){
   infoDiv = '<div class="card card-inverse">';
+  console.log(tag.comments[0])
   if (tag.primaryImage) {
     infoDiv += '<img class="card-img" src="'+tag.primaryImage+'" alt="Card image" style="width: 100%;">' +
-               '<div class="card-img-overlay" style="background-color: rgba(51,51,51,0.4);" data-toggle="collapse" data-target="#'+tag.tagId+'" id="img-toggle-'+tag.tagId+'">' +
+               '<div class="card-img-overlay" style="background-color: rgba(51,51,51,0.6);" data-toggle="collapse" data-target="#'+tag.tagId+'" id="img-toggle-'+tag.tagId+'">' +
                // '<div class="card-img-overlay" style="background-color: rgba(255,255,255,0.4);" data-toggle="collapse" data-target="#'+tag.tagId+'" id="img-toggle-'+tag.tagId+'">' +
                '<h4 class="card-title">'+tag.title+'</h4>' +
-               '<p class="card-text">'+tag.excerpt+'</p>' + 
-               // '<p class="card-text"><small>Last updated'+tag.recent_comment_time+'</small></p>' +
-               '</div>'
+               '<p class="card-text">'+tag.excerpt+'</p>' //+
   } else {
     infoDiv += '<div class="card-block" data-toggle="collapse" data-target="#'+tag.tagId+'" style="background-color: rgba(51,51,51,0.7);">' +
                '<h4 class="card-title">'+tag.title+'</h4>' +
-               '<p class="card-text">'+tag.excerpt+'</p>' +
-               '</div>'
+               '<p class="card-text">'+tag.excerpt+'</p>' //+
   }
+  if (tag.comments[0]) { 
+    var i = tag.comments.length - 1
+    infoDiv +='<p class="subtext small-text"><i>"'+tag.comments[i][Object.keys(tag.comments[i])].content+'"</i></p>'
+  }
+   infoDiv += '</div>'
 }
 
 /** Add tag media to div. Multiple media items are possible. */
@@ -108,13 +111,13 @@ function addMediaToDiv(tag){
       for (var key in media[i]){
         mediaObject = media[i][key]
       }
-      if (mediaObject.media_type === "image"){    //link not working
+      if (mediaObject.media_type === "image"){  
         infoDiv += '<a href="'+mediaObject.url+'" target="_blank">' +
                    '<img src="'+mediaObject.url+'" alt="img-thumbnail" title="Click to view" border="2" width="64" height="64" hspace="2" /></a>'
       } 
       else if (mediaObject.media_type === "audio"){
         infoDiv += '<audio style="width:100%; vertical-align: middle;" controls><source src="'+mediaObject.url+'">Your browser does not support the audio element.</audio>'
-      } else { //experiment to see how this lo
+      } else { 
         infoDiv += '<video width="100%" controls><source src="'+mediaObject.url+'" ></video>'
       }
     } infoDiv += '</li>'
@@ -169,7 +172,7 @@ function addCommentsToDiv(tag) {
       } commentsList += '<li class="list-group-item comment-list">' +
                         '<div class="media">' +
                         '<div class="media-left">' + 
-                        // '<a href="#"><img class="media-object" src="'+comment.avatar+'" alt="user-avatar"></a>' +
+                        '<a href="#"><img class="media-object img-circle" src="'+comment.avatar+'" alt="user-avatar"></a>' +
                         '</div>' +
                         '<div class="media-body">' +
                         // '<b>'+ comment.username +'</b><span class="card-text"><small class="text-muted">  '+comment.time+
@@ -232,7 +235,7 @@ function updateCommentsList(newComment){
             '<li class="list-group-item">' +
             '<div class="media">' +
             '<div class="media-left">' + 
-            // '<a href="#"><img class="media-object" src="'+newComment.avatar+'" alt="user-avatar"></a>' +
+            '<a href="#"><img class="media-object" src="'+newComment.avatar+'" alt="user-avatar"></a>' +
             '</div>' +
             '<div class="media-body">' +
             '<b>'+ newComment.username +'</b><span class="card-text"><small class="text-muted">  '+
