@@ -29,14 +29,15 @@ def find_tags_for_user(user_id, query_results):
     """If logged in, return tags that match user preferences. 
     Else return all tags for location."""
 
-    if user_id:
-        user_genres = UserGenre.query.filter(UserGenre.user_id == user_id).all() 
-        genres_list = [user_genre.genre for user_genre in user_genres] 
+    # if user_id:
+    #     user_genres = UserGenre.query.filter(UserGenre.user_id == user_id).all() 
+    #     genres_list = [user_genre.genre for user_genre in user_genres] 
 
-        tags = [tag for tag in query_results if (set([genre.genre for genre in tag.genres]) & set(genres_list))]
+    #     tags = [tag for tag in query_results if (set([genre.genre for genre in tag.genres]) & set(genres_list))]
 
-    else:
-        tags = query_results
+    # else:
+    #     tags = query_results
+    tags = query_results
 
     return map_tag_details(tags)
 

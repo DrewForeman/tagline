@@ -83,7 +83,6 @@ function buildTagDisplayDiv(tag){
 /** Create basic image and title display that shows on load. */
 function createDisplayBase(tag){
   infoDiv = '<div class="card card-inverse">';
-  console.log(tag.comments[0])
   if (tag.primaryImage) {
     infoDiv += '<img class="card-img" src="'+tag.primaryImage+'" alt="Card image" style="width: 100%;">' +
                '<div class="card-img-overlay" style="background-color: rgba(51,51,51,0.6);" data-toggle="collapse" data-target="#'+tag.tagId+'" id="img-toggle-'+tag.tagId+'">' +
@@ -95,7 +94,7 @@ function createDisplayBase(tag){
                '<h4 class="card-title">'+tag.title+'</h4>' +
                '<p class="card-text">'+tag.excerpt+'</p>' //+
   }
-  if (tag.comments[0]) { 
+  if (tag.comments[0]) {
     var i = tag.comments.length - 1
     infoDiv +='<p class="subtext small-text"><i>"'+tag.comments[i][Object.keys(tag.comments[i])].content+'"</i></p>'
   }
@@ -148,7 +147,7 @@ function addCommentsToDiv(tag) {
   // new comment form 
   infoDiv += '<li class="list-group-item" id="add-comment-'+tag.tagId+'">' +
              '<form class="form input-group input-group-lg" id="comment-form-'+tag.tagId+'">' +
-             '<input type="text" class="form-control" placeholder="Say something..." aria-describedby="basic-addon1" id="new-comment-'+tag.tagId+'">' +
+             '<input type="text" class="form-control" placeholder="Say something..."  id="new-comment-'+tag.tagId+'">' +
              // '<input type="file" id="file-'+tag.tagId+'" accept="image/*" >' +
              '<i class="fa fa-microphone" aria-hidden="true"></i>' +
              '<i class="fa fa-picture-o" aria-hidden="true"></i>' +
@@ -263,6 +262,7 @@ function submitTag(lat, lng){
               'video_url': $('#video_url').val(),
               'genres': getGenreVals().toString()
               }
+      console.log(data)
 
       $.post('/new-tag.json', data, function(newTag){ 
         newTagMarker = createMarker(newMarkersArray[0].position, 
@@ -277,10 +277,15 @@ function submitTag(lat, lng){
         clearClickMarker()
         buildTagDisplayDiv(newTag)
         bindMarkerInfo(newTagMarker, infoDiv, newTag, 0)
+        console.log('inside success function')
+        // $('#add-tag-form')[0].reset();
+        // $('#myModal').modal('hide');
+        // $('.genre').removeClass('active');
+      })
+        console.log('outside success function')
         $('#add-tag-form')[0].reset();
         $('#myModal').modal('hide');
         $('.genre').removeClass('active');
-      })
   });
 }
 

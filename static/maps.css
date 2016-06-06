@@ -22,18 +22,6 @@ html, body {
 }
 
 
-/*textarea:-webkit-autofill {
-    background-color: rgb(255, 255, 255);
-    background-image: none;
-    color: rgb(0, 0, 0);
-}
-
-input:-webkit-autofill {
-    background-color: white;
-    background-image: none;
-    color: rgb(0, 0, 0);
-}*/
-
 .fixed {
   position: fixed;
 
@@ -56,6 +44,14 @@ body {
   font-family: 'Arvo', serif;
   padding-top: 140px;
   /*background-color: gray;*/
+}
+
+.form-control{
+  border-radius:0px;
+}
+
+.btn{
+  border-radius:0px;
 }
 
 .btn-success-outline{
@@ -204,6 +200,9 @@ height: 64px;
   padding-left:50px;
 }
 
+input:-webkit-autofill{
+  background-color: white;
+}
 
 @media (max-width: 768px) {
     .container-fluid {

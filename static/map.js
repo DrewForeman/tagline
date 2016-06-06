@@ -84,6 +84,7 @@ function initMap() {
             $('div.card-img-overlay').click(function(){
               $(this).toggleClass('hidden-overlay');
             });
+
           });
       });
   } else {

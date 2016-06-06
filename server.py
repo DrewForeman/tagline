@@ -121,16 +121,18 @@ def handle_add_tag():
     video_url=request.form.get('video_url')
     genres=request.form.get('genres')
 
-    tag = add_tag_to_db(latitude,longitude,title,artist,details,primary_image)
+    tag = utils.add_tag_to_db(latitude,longitude,title,artist,details,primary_image)
+
+    print tag
 
     if audio_url:
-        add_media_to_db(tag.tag_id,audio_url,"audio")
+        utils.add_media_to_db(tag.tag_id,audio_url,"audio")
 
     if video_url:
-        add_media_to_db(tag.tag_id,video_url,"video")
+        utils.add_media_to_db(tag.tag_id,video_url,"video")
 
     genres = genres.split(',')
-    add_genres_to_db(tag.tag_id, genres)
+    utils.add_genres_to_db(tag.tag_id, genres)
 
     new_tag = {
         "tagId": tag.tag_id,
@@ -142,7 +144,8 @@ def handle_add_tag():
         "details": tag.details,
         "primaryImage": tag.primary_image,
         "media": [{media.media_id : {"media_type":media.media_type,
-                                     "url":media.media_url}} for media in tag.medias]
+                                     "url":media.media_url}} for media in tag.medias],
+        "comments": []
     }
     
     return jsonify(new_tag)

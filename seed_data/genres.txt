@@ -1,6 +1,7 @@
 architecture
 art
 audio
+culture
 curiosities
 food
 history
