@@ -60,10 +60,13 @@ def nearby_tags():
     query_results = Tag.query.filter(Tag.latitude >= min_lat, 
                                 Tag.latitude <= max_lat,
                                 Tag.longitude >= min_lng,
-                                Tag.longitude <= max_lng).all()
+                                Tag.longitude <= max_lng).order_by(Tag.tag_id.desc()).all()
 
+    # print "************", query_results
     user_id = session.get("user") 
     tag_dict = utils.find_tags_for_user(user_id, query_results)
+
+    # print "################", tag_dict
     
     return jsonify(tag_dict)
 

@@ -83,8 +83,8 @@
         <img src="/static/img/title-text.png" width=100% style="padding:3px;">
         <div class="card-block">
           <p class="card-text for-new-tag">Share your thoughts, stories, knowledge. Make your mark on the city.</p>
-          <p class="subtext small-text">Add your location to the map and...</p>
-          <button class="btn btn-success-outline" style="color: white;" data-toggle="modal" data-target="#myModal">Tag it!</button>
+          <p class="subtext small-text" id="tag-it-txt">Click to add your location to the map and...</p>
+          <button class="btn btn-success-outline" style="color: white;" data-toggle="modal" data-target="#myModal" id="tag-it-btn">Tag it!</button>
         </div>
       </div>
       </div>
@@ -188,6 +188,14 @@
 
 
 <script>
+
+$("#tag-it-btn").hover(function(){
+    $('#tag-it-txt').css("color", "#fcf400");
+    }, function(){
+    $('#tag-it-txt').css("color", "white");
+});
+
+
 $('#login-button').click(function(){
     console.log('clicked login');
     $.post('/login.json',{

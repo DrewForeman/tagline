@@ -8,35 +8,28 @@ function displayTags(queriedTags){
   assignMarkers(queriedTags);
 }
 
-
 /** Create marker for each tag returned in query and bind related tag information. */
 function assignMarkers(tags){
 
 
   //empty the divs for new tags
-  // $('#tag-div-1').html(
-  //                 '<div class="card card-inverse" style="background-color: #333; border-color: #333;">' +
-  //                 '<img src="/static/img/title-text.png" width=100% style="padding:3px;">'+
-  //                 '<div class="card-block">' +
-  //                 '<p class="card-text for-new-tag">Share your thoughts, stories, knowledge. Make your mark on the city.</p>' +
-  //                 '<p class="subtext small-text">Add your location to the map and...</p>' +
-  //                 '<button class="btn btn-success-outline" style="color: white;" data-toggle="modal" data-target="#myModal">Tag it!</button>' +
-  //                 '</div>' +
-  //                 '</div>'
-  //                 ); 
   $('#tag-div-1').html('');
   $('#tag-div-2').html(''); 
   $('#tag-div-3').html('');
 
   // var counter = 0;  //set up a count of the tags so it knows to which page column to append the tag div
-  var counter = -1;
+  var counterA = 0;
+  var counterB = 0
 
   var tag, marker;
   for (var key in tags) {
+    console.log(Object.keys(tags).length)
+    console.log(tags);
 
-      counter++;
-      if (counter > 3) {
-        counter = 1;
+      counterA++;
+      counterB++;
+      if (counterA > 3) {
+        counterA = 1;
       }
 
       tag = tags[key];
@@ -45,7 +38,6 @@ function assignMarkers(tags){
       marker = createMarker(pos, 
                            {path: fontawesome.markers.CIRCLE,
                             // url: 'static/img/marker.png',
-                            
                             scale: 0.5,
                             strokeColor:'black',
                             strokeOpacity: 0.5,
@@ -57,21 +49,25 @@ function assignMarkers(tags){
       allMarkersArray.push(marker) //need to add to array so it can be emptied upon next query
 
       
-      if (counter === 0) {
+      if (counterB === Object.keys(tags).length) {
 
-        highlightHTML = ('<div class="card highlight" style="height:500px">' +
+        infoDiv = ('<div class="card highlight" style="height:500px;" data-toggle="collapse" data-target="#'+tag.tagId+'" id="img-toggle-'+tag.tagId+'">' +
                          '<div class="card-block highlight-block-upper">' +
-                         '<h4 class="card-title" style="margin-bottom:0;"><b>The latest:</b>'+tag.title+'</h4>'+
+                         '<h4 class="card-title" style="margin-bottom:0;"><b>The latest: </b>'+tag.title+'</h4>'+
                          '</div>' +
-                         '<img class="center-block img-responsive" src="'+tag.primaryImage+'" alt="highlighted image" height=70%>' +
+                         '<img class="img-fluid" src="'+tag.primaryImage+'" alt="Responsive image" style="max-height:80%;">' +
                          '<div class="card-block highlight-block-lower">' +
-                         '<p class="card-text">'+tag.details+'</p>' +
+                         '<p class="card-text">'+tag.excerpt+'</p>' +
                          '</div></div>'
                         )
-        $('#highlight-space').html(highlightHTML);
+          addDetailsToDiv(tag);
+          addMediaToDiv(tag);
+          addCommentsToDiv(tag);
+
+        $('#highlight-space').html(infoDiv);
       } else {
         buildTagDisplayDiv(tag)
-        bindMarkerInfo(marker, infoDiv, tag, counter);
+        bindMarkerInfo(marker, infoDiv, tag, counterA);
       }
 
       // buildTagDisplayDiv(tag)
@@ -105,7 +101,7 @@ function buildTagDisplayDiv(tag){
 
 /** Create basic image and title display that shows on load. */
 function createDisplayBase(tag){
-  infoDiv = '<div class="card card-inverse">';
+  infoDiv = '<div class="card card-inverse" id="card-base-'+tag.tagId+'">';
   if (tag.primaryImage) {
     infoDiv += '<img class="card-img" src="'+tag.primaryImage+'" alt="Card image" style="width: 100%;">' +
                '<div class="card-img-overlay" style="background-color: rgba(51,51,51,0.4);" data-toggle="collapse" data-target="#'+tag.tagId+'" id="img-toggle-'+tag.tagId+'">' +
@@ -211,17 +207,40 @@ function addCommentsToDiv(tag) {
 /** Bind marker and related info, add to page and attach event listener to submit comments. */
 function bindMarkerInfo(marker, infoDiv, tag, counter){
   
-  // if (counter === 0){
-  //   $('#tag-div-2').prepend(infoDiv);
-  // } else if (counter === 1){
-  //   $('#tag-div-2').append(infoDiv);
-  if (counter === 1){
+  if (counter === 0){
+    $('#highlight-space').html(infoDiv)
+  } else if (counter === 1){
     $('#tag-div-2').append(infoDiv);
   } else if (counter === 2){
     $('#tag-div-3').append(infoDiv);
   } else {
     $('#tag-div-1').append(infoDiv);
   }
+
+  google.maps.event.addListener(marker, 'mouseover', function() {
+    marker.setIcon({path: fontawesome.markers.CIRCLE,    
+                      scale: 0.5,
+                      strokeColor:'#fcf400',
+                      strokeWeight: 3,
+                      strokeOpacity: 1,
+                      fillColor: 'black',
+                      fillOpacity: 0.5
+                     })
+    $('#card-base-'+tag.tagId).css('border','3px solid #fcf400');
+    $('#img-toggle-'+tag.tagId).toggleClass('hidden-overlay');
+    });
+
+    google.maps.event.addListener(marker, 'mouseout', function() {
+    marker.setIcon({path: fontawesome.markers.CIRCLE,    
+                      scale: 0.5,
+                      strokeColor:'black',
+                      strokeOpacity: 0.5,
+                      fillColor: 'black',
+                      fillOpacity: 0.5
+                     })
+    $('#card-base-'+tag.tagId).css('border','none');
+    $('#img-toggle-'+tag.tagId).toggleClass('hidden-overlay');
+    });
 
   // on click of marker, tag display scrolls open/closed
   google.maps.event.addListener(marker, 'click', function() {

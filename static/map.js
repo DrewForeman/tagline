@@ -59,7 +59,6 @@ function initMap() {
         google.maps.event.addListener(geolocationMarker, 'click', function(event){
           clearClickMarker();
           geolocationMarker.setIcon(addTagIcon);
-          // submitTag(position.coords.latitude, position.coords.longitude);
         })
 
         google.maps.event.addListener(map, 'click', function(event){
@@ -174,16 +173,23 @@ $('#submit-tag').click(function(){
 
       $.post('/new-tag.json', data, function(newTag){ 
         newTagMarker = createMarker(newMarkersArray[0].position, 
-                                    {path: fontawesome.markers.CIRCLE,
-                                      scale: 0.5,
-                                      strokeColor:'#e65c00',
-                                      strokeOpacity: 0.5,
-                                      fillColor: '#e65c00',
-                                      fillOpacity: 0.5
-                                    },  
+                                    {url:"static/img/marker-grey.png"},  
                                     newTag.title) 
         clearClickMarker()
-        buildTagDisplayDiv(newTag)
+
+        infoDiv = ('<div class="card highlight" style="height:500px;" data-toggle="collapse" data-target="#'+newTag.tagId+'" id="img-toggle-'+newTag.tagId+'">' +
+                   '<div class="card-block highlight-block-upper">' +
+                   '<h4 class="card-title" style="margin-bottom:0;"><b>The latest: </b>'+newTag.title+'</h4>'+
+                   '</div>' +
+                   '<img class="img-fluid" src="'+newTag.primaryImage+'" alt="Responsive image" style="max-height:80%;">' +
+                   '<div class="card-block highlight-block-lower">' +
+                   '<p class="card-text">'+newTag.excerpt+'</p>' +
+                   '</div></div>'
+                   )
+        addDetailsToDiv(newTag);
+        addMediaToDiv(newTag);
+        addCommentsToDiv(newTag);
+        // buildTagDisplayDiv(newTag)
         bindMarkerInfo(newTagMarker, infoDiv, newTag, 0)
         console.log('inside success function')
 
