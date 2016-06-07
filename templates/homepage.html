@@ -10,6 +10,14 @@
 <script src="/static/mediaupload.js"></script>
 <script src="/static/fontawesome-markers.min.js"></script>
 
+<style>
+  html, body {
+      background-image: url("/static/img/bkgrnd.png");
+      background-size: 1600px;
+      background-attachment: fixed;
+    }
+</style>
+
 {% endblock %}
 
 {% block body %}
@@ -81,11 +89,11 @@
 
     <div class="col-sm-12 col-md-3">
 
-      <div class="card card-inverse" style="background-color: #333; border-color: #333; height:500px;">
+      <div class="card" style="background-color: #333; border-color: #333; height:500px;">
         <div class="center-block">
         <img src="/static/img/title-text.png" width=100% style="padding:3px;">
         <div class="card-block">
-          <p class="card-text for-new-tag">Share your thoughts, stories, knowledge. Make your mark on the city.</p>
+          <p class="card-text for-new-tag" style="color:rgba(255,255,255,.65);">Share your thoughts, stories, knowledge. Make your mark on the city.</p>
           <p class="subtext small-text" id="tag-it-txt">Click the map to add your location and...</p>
           <button class="btn btn-success-outline" style="color: white;" data-toggle="modal" data-target="#myModal" id="tag-it-btn">Tag it!</button>
         </div>

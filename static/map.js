@@ -85,17 +85,11 @@ function initMap() {
               $(this).toggleClass('hidden-overlay');
             });
 
-
-
-
             $('.card-inverse, .highlight-outline').hover(function(){ 
                 $(this).css('border','3px solid #fcf400');
               },function(){
                 $(this).css('border','1px solid #ccc');
               });
-
-         
-
 
             });
 
@@ -164,9 +158,17 @@ function initMap() {
       $.post('/tags.json', data, function(tags) { 
           displayTags(tags);
           $('.post-button').click(submitComment);
+          
           $('div.card-img-overlay').click(function(){
               $(this).toggleClass('hidden-overlay');
             });
+
+          $('.card-inverse, .highlight-outline').hover(function(){ 
+              $(this).css('border','3px solid #fcf400');
+            },function(){
+              $(this).css('border','1px solid #ccc');
+          });
+
       });
   });
 

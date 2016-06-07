@@ -1,9 +1,6 @@
 html, body {
     margin-left: 40px;
     margin-right: 30px;
-    background-image: url("/static/img/bkgrnd.png");
-    background-size: 1600px;
-    background-attachment: fixed;
   }
 
 .navbar{
