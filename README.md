@@ -37,7 +37,7 @@ Clicking on the map markers or the tag blocks toggles the html display class so 
 ####Routing
 Users can enter a destination to map a route via the Google Directions API.  Using the endpoint coordinates of each route segment, multiple bounding boxes are drawn and tagged content within those bounds is queried. 
 
-![Routing](/static/graphics/route.gif)
+![Routing](/graphics/route.gif)
 
 ####Tagging
 An event listener on the map records the user's coordinates and this button triggers a modal window to add a new tag at the click location. Users can upload media, either from the local file system or via built-in camera if on mobile.  Using Boto3, Amazon’s Python SDK, the site communicates with Amazon S3 and generates a pre signed post allowing user media to be hosted in the cloud.  The user's new tag is stored in a PostgreSQL database and the page is updated to display the user's tag.
