@@ -43,8 +43,14 @@ def homepage():
 
     user_id = session.get("user") 
     user = utils.toggle_login(user_id)
+    if user:
+        name = user.name
+        avatar = user.avatar
+    else:
+        name = False
+        avatar = False
 
-    return render_template("homepage.html", name=user, genres=Genre.query.all())
+    return render_template("homepage.html", name=name, avatar=avatar, genres=Genre.query.all())
 
 
 

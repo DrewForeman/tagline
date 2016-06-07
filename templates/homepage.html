@@ -27,10 +27,13 @@
     <ul class="nav navbar-nav pull-xs-right" id="login-tog">
 
     {% if name %}
-      <li>
-        <p class="navbar-text">Welcome, {{name}}</p>
+      <li style="display: inline-block;">
+        Welcome, {{name}}
+        <!-- <p class="navbar-text nav-item">Welcome, {{name}}</p> -->
       </li>
-
+     <!--  <li>
+        <img class="nav-item media-object" src="{{avatar}}" alt="user avatar" style="display: inline-block;">
+      </li> -->
     {% else %}
 
       <li>
@@ -70,20 +73,20 @@
 <div class="container-fluid">
   <div class="row">
 
-    <div id="map-container" class="fixed col-sm-12 col-md-4 col-lg-3">
-      <div id="map" class="col-sm-12 col-md-4 col-lg-3"></div>
+    <div id="map-container" class="fixed col-sm-12 col-md-3">
+      <div id="map" class="col-sm-12 col-md-3"></div>
     </div>
 
-    <div class="col-sm-12 col-md-3 col-lg-3"></div>
+    <div class="col-sm-12 col-md-3"></div>
 
-    <div class="col-sm-12 col-md-3 col-lg-3">
+    <div class="col-sm-12 col-md-3">
 
       <div class="card card-inverse" style="background-color: #333; border-color: #333; height:500px;">
         <div class="center-block">
         <img src="/static/img/title-text.png" width=100% style="padding:3px;">
         <div class="card-block">
           <p class="card-text for-new-tag">Share your thoughts, stories, knowledge. Make your mark on the city.</p>
-          <p class="subtext small-text" id="tag-it-txt">Click to add your location to the map and...</p>
+          <p class="subtext small-text" id="tag-it-txt">Click the map to add your location and...</p>
           <button class="btn btn-success-outline" style="color: white;" data-toggle="modal" data-target="#myModal" id="tag-it-btn">Tag it!</button>
         </div>
       </div>
@@ -91,40 +94,16 @@
 
     </div>
 
-    <div class="col-sm-12 col-md-6 col-lg-6" id="highlight-space">
-      
-      <!-- <div class="card highlight" style="height:500px">
-        <div class="card-block highlight-block-upper">
-          <h4 class="card-title" style="margin-bottom:0;"><b>The latest:</b>latest.title</h4>
-        </div>
-        <img class="center-block img-responsive" src="latest.primary_media" alt="highlighted image" height=70%>
-        <div class="card-block highlight-block-lower">
-          <p class="card-text">latest.details</p>
-        </div>
-      </div> -->
+    <div class="col-sm-12 col-md-6 col-lg-6" id="highlight-space"></div>
 
-    </div>
   </div>
 
   <div class="row">
     <div class="col-sm-12 col-md-3 col-lg-3"></div>
-
-
-<!-- NEW TAG & QUERIED TAG COLUMN 1 -->
-
-    <div class="col-sm-12 col-md-4 col-lg-3" id="tag-div-1"></div>
-
-
-<!-- QUERIED TAG COLUMN 2 -->
-
-    <div class="col-sm-12 col-md-4 col-lg-3" id="tag-div-2"></div> 
-
-
-<!-- THIRD TAG COLUMN -->
-
-    <div class="col-sm-12 col-md-4 col-lg-3" id="tag-div-3"></div> 
-
-</div> 
+    <div class="col-sm-12 col-md-3" id="tag-div-1"></div>
+    <div class="col-sm-12 col-md-3" id="tag-div-2"></div> 
+    <div class="col-sm-12 col-md-3" id="tag-div-3"></div> 
+  </div> 
 
 <footer class="footer">
   <div class="footer-div">
@@ -190,9 +169,10 @@
 <script>
 
 $("#tag-it-btn").hover(function(){
-    $('#tag-it-txt').css("color", "#fcf400");
+    $('#tag-it-txt').css("text-shadow", "1px 0px 8px rgba(252, 244, 0, 1)");
+    // $('#tag-it-txt').css("color", "#fcf400");
     }, function(){
-    $('#tag-it-txt').css("color", "white");
+    $('#tag-it-txt').css("text-shadow", "none");
 });
 
 

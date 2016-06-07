@@ -70,8 +70,6 @@ function initMap() {
 
       // v|v|v|v|v|v|v|v| SHOW NEARBY POINTS UPON LOAD v|v|v|v|v|v|v|v|v|v|v|v|
       google.maps.event.addListenerOnce(map, 'tilesloaded', function(){
-        // delay this function so the map has time to load before getting bounds
-        // shorten timeout but run again if still null after timeout. 
           var data = {
             'minLat' : map.getBounds().H['H'],
             'minLng' : map.getBounds().j['j'],
@@ -81,13 +79,29 @@ function initMap() {
           
           $.post('/tags-geolocation.json', data, function(nearby_tags) {
             displayTags(nearby_tags);
-            $('.post-button').click(submitComment);         //should i move this outside the success function?
+            $('.post-button').click(submitComment);  
+
             $('div.card-img-overlay').click(function(){
               $(this).toggleClass('hidden-overlay');
             });
 
+
+
+
+            $('.card-inverse, .highlight-outline').hover(function(){ 
+                $(this).css('border','3px solid #fcf400');
+              },function(){
+                $(this).css('border','1px solid #ccc');
+              });
+
+         
+
+
+            });
+
+
           });
-      });
+      // });
   } else {
       // Browser doesn't support Geolocation
       handleNoGeolocation(false);
@@ -177,24 +191,25 @@ $('#submit-tag').click(function(){
                                     newTag.title) 
         clearClickMarker()
 
-        infoDiv = ('<div class="card highlight" style="height:500px;" data-toggle="collapse" data-target="#'+newTag.tagId+'" id="img-toggle-'+newTag.tagId+'">' +
+        infoDiv = ('<div class="card highlight-outline" id="card-base-'+newTag.tagId+'">' +
+                   '<div class="card highlight" data-toggle="collapse" data-target="#'+newTag.tagId+'">' +
                    '<div class="card-block highlight-block-upper">' +
-                   '<h4 class="card-title" style="margin-bottom:0;"><b>The latest: </b>'+newTag.title+'</h4>'+
+                   '<div class="pull-right"><a href="#"><img class="media-object img-circle" src="/static/img/avatars/drewf.jpg" alt="avatar" style="display:inline-block; margin-left:4px; opacity:0.8;"></a></div>' +
+                   '<div class="pull-right small-text" style="text-align:right; line-height:95%; font-size:13px;">Tagged by<br>drewf</div>'+
+                   '<h4 class="card-title" style="margin-bottom:0;"><b style="font-size:20px;">The latest: </b><br>'+newTag.title+'</h4>'+
                    '</div>' +
-                   '<img class="img-fluid" src="'+newTag.primaryImage+'" alt="Responsive image" style="max-height:80%;">' +
-                   '<div class="card-block highlight-block-lower">' +
-                   '<p class="card-text">'+newTag.excerpt+'</p>' +
+                   '<div class="highlight-img-container">' +
+                   '<img class="img-fluid highlight-img" src="'+newTag.primaryImage+'" alt="Responsive image">' +
                    '</div></div>'
                    )
         addDetailsToDiv(newTag);
         addMediaToDiv(newTag);
         addCommentsToDiv(newTag);
-        // buildTagDisplayDiv(newTag)
         bindMarkerInfo(newTagMarker, infoDiv, newTag, 0)
-        console.log('inside success function')
+        // console.log('inside success function')
 
       })
-        console.log('outside success function')
+        // console.log('outside success function')
         $('#add-tag-form')[0].reset();
         $('#myModal').modal('hide');
         $('.genre').removeClass('active');

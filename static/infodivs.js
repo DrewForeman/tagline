@@ -23,8 +23,8 @@ function assignMarkers(tags){
 
   var tag, marker;
   for (var key in tags) {
-    console.log(Object.keys(tags).length)
-    console.log(tags);
+    // console.log(Object.keys(tags).length)
+    // console.log(tags);
 
       counterA++;
       counterB++;
@@ -51,28 +51,26 @@ function assignMarkers(tags){
       
       if (counterB === Object.keys(tags).length) {
 
-        infoDiv = ('<div class="card highlight" style="height:500px;" data-toggle="collapse" data-target="#'+tag.tagId+'" id="img-toggle-'+tag.tagId+'">' +
-                         '<div class="card-block highlight-block-upper">' +
-                         '<h4 class="card-title" style="margin-bottom:0;"><b>The latest: </b>'+tag.title+'</h4>'+
-                         '</div>' +
-                         '<img class="img-fluid" src="'+tag.primaryImage+'" alt="Responsive image" style="max-height:80%;">' +
-                         '<div class="card-block highlight-block-lower">' +
-                         '<p class="card-text">'+tag.excerpt+'</p>' +
-                         '</div></div>'
-                        )
+        infoDiv = ('<div class="card highlight-outline" id="card-base-'+tag.tagId+'">' +
+                   '<div class="card highlight" data-toggle="collapse" data-target="#'+tag.tagId+'">' +
+                   '<div class="card-block highlight-block-upper">' +
+                   '<div class="pull-right"><a href="#"><img class="media-object img-circle" src="/static/img/avatars/drewf.jpg" alt="avatar" style="display:inline-block; margin-left:4px; opacity:0.8;"></a></div>' +
+                   '<div class="pull-right small-text" style="text-align:right; line-height:95%; font-size:13px;">Tagged by<br>drewf</div>'+
+                   '<h4 class="card-title" style="margin-bottom:0;"><b style="font-size:20px;">The latest: </b><br>'+tag.title+'</h4>'+
+                   '</div>' +
+                   '<div class="highlight-img-container">' +
+                   '<img class="img-fluid highlight-img" src="'+tag.primaryImage+'" alt="Responsive image">' +
+                   '</div></div>'
+                  )
           addDetailsToDiv(tag);
           addMediaToDiv(tag);
           addCommentsToDiv(tag);
+          bindMarkerInfo(marker, infoDiv, tag, 0)
 
-        $('#highlight-space').html(infoDiv);
       } else {
         buildTagDisplayDiv(tag)
         bindMarkerInfo(marker, infoDiv, tag, counterA);
       }
-
-      // buildTagDisplayDiv(tag)
-
-      // bindMarkerInfo(marker, infoDiv, tag, counter);
   }
 }
 
@@ -107,11 +105,11 @@ function createDisplayBase(tag){
                '<div class="card-img-overlay" style="background-color: rgba(51,51,51,0.4);" data-toggle="collapse" data-target="#'+tag.tagId+'" id="img-toggle-'+tag.tagId+'">' +
                // '<div class="card-img-overlay" style="background-color: rgba(255,255,255,0.4);" data-toggle="collapse" data-target="#'+tag.tagId+'" id="img-toggle-'+tag.tagId+'">' +
                '<h4 class="card-title">'+tag.title+'</h4>' +
-               '<p class="card-text">'+tag.excerpt+'</p>' //+
+               '<p class="card-text">'+tag.excerpt+'</p>'
   } else {
-    infoDiv += '<div class="card-block" data-toggle="collapse" data-target="#'+tag.tagId+'" style="background-color: rgba(51,51,51,0.7);">' +
+    infoDiv += '<div class="card-block grey-block" data-toggle="collapse" data-target="#'+tag.tagId+'" style="background-color: rgba(51,51,51,0.7);">' +
                '<h4 class="card-title">'+tag.title+'</h4>' +
-               '<p class="card-text">'+tag.excerpt+'</p>' //+
+               '<p class="card-text">'+tag.excerpt+'</p>' 
   }
   if (tag.comments[0]) {
     var i = tag.comments.length - 1
@@ -200,7 +198,7 @@ function addCommentsToDiv(tag) {
                         '</div>' +
                         '</li>'
     } infoDiv += commentsList 
-  } infoDiv += '</ul></div></div></div>'
+  } infoDiv += '</ul></div></div></div></div>'
 }
 
 
@@ -238,7 +236,7 @@ function bindMarkerInfo(marker, infoDiv, tag, counter){
                       fillColor: 'black',
                       fillOpacity: 0.5
                      })
-    $('#card-base-'+tag.tagId).css('border','none');
+    $('#card-base-'+tag.tagId).css('border','1px solid #ccc');
     $('#img-toggle-'+tag.tagId).toggleClass('hidden-overlay');
     });
 

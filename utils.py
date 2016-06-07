@@ -12,16 +12,27 @@ from route import api_key, find_tags_on_route, find_route_coordinates, find_boun
 
 
 
+# def toggle_login(user_id):
+#     """Check to see if user is in session to display login or name in navbar."""
+
+#     if user_id:
+#         user = User.query.filter_by(user_id = user_id).first()
+#         name = user.name
+#     else:
+#         name = False
+
+#     return name
+
 def toggle_login(user_id):
     """Check to see if user is in session to display login or name in navbar."""
 
     if user_id:
         user = User.query.filter_by(user_id = user_id).first()
-        name = user.name
+        # name = user.name
     else:
-        name = False
+        user = False
 
-    return name
+    return user
 
 
 
