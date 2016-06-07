@@ -131,13 +131,80 @@ class Comment(db.Model):
 
 
 
+###############################################################################
 
-def connect_to_db(app):
+def example_data():
+    """Sample data for testing."""
+  # In case this is run more than once, empty out existing data
+    User.query.delete()
+    Tag.query.delete()
+    Comment.query.delete()
+    Media.query.delete()
+    Genre.query.delete()
+    TagGenre.query.delete()
+    UserGenre.query.delete()
+    Comment.query.delete()
+
+
+    user = User(user_id=1,
+                name='Drew',
+                username='drewf',
+                password='password',
+                avatar='static/img/avatars/drewf.jpg')
+
+    tag = Tag(tag_id=760,
+                latitude=37.81690755123785,
+                longitude=-122.28961365893830,
+                title='15 Seconds',
+                artist='Steve Gillman & Katherine Keefer',
+                details='A mural',
+                primary_image='/static/img/15sec.jpg')
+
+    comment = Comment(comment_id=1,
+                tag_id=760,
+                user_id=1,
+                content='test comment',
+                logged_at=datetime(2016, 6, 6, 19, 1, 32, 669889),
+                media=None)
+
+    media = Media(media_id=1,
+                tag_id=760,
+                user_id=1,
+                media_url='/static/img/15sec.jpg',
+                media_type='image')
+
+    genre = Genre(genre='art')
+
+    tag_genre = TagGenre(assc_id=1,
+                tag_id=760,
+                genre='art')
+
+    user_genre = UserGenre(assc_id=1,
+                user_id=1,
+                genre='art')
+
+    comment = Comment(comment_id=1,
+                tag_id=760,
+                user_id=1,
+                content='test comment',
+                logged_at=datetime(2016, 6, 6, 19, 1, 32, 669889),
+                media='/static/img/15sec.jpg')
+
+
+    db.session.add_all([user, tag, comment, media, genre, tag_genre, user_genre, comment])
+    db.session.commit()
+
+
+###############################################################################
+
+
+def connect_to_db(app, db_uri='postgresql:///tagline'):
     """Connect the database to Flask app."""
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///tagline'
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_uri #'postgresql:///tagline'
     db.app = app
     db.init_app(app)
+
 
 
 if __name__ == "__main__":

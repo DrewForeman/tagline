@@ -59,12 +59,12 @@ def find_route_coordinates(origin, destination):
 
 def find_bounding_box(route_coordinates):
     """Returns rough bounding box for given route coordinates to help query tags along route. 
+    Currently draws a rectangle around each set of long/lat points that make a path segment. 
 
     >>> find_bounding_box([(37,122),(36,123),(36,122)])
-    [BoundingBox([(36, 122), (37, 123)]), BoundingBox([(36, 122), (36, 123)])]
+    [BoundingBox([(35.999, 121.999), (37.001, 123.001)]), BoundingBox([(35.999, 121.999), (36.001, 123.001)])]
     >>>  
 
-    Currently draws a rectangle around each set of long/lat points that make a path segment. 
     """
 
     bboxes = []
@@ -100,11 +100,7 @@ def query_tags(bboxes):
         tags = Tag.query.filter(Tag.latitude >= min_lat, 
                                         Tag.latitude <= max_lat,
                                         Tag.longitude >= min_lng,
-                                        # Tag.longitude <= max_lng).order_by(Tag.comments.logged_at).all()
                                         Tag.longitude <= max_lng).order_by(Tag.tag_id.desc()).limit(4).all()
-                                        # Tag.longitude <= max_lng).limit(1).all()
-
-
         all_tags += tags
     return all_tags
 

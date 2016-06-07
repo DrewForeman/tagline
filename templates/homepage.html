@@ -17,7 +17,7 @@
 
 
 <nav class="navbar navbar-light navbar-fixed-top">
-  <a class="navbar-brand" href="/"><img class="navbar-brand" src="/static/img/logo.png"></a>
+  <a class="navbar-brand" href="/home"><img class="navbar-brand" src="/static/img/logo.png"></a>
 
   <form class="form-inline" id="nav-form">
     <input class="form-control search" type="text" placeholder="Origin" id="origin">
@@ -66,21 +66,54 @@
 </form>
 </nav>
 
-<!-- col-md-4 col-lg-3 -->
 
 <div class="container-fluid">
   <div class="row">
 
-  <div id="map-container" class="fixed col-sm-12 col-md-4 col-lg-3">
-    <div id="map" class="col-sm-12 col-md-4 col-lg-3"></div>
+    <div id="map-container" class="fixed col-sm-12 col-md-4 col-lg-3">
+      <div id="map" class="col-sm-12 col-md-4 col-lg-3"></div>
+    </div>
+
+    <div class="col-sm-12 col-md-3 col-lg-3"></div>
+
+    <div class="col-sm-12 col-md-3 col-lg-3">
+
+      <div class="card card-inverse" style="background-color: #333; border-color: #333; height:500px;">
+        <div class="center-block">
+        <img src="/static/img/title-text.png" width=100% style="padding:3px;">
+        <div class="card-block">
+          <p class="card-text for-new-tag">Share your thoughts, stories, knowledge. Make your mark on the city.</p>
+          <p class="subtext small-text">Add your location to the map and...</p>
+          <button class="btn btn-success-outline" style="color: white;" data-toggle="modal" data-target="#myModal">Tag it!</button>
+        </div>
+      </div>
+      </div>
+
+    </div>
+
+    <div class="col-sm-12 col-md-6 col-lg-6" id="highlight-space">
+      
+      <!-- <div class="card highlight" style="height:500px">
+        <div class="card-block highlight-block-upper">
+          <h4 class="card-title" style="margin-bottom:0;"><b>The latest:</b>latest.title</h4>
+        </div>
+        <img class="center-block img-responsive" src="latest.primary_media" alt="highlighted image" height=70%>
+        <div class="card-block highlight-block-lower">
+          <p class="card-text">latest.details</p>
+        </div>
+      </div> -->
+
+    </div>
   </div>
 
-  <div class="col-sm-12 col-md-4 col-lg-3"></div>
+  <div class="row">
+    <div class="col-sm-12 col-md-3 col-lg-3"></div>
 
 
 <!-- NEW TAG & QUERIED TAG COLUMN 1 -->
 
     <div class="col-sm-12 col-md-4 col-lg-3" id="tag-div-1"></div>
+
 
 <!-- QUERIED TAG COLUMN 2 -->
 
@@ -93,34 +126,12 @@
 
 </div> 
 
-
-<!-- MAP CONTAINER AND OFFSET -->
-
-<!-- <div class="container-fluid">
-  <div class="row">
-
-  <div id="map-container" class="fixed col-md-3">
-    <div id="map" class="col-md-3"></div>
+<footer class="footer">
+  <div class="footer-div">
+    <a href="https://github.com/DrewForeman"><i class="fa fa-github fa-lg" aria-hidden="true"></i></a>
+    <a href="https://www.linkedin.com/in/drew-foreman-a26a586b"><i class="fa fa-linkedin-square fa-lg" aria-hidden="true"></i></a>
   </div>
-
-  <div class="col-md-3"></div> -->
-
-
-<!-- NEW TAG & QUERIED TAG COLUMN 1 -->
-
-<!--     <div class="col-md-3" id="tag-div-1"></div> -->
-
-<!-- QUERIED TAG COLUMN 2 -->
-
-<!--     <div class="col-md-3" id="tag-div-2"></div>  -->
-
-
-<!-- THIRD TAG COLUMN -->
-
-<!--     <div class="col-md-3" id="tag-div-3"></div> 
-
-</div>   -->
-
+</footer>
 
 <!-- MODAL -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -165,12 +176,13 @@
         </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-success" id="submit-tag">Tag it</button>
+        <button type="button" class="btn btn-success" data-dismiss="modal" id="submit-tag">Tag it</button>
       </div>
     </form>
     </div>
   </div>
 </div>
+
         
 
 

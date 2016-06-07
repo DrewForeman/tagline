@@ -19,28 +19,12 @@
 body{
   background-image: url("/static/img/bkgrnd.png");
   background-size: cover;
-  /*background-width: 1400px;*/
-  /*margin:0px;*/
 }
 
 .navbar{
   background-color: transparent;
 }
 
-
-.header{
-  color:black;
-  font-family: 'BlowBrush'; 
-  font-size:165px; 
-  line-height: 78%;
-  letter-spacing: 2px;
-  text-align: center;
-}
-
-#title-spacing{
-  font-size:175px; 
-  letter-spacing: 12px;
-}
 
 </style>
 
@@ -51,7 +35,7 @@ body{
 
 
 <nav class="navbar navbar-light navbar-fixed-top">
-  <a class="navbar-brand" href="/"><img class="navbar-brand" src="/static/img/outline-logo.png"></a>
+  <a class="navbar-brand" href="/home"><img class="navbar-brand" src="/static/img/outline-logo.png" height=40px></a>
 
   <form class="form-inline" id="nav-form">
 
@@ -94,10 +78,11 @@ body{
 
     <div class="col-md-7"></div>
 
-    <div class="col-sm-5 col-md-5 col-lg-3 for-title"> 
-      <p class="header"><span id="title-spacing">Tag</span><br>line</p>
-      <p>Make your mark on the city.</p>
-      <a type="button" class="btn btn-success btn-lg btn-block" href="/">Enter</a>
+    <div class="col-sm-5 col-md-5 col-lg-4 for-title"> 
+      <img src="/static/img/title.png" width=100% style="margin-bottom:15px;">
+      <!-- <p class="header"><span id="title-spacing">Tag</span><br>line</p> -->
+      <p style="text-align:center;">Make your mark on the city.</p>
+      <a type="button" class="btn btn-success-outline btn-lg btn-block" href="/home">Enter</a>
     </div>
 
   </div>

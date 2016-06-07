@@ -4,6 +4,9 @@ var newMarkersArray = [];
 
 var allMarkersArray = [];
 
+var lat;
+var lng;
+
 
 function initMap() {
 
@@ -27,18 +30,17 @@ function initMap() {
 
   var currentLocIcon = {
         path: fontawesome.markers.MAP_MARKER,
-        strokeColor:'#29a3a3',
-        fillColor: '#29a3a3',
-        fillOpacity: 1,
-        scale: 1.2
+        strokeColor:'#fcf400',
+        strokeOpacity: 1,
+        strokeWeight: 3,
+        fillColor: '#fcf400',
+        fillOpacity: 0.8,
+        scale: 1.4
         }
 
+// change this con to the t/x
   var addTagIcon = {
-        path: fontawesome.markers.PLUS_CIRCLE,
-        scale: 0.5,
-        fillOpacity: 1,
-        strokeColor:'#e65c00',
-        fillColor: '#e65c00'
+        url:'/static/img/marker.png'
         }
 
 
@@ -57,7 +59,7 @@ function initMap() {
         google.maps.event.addListener(geolocationMarker, 'click', function(event){
           clearClickMarker();
           geolocationMarker.setIcon(addTagIcon);
-          submitTag(position.coords.latitude, position.coords.latitude);
+          // submitTag(position.coords.latitude, position.coords.longitude);
         })
 
         google.maps.event.addListener(map, 'click', function(event){
@@ -80,7 +82,7 @@ function initMap() {
           
           $.post('/tags-geolocation.json', data, function(nearby_tags) {
             displayTags(nearby_tags);
-            $('.post-button').click(submitComment);
+            $('.post-button').click(submitComment);         //should i move this outside the success function?
             $('div.card-img-overlay').click(function(){
               $(this).toggleClass('hidden-overlay');
             });
@@ -91,6 +93,20 @@ function initMap() {
       // Browser doesn't support Geolocation
       handleNoGeolocation(false);
   }
+
+
+  // v|v|v|v|v|v|v|v| SHOW NEARBY POINTS UPON MAP CHANGE v|v|v|v|v|v|v|v|v|v|v|v|
+  // map.addListener('center_changed', function() {
+  //   data = {'minLat' : map.getBounds().H['H'],
+  //           'minLng' : map.getBounds().j['j'],
+  //           'maxLat' : map.getBounds().H['j'],
+  //           'maxLng' : map.getBounds().j['H'],
+  //         }
+          
+  //   $.post('/tags-geolocation.json', data, function(nearby_tags) {
+  //     displayTags(nearby_tags);
+  //   });
+  // });
 
 
 
@@ -105,13 +121,14 @@ function initMap() {
 
     newMarkersArray.push(newMarker);
 
-    // add media to Amazon S3 as it is uploaded
+    // add media to Amazon S3 as it is uploaded --> should this be moved outside?
     $('input[type="file"]').change(function(){
           var file = this.files[0];
           getSignedRequest(file);
     });
 
-    submitTag(position.lat(),position.lng());
+    lat = position.lat() //update global variables so that there is no double posting after multiple mouse clicks
+    lng = position.lng()
 
     // clear add marker if clicked again (basically click on-click off)
     google.maps.event.addListener(newMarker, 'click', function(event){
@@ -139,6 +156,45 @@ function initMap() {
             });
       });
   });
+
+
+$('#submit-tag').click(function(){
+
+      data = {'latitude': lat,
+              'longitude': lng,
+              'title': $('#add-title').val(),
+              'artist': $('#add-artist').val(),
+              'details': $('#add-details').val(),
+              'audio_url': $('#audio_url').val(),
+              'primary_image': $('#image_url').val(),
+              'video_url': $('#video_url').val(),
+              'genres': getGenreVals().toString()
+              }
+      console.log(data)
+
+      $.post('/new-tag.json', data, function(newTag){ 
+        newTagMarker = createMarker(newMarkersArray[0].position, 
+                                    {path: fontawesome.markers.CIRCLE,
+                                      scale: 0.5,
+                                      strokeColor:'#e65c00',
+                                      strokeOpacity: 0.5,
+                                      fillColor: '#e65c00',
+                                      fillOpacity: 0.5
+                                    },  
+                                    newTag.title) 
+        clearClickMarker()
+        buildTagDisplayDiv(newTag)
+        bindMarkerInfo(newTagMarker, infoDiv, newTag, 0)
+        console.log('inside success function')
+
+      })
+        console.log('outside success function')
+        $('#add-tag-form')[0].reset();
+        $('#myModal').modal('hide');
+        $('.genre').removeClass('active');
+  });
+
+
 }
 
 // v|v|v|v|v|v|v|v| CREATE THE MAP WHEN THE PAGE LOADS v|v|v|v|v|v|v|v|v|v|v|v|
@@ -146,6 +202,7 @@ function initMap() {
 google.maps.event.addDomListener(window, 'load', function(){
   initMap();
 });
+
 
 
 

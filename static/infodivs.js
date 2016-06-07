@@ -12,21 +12,24 @@ function displayTags(queriedTags){
 /** Create marker for each tag returned in query and bind related tag information. */
 function assignMarkers(tags){
 
+
   //empty the divs for new tags
-  $('#tag-div-1').html(
-                  '<div class="card card-inverse" style="background-color: #333; border-color: #333;">' +
-                  '<div class="card-block">' +
-                  '<p class="card-title" style="font-family:BlowBrush; font-size:100px; line-height: 78%; letter-spacing: 2px;" >TAg some-<br>thing:</p>' +
-                  '<p class="card-text">Share your thoughts, stories, knowledge. Make your mark on the city.</p>' +
-                  '<p class="subtext small-text">Add your location to the map and...</p>' +
-                  '<button class="btn btn-success-outline" style="color: white;" data-toggle="modal" data-target="#myModal">Tag it!</button>' +
-                  '</div>' +
-                  '</div>'
-                  ); 
+  // $('#tag-div-1').html(
+  //                 '<div class="card card-inverse" style="background-color: #333; border-color: #333;">' +
+  //                 '<img src="/static/img/title-text.png" width=100% style="padding:3px;">'+
+  //                 '<div class="card-block">' +
+  //                 '<p class="card-text for-new-tag">Share your thoughts, stories, knowledge. Make your mark on the city.</p>' +
+  //                 '<p class="subtext small-text">Add your location to the map and...</p>' +
+  //                 '<button class="btn btn-success-outline" style="color: white;" data-toggle="modal" data-target="#myModal">Tag it!</button>' +
+  //                 '</div>' +
+  //                 '</div>'
+  //                 ); 
+  $('#tag-div-1').html('');
   $('#tag-div-2').html(''); 
   $('#tag-div-3').html('');
 
-  var counter = 0;  //set up a count of the tags so it knows to which page column to append the tag div
+  // var counter = 0;  //set up a count of the tags so it knows to which page column to append the tag div
+  var counter = -1;
 
   var tag, marker;
   for (var key in tags) {
@@ -41,6 +44,8 @@ function assignMarkers(tags){
       pos = new google.maps.LatLng(tag.latitude, tag.longitude)
       marker = createMarker(pos, 
                            {path: fontawesome.markers.CIRCLE,
+                            // url: 'static/img/marker.png',
+                            
                             scale: 0.5,
                             strokeColor:'black',
                             strokeOpacity: 0.5,
@@ -51,9 +56,27 @@ function assignMarkers(tags){
 
       allMarkersArray.push(marker) //need to add to array so it can be emptied upon next query
 
-      buildTagDisplayDiv(tag)
+      
+      if (counter === 0) {
 
-      bindMarkerInfo(marker, infoDiv, tag, counter);
+        highlightHTML = ('<div class="card highlight" style="height:500px">' +
+                         '<div class="card-block highlight-block-upper">' +
+                         '<h4 class="card-title" style="margin-bottom:0;"><b>The latest:</b>'+tag.title+'</h4>'+
+                         '</div>' +
+                         '<img class="center-block img-responsive" src="'+tag.primaryImage+'" alt="highlighted image" height=70%>' +
+                         '<div class="card-block highlight-block-lower">' +
+                         '<p class="card-text">'+tag.details+'</p>' +
+                         '</div></div>'
+                        )
+        $('#highlight-space').html(highlightHTML);
+      } else {
+        buildTagDisplayDiv(tag)
+        bindMarkerInfo(marker, infoDiv, tag, counter);
+      }
+
+      // buildTagDisplayDiv(tag)
+
+      // bindMarkerInfo(marker, infoDiv, tag, counter);
   }
 }
 
@@ -85,7 +108,7 @@ function createDisplayBase(tag){
   infoDiv = '<div class="card card-inverse">';
   if (tag.primaryImage) {
     infoDiv += '<img class="card-img" src="'+tag.primaryImage+'" alt="Card image" style="width: 100%;">' +
-               '<div class="card-img-overlay" style="background-color: rgba(51,51,51,0.6);" data-toggle="collapse" data-target="#'+tag.tagId+'" id="img-toggle-'+tag.tagId+'">' +
+               '<div class="card-img-overlay" style="background-color: rgba(51,51,51,0.4);" data-toggle="collapse" data-target="#'+tag.tagId+'" id="img-toggle-'+tag.tagId+'">' +
                // '<div class="card-img-overlay" style="background-color: rgba(255,255,255,0.4);" data-toggle="collapse" data-target="#'+tag.tagId+'" id="img-toggle-'+tag.tagId+'">' +
                '<h4 class="card-title">'+tag.title+'</h4>' +
                '<p class="card-text">'+tag.excerpt+'</p>' //+
@@ -188,9 +211,11 @@ function addCommentsToDiv(tag) {
 /** Bind marker and related info, add to page and attach event listener to submit comments. */
 function bindMarkerInfo(marker, infoDiv, tag, counter){
   
-  if (counter === 0){
-    $('#tag-div-2').prepend(infoDiv);
-  } else if (counter === 1){
+  // if (counter === 0){
+  //   $('#tag-div-2').prepend(infoDiv);
+  // } else if (counter === 1){
+  //   $('#tag-div-2').append(infoDiv);
+  if (counter === 1){
     $('#tag-div-2').append(infoDiv);
   } else if (counter === 2){
     $('#tag-div-3').append(infoDiv);
@@ -234,7 +259,7 @@ function updateCommentsList(newComment){
             '<li class="list-group-item">' +
             '<div class="media">' +
             '<div class="media-left">' + 
-            '<a href="#"><img class="media-object" src="'+newComment.avatar+'" alt="user-avatar"></a>' +
+            '<a href="#"><img class="media-object img-circle" src="'+newComment.avatar+'" alt="user-avatar"></a>' +
             '</div>' +
             '<div class="media-body">' +
             '<b>'+ newComment.username +'</b><span class="card-text"><small class="text-muted">  '+
@@ -247,47 +272,6 @@ function updateCommentsList(newComment){
   $('#comment-form-'+tagId)[0].reset(); 
 }
 
-
-/** Adds new tag to db on submission and displays on page. */
-function submitTag(lat, lng){
-  $('#submit-tag').click(function(){
-
-      data = {'latitude': lat,
-              'longitude': lng,
-              'title': $('#add-title').val(),
-              'artist': $('#add-artist').val(),
-              'details': $('#add-details').val(),
-              'audio_url': $('#audio_url').val(),
-              'primary_image': $('#image_url').val(),
-              'video_url': $('#video_url').val(),
-              'genres': getGenreVals().toString()
-              }
-      console.log(data)
-
-      $.post('/new-tag.json', data, function(newTag){ 
-        newTagMarker = createMarker(newMarkersArray[0].position, 
-                                    {path: fontawesome.markers.CIRCLE,
-                                      scale: 0.5,
-                                      strokeColor:'#e65c00',
-                                      strokeOpacity: 0.5,
-                                      fillColor: '#e65c00',
-                                      fillOpacity: 0.5
-                                    },  
-                                    newTag.title) 
-        clearClickMarker()
-        buildTagDisplayDiv(newTag)
-        bindMarkerInfo(newTagMarker, infoDiv, newTag, 0)
-        console.log('inside success function')
-        // $('#add-tag-form')[0].reset();
-        // $('#myModal').modal('hide');
-        // $('.genre').removeClass('active');
-      })
-        console.log('outside success function')
-        $('#add-tag-form')[0].reset();
-        $('#myModal').modal('hide');
-        $('.genre').removeClass('active');
-  });
-}
 
 
 

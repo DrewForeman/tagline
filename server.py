@@ -29,16 +29,16 @@ app.secret_key = "ABC"
 app.jinja_env.undefined = StrictUndefined
 
 
-@app.route('/test')
-def test():
+@app.route('/')
+def landing():
     """Homepage. Allows user to search for desired route."""
 
 
-    return render_template("test.html")
+    return render_template("landing.html")
 
 
-@app.route('/')
-def index():
+@app.route('/home')
+def homepage():
     """Homepage. Allows user to search for desired route."""
 
     user_id = session.get("user") 
@@ -187,7 +187,7 @@ def handle_registration():
 
     utils.register_user(name, username, password, genres, avatar)
 
-    return redirect('/')
+    return redirect('/home')
 
 
 
