@@ -30,10 +30,12 @@ We already have many great apps to help us find new urban destinations, and many
 
 ####Geolocation
 Upon opening Tagline, the user's current location is pinpointed and the geographic coordinates of the map display are posted to the server. Tagged content that is located within the geographic area and matches the user's content preferences are mapped and displayed on the page.
+
 ![Geolocation](/graphics/comment.gif)
 
 ####Exploring
 Clicking on the map markers or the tag blocks toggles the html display class so that users can see details, additional media, and discussion about each tagged place. Users can explore comment, or tag something of their own.
+
 ![Exploring](/graphics/explore.gif)
 
 ####Routing
