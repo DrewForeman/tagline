@@ -178,7 +178,6 @@
 
 $("#tag-it-btn").hover(function(){
     $('#tag-it-txt').css("text-shadow", "1px 0px 8px rgba(252, 244, 0, 1)");
-    // $('#tag-it-txt').css("color", "#fcf400");
     }, function(){
     $('#tag-it-txt').css("text-shadow", "none");
 });
@@ -199,14 +198,12 @@ $('#login-button').click(function(){
   )})
 
 
-
-
-
-$(function() {
-    while( $('#fitin-div').height() > $('#fitin').height() ) {
-        $('#fitin-div').css('font-size', (parseInt($('#fitin-div').css('font-size')) - 1) + "px" );
-    }
+$(".fa-lg").hover(function(){
+    $(this).css("color", "#fcf400");
+    }, function(){
+    $(this).css("color", "#333");
 });
+
 </script>
 
 

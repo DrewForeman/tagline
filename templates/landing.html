@@ -91,6 +91,14 @@ body{
 </div>  
 
 
+<footer class="footer">
+  <div class="footer-div">
+    <a href="https://github.com/DrewForeman"><i class="fa fa-github fa-lg" aria-hidden="true"></i></a>
+    <a href="https://www.linkedin.com/in/drew-foreman-a26a586b"><i class="fa fa-linkedin-square fa-lg" aria-hidden="true"></i></a>
+  </div>
+</footer>
+
+
 
 
 <script>
@@ -108,6 +116,11 @@ $('#login-button').click(function(){
     console.log(currentUser)}
   )})
 
+$(".fa-lg").hover(function(){
+    $(this).css("color", "#fcf400");
+    }, function(){
+    $(this).css("color", "#333");
+});
 
 
 </script>

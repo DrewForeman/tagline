@@ -38,10 +38,7 @@ function initMap() {
         scale: 1.4
         }
 
-// change this con to the t/x
-  var addTagIcon = {
-        url:'/static/img/marker.png'
-        }
+  var addTagIcon = {url:'/static/img/marker.png'}
 
 
   directionsDisplay.setMap(map);
@@ -112,6 +109,17 @@ function initMap() {
           
   //   $.post('/tags-geolocation.json', data, function(nearby_tags) {
   //     displayTags(nearby_tags);
+  //     $('.post-button').click(submitComment);
+
+  //     $('div.card-img-overlay').click(function(){
+  //         $(this).toggleClass('hidden-overlay');
+  //       });
+
+  //     $('.card-inverse, .highlight-outline').hover(function(){ 
+  //         $(this).css('border','3px solid #fcf400');
+  //       },function(){
+  //         $(this).css('border','1px solid #ccc');
+  //     });
   //   });
   // });
 
@@ -158,7 +166,7 @@ function initMap() {
       $.post('/tags.json', data, function(tags) { 
           displayTags(tags);
           $('.post-button').click(submitComment);
-          
+
           $('div.card-img-overlay').click(function(){
               $(this).toggleClass('hidden-overlay');
             });
